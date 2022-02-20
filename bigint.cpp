@@ -18,7 +18,13 @@ BigInt<T> BigInt<T>::operator+(const BigInt<T> & a) {
     typename std::vector<T>::size_type maxLength = longestVector.size();
 
     for(typename std::vector<T>::size_type i = 0; i < maxLength; ++i) {
-        T value = i >= minLength ? (longestVector[i] + carry) : (a.pieces[i] + pieces[i] + carry);
+        T value;
+
+        if(i >= minLength) {
+            value = longestVector[i] + carry;
+        } else {
+            value = a.pieces[i] + pieces[i] + carry;
+        }
 
         if(longestVector[i] > value) {
             carry = 1;
