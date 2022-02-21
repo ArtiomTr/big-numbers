@@ -1,32 +1,35 @@
 #include "bigint.h"
 
-#include <sstream>
+#include <limits>
 
 template<typename T>
-BigInt<T>::BigInt(std::vector<T> initialPieces): pieces(std::move(initialPieces)), sign(1) {
-
+BigInt<T>::BigInt(std::vector<T> initialPieces, uint8_t initialSign): pieces(std::move(initialPieces)), sign(initialSign) {
+    if(initialSign != 0 && initialSign != 1) {
+        throw std::invalid_argument("Sign should be 0 for positive numbers or 1 for negative");
+    }
 }
 
 template<typename T>
 BigInt<T> BigInt<T>::operator+(const BigInt<T> & a) {
     T carry = 0;
 
-    BigInt out({});
+    BigInt<T> out({}, a.sign);
 
     typename std::vector<T>::size_type minLength = std::min(a.pieces.size(), pieces.size());
-    std::vector<T> longestVector = a.pieces.size() > pieces.size() ? a.pieces : pieces;
-    typename std::vector<T>::size_type maxLength = longestVector.size();
+    BigInt<T> longestBigInt = a.pieces.size() > pieces.size() ? a : *this;
+    BigInt<T> shortestBigInt = a.pieces.size() < pieces.size() ? a : *this;
+    typename std::vector<T>::size_type maxLength = longestBigInt.pieces.size();
 
     for(typename std::vector<T>::size_type i = 0; i < maxLength; ++i) {
         T value;
 
         if(i >= minLength) {
-            value = longestVector[i] + carry;
+            value = longestBigInt.pieces[i] + (shortestBigInt.sign * std::numeric_limits<T>::max()) + carry;
         } else {
             value = a.pieces[i] + pieces[i] + carry;
         }
 
-        if(longestVector[i] > value) {
+        if(longestBigInt.pieces[i] > value) {
             carry = 1;
         } else {
             carry = 0;
