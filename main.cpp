@@ -64,5 +64,10 @@ int main() {
 
     std::cout << "All tests completed successfully" << std::endl;
 
+    BigInt<uint8_t> firstInt({0}, 0);
+    BigInt<uint8_t> secondInt({1}, 0);
+
+    BigInt<uint8_t> result = firstInt + secondInt;
+
     return 0;
 }
