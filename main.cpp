@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "bigint.h"
+#include "src/big_int.hpp"
 #include "simpleBigInt.h"
 
 int main() {
@@ -62,12 +62,26 @@ int main() {
     assert((SimpleBigInt("99999999999999999999999") + SimpleBigInt("123465795498789987")).toString() == "100000123465795498789986");
     assert((SimpleBigInt(veryBigNumber1) + SimpleBigInt(veryBigNumber2)).toString() == veryBigNumberSum);
 
+    big_int<uint8_t> firstInt({0b011}, 0);
+    big_int<uint8_t> secondInt({0b11111111}, 1);
+
+    // 00000011
+    // 11111111
+    //
+    //     00000011
+    // +  00000011
+    // + 00000011
+    //  00000011
+    // 00000011
+    // 0000011
+    // 000011
+    // 00011
+    //     11111110
+
+    std::cout << firstInt.binary_str() << std::endl;
+    std::cout << (firstInt * secondInt).binary_str() << std::endl;
+
     std::cout << "All tests completed successfully" << std::endl;
-
-    BigInt<uint8_t> firstInt({0}, 0);
-    BigInt<uint8_t> secondInt({1}, 0);
-
-    BigInt<uint8_t> result = firstInt + secondInt;
 
     return 0;
 }
