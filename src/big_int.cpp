@@ -13,7 +13,7 @@ big_int<T> big_int<T>::get_longest(const big_int<T> &first, const big_int<T> &se
 }
 
 template<typename T>
-std::string big_int<T>::binary_str() {
+std::string big_int<T>::binary_str() const {
     std::string output;
 
     T mask = 0b1;
@@ -44,7 +44,7 @@ big_int<T>::big_int(std::vector<T> initial_pieces, uint8_t initial_sign):
 }
 
 template<typename T>
-big_int<T> big_int<T>::operator+(const big_int<T> &summand) {
+big_int<T> big_int<T>::operator+(const big_int<T> &summand) const {
     T carry = 0;
     big_int<T> out({}, summand.sign);
 
@@ -76,6 +76,25 @@ big_int<T> big_int<T>::operator+(const big_int<T> &summand) {
     }
 
     return out;
+}
+
+template<typename T>
+big_int<T> big_int<T>::operator~() const {
+    big_int<T> out({}, !sign);
+    out.pieces.resize(pieces.size());
+
+    for(size_type i = 0; i < pieces.size(); ++i) {
+        out.pieces[i] = ~pieces[i];
+    }
+
+    return out;
+}
+
+template<typename T>
+big_int<T> big_int<T>::operator-() const {
+    const big_int<T> &self = *this;
+    const big_int<T> &one = big_int<T>({1}, 0);
+    return ~self + one;
 }
 
 template<typename T>
@@ -126,7 +145,7 @@ big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
 }
 
 template<typename T>
-big_int<T> big_int<T>::operator*(const big_int<T> &multiplicand) {
+big_int<T> big_int<T>::operator*(const big_int<T> &multiplicand) const {
     const big_int<T> &longest_multiplicand = big_int<T>::get_longest(*this, multiplicand);
     const big_int<T> &shortest_multiplicand = big_int<T>::get_shortest(*this, multiplicand);
 
