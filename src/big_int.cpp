@@ -13,8 +13,18 @@ big_int<T> big_int<T>::get_longest(const big_int<T> &first, const big_int<T> &se
 }
 
 template<typename T>
+T big_int<T>::get_fill_value() const {
+    return sign ? std::numeric_limits<T>::max() : 0b0;
+}
+
+template<typename T>
+std::size_t big_int<T>::get_box_size() {
+    return sizeof(T) * std::numeric_limits<uint8_t>::digits;
+}
+
+template<typename T>
 std::string big_int<T>::binary_str() const {
-    std::string output;
+    std::string output = sign ? "-" : "+";
 
     T mask = 0b1;
 
@@ -23,12 +33,11 @@ std::string big_int<T>::binary_str() const {
     for (size_type i = pieces.size(); i > 0; --i) {
         T piece = pieces[i - 1];
         std::string number_str;
-        for (size_type j = 0; j < std::numeric_limits<T>::digits; ++j) {
+        for (size_type j = 0; j < big_int<T>::get_box_size(); ++j) {
             number_str += ('0' + (piece & mask));
             piece >>= 1;
         }
         output += std::string(number_str.rbegin(), number_str.rend());
-//        output += "|";
     }
 
     return output;
@@ -45,8 +54,7 @@ big_int<T>::big_int(std::vector<T> initial_pieces, uint8_t initial_sign):
 
 template<typename T>
 big_int<T> big_int<T>::operator+(const big_int<T> &summand) const {
-    T carry = 0;
-    big_int<T> out({}, summand.sign);
+    big_int<T> out({}, 0);
 
     const big_int<T> &longest_summand = big_int<T>::get_longest(*this, summand);
     const big_int<T> &shortest_summand = big_int<T>::get_shortest(*this, summand);
@@ -55,13 +63,13 @@ big_int<T> big_int<T>::operator+(const big_int<T> &summand) const {
     size_type min_size = shortest_summand.pieces.size();
     out.pieces.resize(max_size);
 
-    T fill_value = shortest_summand.sign ? std::numeric_limits<T>::max() : 0b0;
+    T carry = 0;
 
     for (size_type i = 0; i < max_size; ++i) {
         T value;
 
         if (i >= min_size) {
-            value = longest_summand.pieces[i] + fill_value + carry;
+            value = longest_summand.pieces[i] + shortest_summand.get_fill_value() + carry;
         } else {
             value = longest_summand.pieces[i] + shortest_summand.pieces[i] + carry;
         }
@@ -71,8 +79,16 @@ big_int<T> big_int<T>::operator+(const big_int<T> &summand) const {
         out.pieces[i] = value;
     }
 
-    if (carry == 1) {
-        out.pieces.push_back(carry);
+    T additionalPiece = longest_summand.get_fill_value() + shortest_summand.get_fill_value();
+
+    if(carry == 1) {
+        additionalPiece += carry;
+    }
+
+    out.sign = additionalPiece >> (big_int<T>::get_box_size() - 1);
+
+    if(additionalPiece != out.get_fill_value()) {
+        out.pieces.push_back(additionalPiece);
     }
 
     return out;
@@ -92,9 +108,9 @@ big_int<T> big_int<T>::operator~() const {
 
 template<typename T>
 big_int<T> big_int<T>::operator-() const {
-    const big_int<T> &self = *this;
-    const big_int<T> &one = big_int<T>({1}, 0);
-    return ~self + one;
+    big_int<T> output = ~(*this) + big_int<T>({1}, 0);
+    output.sign = !sign;
+    return output;
 }
 
 template<typename T>
@@ -103,8 +119,8 @@ big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
 
     output.pieces.resize(pieces.size());
 
-    size_type piece_shift = shift_by % std::numeric_limits<T>::digits;
-    size_type piece_shift_complement = std::numeric_limits<T>::digits - piece_shift;
+    size_type piece_shift = shift_by % big_int<T>::get_box_size();
+    size_type piece_shift_complement = big_int<T>::get_box_size() - piece_shift;
 
     T maskBuilder = 0b0;
 
@@ -130,13 +146,13 @@ big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
 
     T additional_piece = ((pieces[output.pieces.size() - 1] & mask) >> piece_shift_complement);
 
-    T fill_value = output.sign ? std::numeric_limits<T>::max() : 0b0;
+    T fill_value = output.get_fill_value();
 
     if (additional_piece != fill_value) {
         output.pieces.push_back(additional_piece);
     }
 
-    size_type empty_piece_count = shift_by / std::numeric_limits<T>::digits;
+    size_type empty_piece_count = shift_by / big_int<T>::get_box_size();
     if (empty_piece_count > 0) {
         output.pieces.insert(output.pieces.begin(), empty_piece_count, fill_value);
     }
@@ -150,7 +166,7 @@ big_int<T> big_int<T>::operator*(const big_int<T> &multiplicand) const {
     const big_int<T> &shortest_multiplicand = big_int<T>::get_shortest(*this, multiplicand);
 
     size_type min_size = shortest_multiplicand.pieces.size();
-    size_type shift_size = std::numeric_limits<T>::digits;
+    size_type shift_size = big_int<T>::get_box_size();
 
     big_int<T> output({}, sign ^ multiplicand.sign);
 
