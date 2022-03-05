@@ -13,13 +13,17 @@ private:
 public:
     explicit big_int(std::vector<T> pieces, uint8_t sign);
 
-    big_int<T> operator+(const big_int<T> &summand);
+    big_int<T> operator+(const big_int<T> &summand) const;
 
-    big_int<T> operator*(const big_int<T> &multiplicand);
+    big_int<T> operator*(const big_int<T> &multiplicand) const;
 
     big_int<T> operator<<(const size_type &shift_by) const;
 
-    std::string binary_str();
+    big_int<T> operator~() const;
+
+    big_int<T> operator-() const;
+
+    std::string binary_str() const;
 private:
     static big_int<T> get_shortest(const big_int<T> &first, const big_int<T> &second);
 
