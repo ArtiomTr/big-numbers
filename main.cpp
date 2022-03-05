@@ -62,11 +62,10 @@ int main() {
     assert((SimpleBigInt("99999999999999999999999") + SimpleBigInt("123465795498789987")).toString() == "100000123465795498789986");
     assert((SimpleBigInt(veryBigNumber1) + SimpleBigInt(veryBigNumber2)).toString() == veryBigNumberSum);
 
-    big_int<uint8_t> firstInt({0b10101010}, 0);
-    big_int<uint8_t> secondInt({0b11111111}, 1);
+    big_int<uint8_t> firstInt({0b1}, 0);
+    big_int<uint8_t> secondInt({0b11111111}, 0);
 
-    std::cout << firstInt.binary_str() << std::endl;
-    std::cout << (-firstInt).binary_str() << std::endl;
+    std::cout << (secondInt + (-firstInt)).binary_str() << std::endl;
 
     std::cout << "All tests completed successfully" << std::endl;
 

@@ -25,6 +25,10 @@ public:
 
     std::string binary_str() const;
 private:
+    T get_fill_value() const;
+
+    static std::size_t get_box_size();
+
     static big_int<T> get_shortest(const big_int<T> &first, const big_int<T> &second);
 
     static big_int<T> get_longest(const big_int<T> &first, const big_int<T> &second);
