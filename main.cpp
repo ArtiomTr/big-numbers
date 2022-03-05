@@ -63,7 +63,9 @@ int main() {
     big_int<uint8_t> first({0b1}, 0);
     big_int<uint8_t> second({0b11111111}, 0);
 
-    std::cout << (second + (-first)).binary_str() << std::endl;
+    big_int<uint8_t> b = parse_big_int<uint8_t>("-54657985435165798");
+
+    std::cout << b.binary_str() << std::endl;
 
     std::cout << "All tests completed successfully" << std::endl;
 
