@@ -60,14 +60,16 @@ int main() {
 //    assert((SimpleBigInt("99999999999999999999999") + SimpleBigInt("123465795498789987")).toString() == "100000123465795498789986");
 //    assert((SimpleBigInt(veryBigNumber1) + SimpleBigInt(veryBigNumber2)).toString() == veryBigNumberSum);
 
-    big_int<uint8_t> first({0b1}, 0);
-    big_int<uint8_t> second({0b11111111}, 0);
+    big_int first({0b10000000, 0b00000001}, 0);
+    big_int second({0b11111111}, 0);
 
-    big_int<uint8_t> b = parse_big_int<uint8_t>("-54657985435165798");
+    big_int b = parse_big_int<uint8_t>("-54657985435165798");
 
-    std::cout << b.binary_str() << std::endl;
+    std::cout << (-first + second).binary_str() << std::endl;
 
     std::cout << "All tests completed successfully" << std::endl;
+
+    // -384 + 255 = 129
 
     return 0;
 }

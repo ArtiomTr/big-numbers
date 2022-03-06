@@ -4,7 +4,9 @@
 #include <vector>
 #include <string>
 
-template<typename T>
+#include "padding.hpp"
+
+template<class T = uint8_t, class P = default_pad<T>>
 class big_int {
 private:
     uint8_t sign;
@@ -14,15 +16,15 @@ public:
 
     explicit big_int(std::vector<T> pieces, uint8_t sign);
 
-    big_int<T> operator+(const big_int<T> &summand) const;
+    big_int<T, P> operator+(const big_int<T, P> &summand) const;
 
-    big_int<T> operator*(const big_int<T> &multiplicand) const;
+    big_int<T, P> operator*(const big_int<T, P> &multiplicand) const;
 
-    big_int<T> operator<<(const size_type &shift_by) const;
+    big_int<T, P> operator<<(const size_type &shift_by) const;
 
-    big_int<T> operator~() const;
+    big_int<T, P> operator~() const;
 
-    big_int<T> operator-() const;
+    big_int<T, P> operator-() const;
 
     std::string binary_str() const;
 
@@ -31,12 +33,12 @@ public:
 private:
     T get_fill_value() const;
 
-    static big_int<T> get_shortest(const big_int<T> &first, const big_int<T> &second);
+    static big_int<T, P> get_shortest(const big_int<T, P> &first, const big_int<T, P> &second);
 
-    static big_int<T> get_longest(const big_int<T> &first, const big_int<T> &second);
+    static big_int<T, P> get_longest(const big_int<T, P> &first, const big_int<T, P> &second);
 };
 
-template<typename T>
+template<typename T = uint8_t>
 big_int<T> parse_big_int(std::string source);
 
 #include "big_int.cpp"
