@@ -1,6 +1,8 @@
 #include <iostream>
+#include <sstream>
 
 #include "src/big_int.hpp"
+#include "src/big_float.hpp"
 
 int main() {
 //    std::string veryBigNumber1 =   "897562445645668796545246546789545467897546564879565487945656798"
@@ -60,16 +62,17 @@ int main() {
 //    assert((SimpleBigInt("99999999999999999999999") + SimpleBigInt("123465795498789987")).toString() == "100000123465795498789986");
 //    assert((SimpleBigInt(veryBigNumber1) + SimpleBigInt(veryBigNumber2)).toString() == veryBigNumberSum);
 
-    big_int first({0b10000000, 0b00000001}, 0);
-    big_int second({0b11111111}, 0);
+//    big_int first({0b10000000, 0b00000001}, 0);
+//    big_int second({0b11111111}, 0);
+//
+//    big_int b = parse_big_int<uint8_t>("-54657985435165798");
 
-    big_int b = parse_big_int<uint8_t>("-54657985435165798");
+//    std::cout << (-first + second).binary_str() << std::endl;
 
-    std::cout << (-first + second).binary_str() << std::endl;
+    big_float<uint8_t> f = parse_big_float<uint8_t>("0.215", 7);
+    std::cout << f.binary_str() << std::endl;
 
     std::cout << "All tests completed successfully" << std::endl;
-
-    // -384 + 255 = 129
 
     return 0;
 }

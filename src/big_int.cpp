@@ -3,6 +3,8 @@
 #include <limits>
 #include <regex>
 
+#include "parsing_utils.h"
+
 template<class T, class P>
 big_int<T, P> big_int<T, P>::get_shortest(const big_int<T, P> &first, const big_int<T, P> &second) {
     return first.pieces.size() > second.pieces.size() ? second : first;
@@ -70,13 +72,8 @@ big_int<T, P> big_int<T, P>::operator+(const big_int<T, P> &summand) const {
     for (size_type i = 0; i < max_size; ++i) {
         T value = first_summand_pieces->get(i) + second_summand_pieces->get(i) + carry;
 
-//        if (i >= min_size) {
-//            value = longest_summand.pieces[i] + shortest_summand.get_fill_value() + carry;
-//        } else {
-//            value = longest_summand.pieces[i] + shortest_summand.pieces[i] + carry;
-//        }
-
-        carry = (first_summand_pieces->get(i) > value) || (second_summand_pieces->get(i) > value);
+        carry = (first_summand_pieces->get(i) > value) || (second_summand_pieces->get(i) > value) ||
+                (carry && (first_summand_pieces->get(i) == value || second_summand_pieces->get(i) == value));
 
         out.pieces[i] = value;
     }
@@ -179,7 +176,8 @@ big_int<T, P> big_int<T, P>::operator*(const big_int<T, P> &multiplicand) const 
             T current_piece = shortest_multiplicand.pieces[i];
 
             if (current_piece & current_mask) {
-                output = output + (longest_multiplicand << (size_type) (j + i * shift_size));
+                big_int<T, P> summand = (longest_multiplicand << (size_type) (j + i * shift_size));
+                output = output + summand;
             }
         }
     }
@@ -187,49 +185,43 @@ big_int<T, P> big_int<T, P>::operator*(const big_int<T, P> &multiplicand) const 
     return output;
 }
 
-std::vector<uint8_t> source_to_binary(const std::string &source) {
-    std::vector<uint8_t> binary_numbers;
+template<typename T>
+std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits) {
+    typedef typename std::vector<T>::size_type size_type;
 
-    std::vector<uint8_t> transformed_source;
-    transformed_source.resize(source.size());
+    std::vector<T> pieces;
+    size_type box_count = bits.size() / big_int<T>::get_box_size();
 
-    std::transform(source.begin(), source.end(), transformed_source.begin(), [](char in) {
-        return in - '0';
-    });
+    pieces.resize(box_count);
 
-    while(!transformed_source.empty()) {
-        bool carry = false;
-        uint8_t &current = transformed_source.back();
-
-        if(current % 2 == 0) {
-            binary_numbers.push_back(0);
-        } else {
-            binary_numbers.push_back(1);
-            current -= 1;
+    for (size_type i = 0; i < box_count; ++i) {
+        T box_value = 0;
+        for (size_type j = 0; j < big_int<T>::get_box_size(); ++j) {
+            uint8_t bit = *(bits.rbegin() + i * big_int<T>::get_box_size() + j);
+            box_value |= (bit << j);
         }
-
-        for(uint8_t &member : transformed_source) {
-            bool oldCarry = carry;
-            carry = member % 2;
-            member /= 2;
-            if(oldCarry) {
-                member += 5;
-            }
-        }
-
-        if(transformed_source[0] == 0) {
-            transformed_source.erase(transformed_source.begin());
-        }
+        pieces[i] = box_value;
     }
 
-    return binary_numbers;
+    size_type left = bits.size() % big_int<T>::get_box_size();
+
+    if (box_count * big_int<T>::get_box_size() < bits.size()) {
+        T box_value = 0;
+        for (size_type i = 0; i < left; ++i) {
+            uint8_t bit = *(bits.rbegin() + box_count * big_int<T>::get_box_size() + i);
+            box_value |= (bit << i);
+        }
+        pieces.push_back(box_value);
+    }
+
+    return pieces;
 }
 
 template<typename T>
 big_int<T> parse_big_int(std::string source) {
     std::regex big_int_regex("^-?\\d+$");
 
-    if(!std::regex_match(source, big_int_regex)) {
+    if (!std::regex_match(source, big_int_regex)) {
         throw std::invalid_argument("Invalid big_int format");
     }
 
@@ -237,40 +229,22 @@ big_int<T> parse_big_int(std::string source) {
 
     uint8_t sign = source[0] == '-';
 
-    if(sign) {
+    if (sign) {
         source.erase(source.begin());
     }
 
-    std::vector<uint8_t> binary = source_to_binary(source);
+    std::vector<uint8_t> binary = integral_source_to_binary(source);
 
-    std::vector<T> pieces;
-    size_type box_count = binary.size() / big_int<T>::get_box_size();
+    std::vector<T> pieces = split_into_boxes<T>(binary);
 
-    pieces.resize(box_count);
-
-    for(size_type i = 0; i < box_count; ++i) {
-        T box_value = 0;
-        for(size_type j = 0; j < big_int<T>::get_box_size(); ++j) {
-            uint8_t bit = *(binary.begin() + i * big_int<T>::get_box_size() + j);
-            box_value |= (bit << j);
-        }
-        pieces[i] = box_value;
-    }
-
-    size_type left = binary.size() % big_int<T>::get_box_size();
-
-    if(box_count * big_int<T>::get_box_size() < binary.size()) {
-        T box_value = 0;
-        for(size_type i = 0; i < left; ++i) {
-            uint8_t bit = *(binary.begin() + box_count * big_int<T>::get_box_size() + i);
-            box_value |= (bit << i);
-        }
-        pieces.push_back(box_value);
-    }
-
-    if(sign) {
+    if (sign) {
         return -big_int(pieces, 0);
     }
 
     return big_int<T>(pieces, sign);
 }
+
+template
+class big_int<uint8_t, default_pad<uint8_t>>;
+
+template big_int<uint8_t> parse_big_int(std::string source);
