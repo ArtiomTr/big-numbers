@@ -2,6 +2,7 @@
 #define BIG_NUMBERS_PADDING_HPP
 
 #include <vector>
+#include <cstdint>
 
 template<typename T>
 class padded_list {
@@ -14,7 +15,5 @@ class default_pad {
 public:
     static padded_list<T> *pad_sum(const std::vector<T> &values, uint8_t sign);
 };
-
-#include "padding.cpp"
 
 #endif //BIG_NUMBERS_PADDING_HPP

@@ -1,5 +1,8 @@
 #include "padding.hpp"
 
+#include <stdexcept>
+#include <limits>
+
 template<typename T>
 T padded_list<T>::get(typename std::vector<T>::size_type t) {
     throw std::logic_error("Method is not implemented");
@@ -30,3 +33,6 @@ padded_list<T> *default_pad<T>::pad_sum(const std::vector<T> &values, uint8_t si
 
     return list;
 }
+
+template
+class default_pad<uint8_t>;
