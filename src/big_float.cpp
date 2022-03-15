@@ -89,20 +89,23 @@ big_float<T> parse_big_float(std::string source, std::size_t mantissa_width) {
     std::string::size_type dot_position = source.find('.');
 
     std::vector<uint8_t> integral_part_binary = integral_source_to_binary(source.substr(0, dot_position));
-    std::vector<uint8_t> fractional_part_binary;
+
     big_int<T> exponent({0}, 0);
+
+    if (integral_part_binary.size() == 1 && integral_part_binary[0] == 0) {
+        integral_part_binary.erase(integral_part_binary.begin());
+    } else {
+        exponent = exponent - (big_int<T>) integral_part_binary.size();
+    }
+
+    std::vector<uint8_t> fractional_part_binary;
 
     std::size_t total_mantissa_width = mantissa_width * big_int<T>::get_box_size();
 
     if (integral_part_binary.size() < total_mantissa_width) {
         std::size_t fraction_width = total_mantissa_width - integral_part_binary.size();
 
-        bool shift = true;
-        for (auto part: integral_part_binary) {
-            if (part != 0) {
-                shift = false;
-            }
-        }
+        bool shift = integral_part_binary.empty();
 
         auto out = fractional_source_to_binary<T>(source.substr(dot_position + 1, source.length()),
                                                   fraction_width, shift);

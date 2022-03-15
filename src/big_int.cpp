@@ -82,7 +82,7 @@ big_int<T, P> big_int<T, P>::operator+(const big_int<T, P> &summand) const {
 
     out.sign = additional >> (big_int<T>::get_box_size() - 1);
 
-    if(additional != out.get_fill_value()) {
+    if (additional != out.get_fill_value()) {
         out.pieces.push_back(additional);
     }
 
@@ -93,11 +93,18 @@ big_int<T, P> big_int<T, P>::operator+(const big_int<T, P> &summand) const {
 }
 
 template<class T, class P>
+big_int<T, P> big_int<T, P>::operator-(const big_int<T, P> &subtrahend) const {
+    const big_int<T, P> &minuend = *this;
+
+    return minuend + (-subtrahend);
+}
+
+template<class T, class P>
 big_int<T, P> big_int<T, P>::operator~() const {
     big_int<T> out({}, !sign);
     out.pieces.resize(pieces.size());
 
-    for(size_type i = 0; i < pieces.size(); ++i) {
+    for (size_type i = 0; i < pieces.size(); ++i) {
         out.pieces[i] = ~pieces[i];
     }
 

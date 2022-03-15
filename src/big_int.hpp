@@ -2,7 +2,11 @@
 #define BIG_NUMBERS_BIG_INT_HPP
 
 #include <vector>
+#include <array>
+#include <type_traits>
+#include <numeric>
 #include <string>
+#include <iostream>
 
 #include "padding.hpp"
 
@@ -12,11 +16,35 @@ private:
     uint8_t sign;
     std::vector<T> pieces;
     typedef typename std::vector<T>::size_type size_type;
-public:
 
+    static constexpr std::size_t get_box_count(std::size_t value_size) {
+        std::size_t count = value_size / sizeof(T);
+
+        return count + (value_size > count * sizeof(T));
+    }
+
+public:
     explicit big_int(std::vector<T> pieces, uint8_t sign);
 
+    template<typename Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
+    explicit big_int(Value value): sign(value < 0) {
+        using bytearray = std::array<std::byte, sizeof(Value)>;
+        const auto &bytes = std::bit_cast<bytearray, Value>(value);
+
+        pieces.resize(get_box_count(sizeof(Value)));
+        std::fill(pieces.begin(), pieces.end(), 0);
+
+        for (std::size_t i = 0; i < bytes.size(); ++i) {
+            std::size_t box_index = i / sizeof(T);
+            std::size_t offset = (i % sizeof(T)) * std::numeric_limits<uint8_t>::digits;
+
+            pieces[box_index] |= ((T) (bytes[i]) << offset);
+        }
+    }
+
     big_int<T, P> operator+(const big_int<T, P> &summand) const;
+
+    big_int<T, P> operator-(const big_int<T, P> &subtrahend) const;
 
     big_int<T, P> operator*(const big_int<T, P> &multiplicand) const;
 
