@@ -69,7 +69,7 @@ int main() {
 
 //    std::cout << (-first + second).binary_str() << std::endl;
 
-    big_float<uint8_t> f = parse_big_float<uint8_t>("0.215", 7);
+    big_float<uint8_t> f = parse_big_float<uint8_t>("500.00215", 7);
     std::cout << f.binary_str() << std::endl;
 
     std::cout << "All tests completed successfully" << std::endl;
