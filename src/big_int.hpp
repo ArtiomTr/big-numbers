@@ -10,11 +10,13 @@
 
 #include "padding.hpp"
 
-template<class T = uint8_t, class P = default_pad<T>>
+template<class T = uint8_t>
 class big_int {
 private:
     uint8_t sign;
     std::vector<T> pieces;
+    pad<T> *value_pad;
+
     typedef typename std::vector<T>::size_type size_type;
 
     static constexpr std::size_t get_box_count(std::size_t value_size) {
@@ -26,8 +28,10 @@ private:
 public:
     explicit big_int(std::vector<T> pieces, uint8_t sign);
 
+    explicit big_int(std::vector<T> pieces, uint8_t sign, pad<T> *value_pad);
+
     template<typename Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
-    explicit big_int(Value value): sign(value < 0) {
+    explicit big_int(Value value): sign(value < 0), value_pad(new default_pad<T>()) {
         using bytearray = std::array<std::byte, sizeof(Value)>;
         const auto &bytes = std::bit_cast<bytearray, Value>(value);
 
@@ -42,17 +46,21 @@ public:
         }
     }
 
-    big_int<T, P> operator+(const big_int<T, P> &summand) const;
+    big_int<T> operator+(const big_int<T> &summand) const;
 
-    big_int<T, P> operator-(const big_int<T, P> &subtrahend) const;
+    big_int<T> operator-(const big_int<T> &subtrahend) const;
 
-    big_int<T, P> operator*(const big_int<T, P> &multiplicand) const;
+    big_int<T> operator*(const big_int<T> &multiplicand) const;
 
-    big_int<T, P> operator<<(const size_type &shift_by) const;
+    big_int<T> operator<<(const size_type &shift_by) const;
 
-    big_int<T, P> operator~() const;
+    big_int<T> operator~() const;
 
-    big_int<T, P> operator-() const;
+    big_int<T> operator-() const;
+
+    bool operator==(const big_int<T> &second_operand) const;
+
+    std::strong_ordering operator<=>(const big_int<T> &second_operand) const;
 
     std::string binary_str() const;
 
@@ -61,15 +69,15 @@ public:
 private:
     T get_fill_value() const;
 
-    static big_int<T, P> get_shortest(const big_int<T, P> &first, const big_int<T, P> &second);
+    static big_int<T> get_shortest(const big_int<T> &first, const big_int<T> &second);
 
-    static big_int<T, P> get_longest(const big_int<T, P> &first, const big_int<T, P> &second);
+    static big_int<T> get_longest(const big_int<T> &first, const big_int<T> &second);
 };
 
-template<typename T = uint8_t>
+template<class T = uint8_t>
 big_int<T> parse_big_int(std::string source);
 
-template<typename T>
+template<class T>
 std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits);
 
 #endif //BIG_NUMBERS_BIG_INT_HPP

@@ -5,28 +5,28 @@
 
 #include "parsing_utils.h"
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::get_shortest(const big_int<T, P> &first, const big_int<T, P> &second) {
+template<class T>
+big_int<T> big_int<T>::get_shortest(const big_int<T> &first, const big_int<T> &second) {
     return first.pieces.size() > second.pieces.size() ? second : first;
 }
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::get_longest(const big_int<T, P> &first, const big_int<T, P> &second) {
+template<class T>
+big_int<T> big_int<T>::get_longest(const big_int<T> &first, const big_int<T> &second) {
     return first.pieces.size() > second.pieces.size() ? first : second;
 }
 
-template<class T, class P>
-T big_int<T, P>::get_fill_value() const {
+template<class T>
+T big_int<T>::get_fill_value() const {
     return sign ? std::numeric_limits<T>::max() : 0b0;
 }
 
-template<class T, class P>
-std::size_t big_int<T, P>::get_box_size() {
+template<class T>
+std::size_t big_int<T>::get_box_size() {
     return sizeof(T) * std::numeric_limits<uint8_t>::digits;
 }
 
-template<class T, class P>
-std::string big_int<T, P>::binary_str() const {
+template<class T>
+std::string big_int<T>::binary_str() const {
     std::string output = sign ? "-" : "+";
 
     T mask = 0b1;
@@ -46,26 +46,32 @@ std::string big_int<T, P>::binary_str() const {
     return output;
 }
 
-template<class T, class P>
-big_int<T, P>::big_int(std::vector<T> initial_pieces, uint8_t initial_sign):
+template<class T>
+big_int<T>::big_int(std::vector<T> initial_pieces, uint8_t initial_sign, pad<T> *initial_value_pad):
         pieces(std::move(initial_pieces)),
-        sign(initial_sign) {
+        sign(initial_sign),
+        value_pad(initial_value_pad) {
     if (initial_sign != 0 && initial_sign != 1) {
         throw std::invalid_argument("Sign should be 0 for positive numbers or 1 for negative");
     }
 }
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::operator+(const big_int<T, P> &summand) const {
-    big_int<T, P> out({}, 0);
+template<class T>
+big_int<T>::big_int(std::vector<T> initial_pieces, uint8_t initial_sign):
+        big_int(initial_pieces, initial_sign, new default_pad<T>()) {
+}
 
-    const big_int<T, P> &longest_summand = big_int<T>::get_longest(*this, summand);
+template<class T>
+big_int<T> big_int<T>::operator+(const big_int<T> &summand) const {
+    big_int<T> out({}, 0);
+
+    const big_int<T> &longest_summand = big_int<T>::get_longest(*this, summand);
 
     size_type max_size = longest_summand.pieces.size();
     out.pieces.resize(max_size);
 
-    padded_list<T> *first_summand_pieces = P::pad_sum(summand.pieces, summand.sign);
-    padded_list<T> *second_summand_pieces = P::pad_sum(pieces, sign);
+    padded_list<T> *first_summand_pieces = value_pad->pad_for_sum(summand.pieces, summand.sign);
+    padded_list<T> *second_summand_pieces = value_pad->pad_for_sum(pieces, sign);
 
     T carry = 0;
 
@@ -92,15 +98,15 @@ big_int<T, P> big_int<T, P>::operator+(const big_int<T, P> &summand) const {
     return out;
 }
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::operator-(const big_int<T, P> &subtrahend) const {
-    const big_int<T, P> &minuend = *this;
+template<class T>
+big_int<T> big_int<T>::operator-(const big_int<T> &subtrahend) const {
+    const big_int<T> &minuend = *this;
 
     return minuend + (-subtrahend);
 }
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::operator~() const {
+template<class T>
+big_int<T> big_int<T>::operator~() const {
     big_int<T> out({}, !sign);
     out.pieces.resize(pieces.size());
 
@@ -111,16 +117,16 @@ big_int<T, P> big_int<T, P>::operator~() const {
     return out;
 }
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::operator-() const {
+template<class T>
+big_int<T> big_int<T>::operator-() const {
     big_int<T> output = ~(*this) + big_int<T>({1}, 0);
     output.sign = !sign;
     return output;
 }
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::operator<<(const size_type &shift_by) const {
-    big_int<T, P> output({}, sign);
+template<class T>
+big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
+    big_int<T> output({}, sign);
 
     output.pieces.resize(pieces.size());
 
@@ -165,15 +171,15 @@ big_int<T, P> big_int<T, P>::operator<<(const size_type &shift_by) const {
     return output;
 }
 
-template<class T, class P>
-big_int<T, P> big_int<T, P>::operator*(const big_int<T, P> &multiplicand) const {
-    const big_int<T, P> &longest_multiplicand = big_int<T, P>::get_longest(*this, multiplicand);
-    const big_int<T, P> &shortest_multiplicand = big_int<T, P>::get_shortest(*this, multiplicand);
+template<class T>
+big_int<T> big_int<T>::operator*(const big_int<T> &multiplicand) const {
+    const big_int<T> &longest_multiplicand = big_int<T>::get_longest(*this, multiplicand);
+    const big_int<T> &shortest_multiplicand = big_int<T>::get_shortest(*this, multiplicand);
 
     size_type min_size = shortest_multiplicand.pieces.size();
-    size_type shift_size = big_int<T, P>::get_box_size();
+    size_type shift_size = big_int<T>::get_box_size();
 
-    big_int<T, P> output({}, sign ^ multiplicand.sign);
+    big_int<T> output({}, sign ^ multiplicand.sign);
 
     T mask = 0b1;
 
@@ -183,7 +189,7 @@ big_int<T, P> big_int<T, P>::operator*(const big_int<T, P> &multiplicand) const 
             T current_piece = shortest_multiplicand.pieces[i];
 
             if (current_piece & current_mask) {
-                big_int<T, P> summand = (longest_multiplicand << (size_type) (j + i * shift_size));
+                big_int<T> summand = (longest_multiplicand << (size_type) (j + i * shift_size));
                 output = output + summand;
             }
         }
@@ -192,7 +198,7 @@ big_int<T, P> big_int<T, P>::operator*(const big_int<T, P> &multiplicand) const 
     return output;
 }
 
-template<typename T>
+template<class T>
 std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits) {
     typedef typename std::vector<T>::size_type size_type;
 
@@ -224,15 +230,42 @@ std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits) {
     return pieces;
 }
 
+template<class T>
+std::strong_ordering big_int<T>::operator<=>(const big_int<T> &second_operand) const {
+    const big_int<T> &first_operand = *this;
+
+    if (first_operand.sign != second_operand.sign) {
+        return second_operand.sign <=> first_operand.sign;
+    }
+
+    padded_list<T> *first_operand_pieces = value_pad->pad_for_sum(first_operand.pieces, first_operand.sign);
+    padded_list<T> *second_operand_pieces = value_pad->pad_for_sum(second_operand.pieces, second_operand.sign);
+
+    size_type longest = std::max(first_operand.pieces.size(), second_operand.pieces.size());
+
+    for (size_type i = longest; i > 0; --i) {
+        auto result = first_operand_pieces->get(i - 1) <=> second_operand_pieces->get(i - 1);
+
+        if (result != std::strong_ordering::equal) {
+            return result;
+        }
+    }
+
+    return std::strong_ordering::equal;
+}
+
 template<typename T>
+bool big_int<T>::operator==(const big_int<T> &second_operand) const {
+    return (*this <=> second_operand) == std::strong_ordering::equal;
+}
+
+template<class T>
 big_int<T> parse_big_int(std::string source) {
     std::regex big_int_regex("^-?\\d+$");
 
     if (!std::regex_match(source, big_int_regex)) {
         throw std::invalid_argument("Invalid big_int format");
     }
-
-    typedef typename std::vector<T>::size_type size_type;
 
     uint8_t sign = source[0] == '-';
 
@@ -244,14 +277,12 @@ big_int<T> parse_big_int(std::string source) {
 
     std::vector<T> pieces = split_into_boxes<T>(binary);
 
-    if (sign) {
-        return -big_int(pieces, 0);
-    }
+    big_int<T> out(pieces, 0);
 
-    return big_int<T>(pieces, sign);
+    return sign ? -out : out;
 }
 
 template
-class big_int<uint8_t, default_pad<uint8_t>>;
+class big_int<uint8_t>;
 
 template big_int<uint8_t> parse_big_int(std::string source);
