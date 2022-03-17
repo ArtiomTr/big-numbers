@@ -72,6 +72,14 @@ int main() {
     big_float<uint8_t> f = parse_big_float<uint8_t>("500.00215", 7);
     std::cout << f.binary_str() << std::endl;
 
+    big_int<uint8_t> one = (big_int<uint8_t>) 511;
+    big_int<uint8_t> two = (big_int<uint8_t>) 255;
+    big_int<uint8_t> ttt = (big_int<uint8_t>) 511;
+
+    std::cout << "1 > -1: " << (one < two) << std::endl;
+    std::cout << "1 > -1: " << (one > two) << std::endl;
+    std::cout << "" << (one != two) << std::endl;
+
     std::cout << "All tests completed successfully" << std::endl;
 
     return 0;
