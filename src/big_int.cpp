@@ -155,9 +155,10 @@ big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
                            ((pieces[i - 1] & mask) >> piece_shift_complement);
     }
 
-    T additional_piece = ((pieces[output.pieces.size() - 1] & mask) >> piece_shift_complement);
-
     T fill_value = output.get_fill_value();
+
+    T additional_piece = ((pieces[output.pieces.size() - 1] & mask) >> piece_shift_complement) |
+                         (fill_value << piece_shift);
 
     if (additional_piece != fill_value) {
         output.pieces.push_back(additional_piece);
@@ -165,7 +166,7 @@ big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
 
     size_type empty_piece_count = shift_by / big_int<T>::get_box_size();
     if (empty_piece_count > 0) {
-        output.pieces.insert(output.pieces.begin(), empty_piece_count, fill_value);
+        output.pieces.insert(output.pieces.begin(), empty_piece_count, 0);
     }
 
     return output;
