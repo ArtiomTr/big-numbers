@@ -6,13 +6,12 @@
 #include "parsing_utils.h"
 
 template<class T>
-big_int<T> big_int<T>::get_shortest(const big_int<T> &first, const big_int<T> &second) {
-    return first.pieces.size() > second.pieces.size() ? second : first;
-}
-
-template<class T>
-big_int<T> big_int<T>::get_longest(const big_int<T> &first, const big_int<T> &second) {
-    return first.pieces.size() > second.pieces.size() ? first : second;
+std::pair<big_int<T>, big_int<T>> big_int<T>::sort_by_size(const big_int<T> &first, const big_int<T> &second) {
+    if (first.pieces.size() > second.pieces.size()) {
+        return {second, first};
+    } else {
+        return {first, second};
+    }
 }
 
 template<class T>
@@ -62,16 +61,18 @@ big_int<T>::big_int(std::vector<T> initial_pieces, uint8_t initial_sign):
 }
 
 template<class T>
-big_int<T> big_int<T>::operator+(const big_int<T> &summand) const {
-    big_int<T> out({}, 0);
+big_int<T> operator+(const big_int<T> &augend, const big_int<T> &addend) {
+    using size_type = typename big_int<T>::size_type;
 
-    const big_int<T> &longest_summand = big_int<T>::get_longest(*this, summand);
+    big_int<T> sum({}, 0);
+
+    const auto &[_, longest_summand] = big_int<T>::sort_by_size(augend, addend);
 
     size_type max_size = longest_summand.pieces.size();
-    out.pieces.resize(max_size);
+    sum.pieces.resize(max_size);
 
-    padded_list<T> *first_summand_pieces = value_pad->pad_for_sum(summand.pieces, summand.sign);
-    padded_list<T> *second_summand_pieces = value_pad->pad_for_sum(pieces, sign);
+    padded_list<T> *first_summand_pieces = augend.value_pad->pad_for_sum(augend.pieces, augend.sign);
+    padded_list<T> *second_summand_pieces = addend.value_pad->pad_for_sum(addend.pieces, addend.sign);
 
     T carry = 0;
 
@@ -81,27 +82,25 @@ big_int<T> big_int<T>::operator+(const big_int<T> &summand) const {
         carry = (first_summand_pieces->get(i) > value) || (second_summand_pieces->get(i) > value) ||
                 (carry && (first_summand_pieces->get(i) == value || second_summand_pieces->get(i) == value));
 
-        out.pieces[i] = value;
+        sum.pieces[i] = value;
     }
 
     T additional = first_summand_pieces->get(max_size) + second_summand_pieces->get(max_size) + carry;
 
-    out.sign = additional >> (big_int<T>::get_box_size() - 1);
+    sum.sign = additional >> (big_int<T>::get_box_size() - 1);
 
-    if (additional != out.get_fill_value()) {
-        out.pieces.push_back(additional);
+    if (additional != sum.get_fill_value()) {
+        sum.pieces.push_back(additional);
     }
 
     delete first_summand_pieces;
     delete second_summand_pieces;
 
-    return out;
+    return sum;
 }
 
 template<class T>
-big_int<T> big_int<T>::operator-(const big_int<T> &subtrahend) const {
-    const big_int<T> &minuend = *this;
-
+big_int<T> operator-(const big_int<T> &minuend, const big_int<T> &subtrahend) {
     return minuend + (-subtrahend);
 }
 
@@ -173,14 +172,15 @@ big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
 }
 
 template<class T>
-big_int<T> big_int<T>::operator*(const big_int<T> &multiplicand) const {
-    const big_int<T> &longest_multiplicand = big_int<T>::get_longest(*this, multiplicand);
-    const big_int<T> &shortest_multiplicand = big_int<T>::get_shortest(*this, multiplicand);
+big_int<T> operator*(const big_int<T> &multiplier, const big_int<T> &multiplicand) {
+    using size_type = typename big_int<T>::size_type;
+
+    const auto &[shortest_multiplicand, longest_multiplicand] = big_int<T>::sort_by_size(multiplier, multiplicand);
 
     size_type min_size = shortest_multiplicand.pieces.size();
     size_type shift_size = big_int<T>::get_box_size();
 
-    big_int<T> output({}, sign ^ multiplicand.sign);
+    big_int<T> product({}, multiplier.sign ^ multiplicand.sign);
 
     T mask = 0b1;
 
@@ -191,17 +191,17 @@ big_int<T> big_int<T>::operator*(const big_int<T> &multiplicand) const {
 
             if (current_piece & current_mask) {
                 big_int<T> summand = (longest_multiplicand << (size_type) (j + i * shift_size));
-                output = output + summand;
+                product = product + summand;
             }
         }
     }
 
-    return output;
+    return product;
 }
 
 template<class T>
 std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits) {
-    typedef typename std::vector<T>::size_type size_type;
+    using size_type = typename std::vector<uint8_t>::size_type;
 
     std::vector<T> pieces;
     size_type box_count = bits.size() / big_int<T>::get_box_size();
@@ -255,7 +255,7 @@ std::strong_ordering big_int<T>::operator<=>(const big_int<T> &second_operand) c
     return std::strong_ordering::equal;
 }
 
-template<typename T>
+template<class T>
 bool big_int<T>::operator==(const big_int<T> &second_operand) const {
     return (*this <=> second_operand) == std::strong_ordering::equal;
 }
@@ -287,3 +287,9 @@ template
 class big_int<uint8_t>;
 
 template big_int<uint8_t> parse_big_int(std::string source);
+
+template big_int<uint8_t> operator+(const big_int<uint8_t> &augend, const big_int<uint8_t> &addend);
+
+template big_int<uint8_t> operator-(const big_int<uint8_t> &minuend, const big_int<uint8_t> &subtrahend);
+
+template big_int<uint8_t> operator*(const big_int<uint8_t> &multiplier, const big_int<uint8_t> &multiplicand);
