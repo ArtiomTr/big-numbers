@@ -10,14 +10,20 @@
 
 #include "padding.hpp"
 
+template<class T>
+class big_int_debugger;
+
 template<class T = uint8_t>
 class big_int {
+private:
+    friend class big_int_debugger<T>;
+
 private:
     uint8_t sign;
     std::vector<T> pieces;
     pad<T> *value_pad;
 
-    typedef typename std::vector<T>::size_type size_type;
+    using size_type = typename std::vector<T>::size_type;
 
     static constexpr std::size_t get_box_count(std::size_t value_size) {
         std::size_t count = value_size / sizeof(T);
@@ -30,7 +36,7 @@ public:
 
     explicit big_int(std::vector<T> pieces, uint8_t sign, pad<T> *value_pad);
 
-    template<typename Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
+    template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
     explicit big_int(Value value): sign(value < 0), value_pad(new default_pad<T>()) {
         using bytearray = std::array<std::byte, sizeof(Value)>;
         const auto &bytes = std::bit_cast<bytearray, Value>(value);
@@ -46,11 +52,14 @@ public:
         }
     }
 
-    big_int<T> operator+(const big_int<T> &summand) const;
+    template<class V>
+    friend big_int<V> operator+(const big_int<V> &augend, const big_int<V> &addend);
 
-    big_int<T> operator-(const big_int<T> &subtrahend) const;
+    template<class V>
+    friend big_int<V> operator-(const big_int<V> &minuend, const big_int<V> &subtrahend);
 
-    big_int<T> operator*(const big_int<T> &multiplicand) const;
+    template<class V>
+    friend big_int<V> operator*(const big_int<V> &multiplier, const big_int<V> &multiplicand);
 
     big_int<T> operator<<(const size_type &shift_by) const;
 
@@ -69,9 +78,7 @@ public:
 private:
     T get_fill_value() const;
 
-    static big_int<T> get_shortest(const big_int<T> &first, const big_int<T> &second);
-
-    static big_int<T> get_longest(const big_int<T> &first, const big_int<T> &second);
+    static std::pair<big_int<T>, big_int<T>> sort_by_size(const big_int<T> &first, const big_int<T> &second);
 };
 
 template<class T = uint8_t>
