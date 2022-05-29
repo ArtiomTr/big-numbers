@@ -75,7 +75,7 @@ big_float<T> parse_big_float(std::string source, std::size_t mantissa_width) {
     std::regex big_float_regex(R"(^-?\d+\.\d+$)");
 
     if (!std::regex_match(source, big_float_regex)) {
-        throw std::invalid_argument("Invalid big_int format");
+        throw std::invalid_argument("Invalid big_float format");
     }
 
     typedef typename std::vector<T>::size_type size_type;

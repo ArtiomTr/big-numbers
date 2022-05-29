@@ -3,8 +3,13 @@
 
 #include "big_int.hpp"
 
-template<typename T>
+template<class T>
+class big_float_debugger;
+
+template<class T>
 class big_float {
+private:
+    friend big_float_debugger<T>;
 private:
     big_int<T> exponent;
     big_int<T> mantissa;
