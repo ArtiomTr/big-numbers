@@ -39,7 +39,7 @@ public:
     explicit big_int(std::vector<T> pieces, uint8_t sign, pad<T> *value_pad);
 
     template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
-    explicit big_int(Value value): sign(value < 0), value_pad(new default_pad<T>()) {
+    big_int(Value value): sign(value < 0), value_pad(new default_pad<T>()) {
         using bytearray = std::array<std::byte, sizeof(Value)>;
         const auto &bytes = std::bit_cast<bytearray, Value>(value);
 

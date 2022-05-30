@@ -4,6 +4,7 @@
 #include <regex>
 #include <bitset>
 
+#include "IsomorphicMath.hpp"
 #include "parsing_utils.h"
 
 template<class T>
@@ -200,24 +201,10 @@ big_int<T> operator*(const big_int<T> &multiplier, const big_int<T> &multiplican
     return product;
 }
 
-// if D = 0 then error(DivisionByZeroException) end
-// Q := 0                  -- Initialize quotient and remainder to zero
-// R := 0
-// for i := n − 1 .. 0 do  -- Where n is number of bits in N
-//   R := R << 1           -- Left-shift R by 1 bit
-//   R(0) := N(i)          -- Set the least-significant bit of R equal to bit i of the numerator
-//   if R ≥ D then
-//     R := R − D
-//     Q(i) := 1
-//   end
-// end
-
 template<class V>
 std::pair<big_int<V>, big_int<V>> longDivision(const big_int<V> &inDividend, const big_int<V> &inDivisor) {
-    using size_type = typename big_int<V>::size_type;
-
-    big_int<V> dividend = inDividend.trim();
-    big_int<V> divisor = inDivisor.trim();
+    big_int<V> dividend = IsomorphicMath::abs(inDividend).trim();
+    big_int<V> divisor = IsomorphicMath::abs(inDivisor).trim();
 
     if (divisor == big_int<V>(0)) {
         throw std::logic_error("Cannot divide by zero.");
@@ -226,15 +213,17 @@ std::pair<big_int<V>, big_int<V>> longDivision(const big_int<V> &inDividend, con
     big_int<V> remainder(0);
     std::vector<V> quotientPieces;
 
-    for (auto piece = dividend.pieces.rbegin(); piece != dividend.pieces.rend(); ++piece) {
-        std::bitset<sizeof(V) * 8> pieceBits(*piece);
-        std::bitset<sizeof(V) * 8> quotientBits(0b0);
+    constexpr std::size_t BIT_COUNT = sizeof(V) * 8;
 
-        for (std::size_t j = sizeof(V) * 8; j > 0; --j) {
+    for (auto piece = dividend.pieces.rbegin(); piece != dividend.pieces.rend(); ++piece) {
+        std::bitset<BIT_COUNT> pieceBits(*piece);
+        std::bitset<BIT_COUNT> quotientBits(0b0);
+
+        for (std::size_t j = BIT_COUNT; j > 0; --j) {
             std::size_t bitIndex = j - 1;
             remainder = remainder << 1;
 
-            std::bitset<sizeof(V) * 8> remainderBits(remainder.pieces[0]);
+            std::bitset<BIT_COUNT> remainderBits(remainder.pieces[0]);
             remainderBits.set(0, pieceBits[bitIndex]);
             remainder.pieces[0] = static_cast<V>(remainderBits.to_ulong());
 
@@ -250,8 +239,9 @@ std::pair<big_int<V>, big_int<V>> longDivision(const big_int<V> &inDividend, con
     std::reverse(quotientPieces.begin(), quotientPieces.end());
 
     big_int<V> quotient(quotientPieces, 0);
+    uint8_t sign = inDividend.sign ^ inDivisor.sign;
 
-    return {quotient.trim(), remainder.trim()};
+    return {(sign ? -quotient : quotient).trim(), remainder.trim()};
 }
 
 template<class V>
