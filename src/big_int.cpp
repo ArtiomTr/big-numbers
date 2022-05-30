@@ -226,8 +226,8 @@ std::pair<big_int<V>, big_int<V>> longDivision(const big_int<V> &inDividend, con
     big_int<V> remainder(0);
     std::vector<V> quotientPieces;
 
-    for (auto piece: dividend.pieces) {
-        std::bitset<sizeof(V) * 8> pieceBits(piece);
+    for (auto piece = dividend.pieces.rbegin(); piece != dividend.pieces.rend(); ++piece) {
+        std::bitset<sizeof(V) * 8> pieceBits(*piece);
         std::bitset<sizeof(V) * 8> quotientBits(0b0);
 
         for (std::size_t j = sizeof(V) * 8; j > 0; --j) {
@@ -252,6 +252,13 @@ std::pair<big_int<V>, big_int<V>> longDivision(const big_int<V> &inDividend, con
     big_int<V> quotient(quotientPieces, 0);
 
     return {quotient.trim(), remainder.trim()};
+}
+
+template<class V>
+big_int<V> operator%(const big_int<V> &dividend, const big_int<V> &divisor) {
+    auto output = longDivision(dividend, divisor);
+
+    return output.second;
 }
 
 template<class V>
@@ -374,3 +381,5 @@ template big_int<uint8_t> operator-(const big_int<uint8_t> &minuend, const big_i
 template big_int<uint8_t> operator*(const big_int<uint8_t> &multiplier, const big_int<uint8_t> &multiplicand);
 
 template big_int<uint8_t> operator/(const big_int<uint8_t> &dividend, const big_int<uint8_t> &divisor);
+
+template big_int<uint8_t> operator%(const big_int<uint8_t> &dividend, const big_int<uint8_t> &divisor);
