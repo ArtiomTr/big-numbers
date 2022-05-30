@@ -2,6 +2,7 @@
 
 #include <limits>
 #include <regex>
+#include <bitset>
 
 #include "parsing_utils.h"
 
@@ -199,6 +200,84 @@ big_int<T> operator*(const big_int<T> &multiplier, const big_int<T> &multiplican
     return product;
 }
 
+// if D = 0 then error(DivisionByZeroException) end
+// Q := 0                  -- Initialize quotient and remainder to zero
+// R := 0
+// for i := n − 1 .. 0 do  -- Where n is number of bits in N
+//   R := R << 1           -- Left-shift R by 1 bit
+//   R(0) := N(i)          -- Set the least-significant bit of R equal to bit i of the numerator
+//   if R ≥ D then
+//     R := R − D
+//     Q(i) := 1
+//   end
+// end
+
+template<class V>
+std::pair<big_int<V>, big_int<V>> longDivision(const big_int<V> &inDividend, const big_int<V> &inDivisor) {
+    using size_type = typename big_int<V>::size_type;
+
+    big_int<V> dividend = inDividend.trim();
+    big_int<V> divisor = inDivisor.trim();
+
+    if (divisor == big_int<V>(0)) {
+        throw std::logic_error("Cannot divide by zero.");
+    }
+
+    big_int<V> remainder(0);
+    std::vector<V> quotientPieces;
+
+    for (auto piece: dividend.pieces) {
+        std::bitset<sizeof(V) * 8> pieceBits(piece);
+        std::bitset<sizeof(V) * 8> quotientBits(0b0);
+
+        for (std::size_t j = sizeof(V) * 8; j > 0; --j) {
+            std::size_t bitIndex = j - 1;
+            remainder = remainder << 1;
+
+            std::bitset<sizeof(V) * 8> remainderBits(remainder.pieces[0]);
+            remainderBits.set(0, pieceBits[bitIndex]);
+            remainder.pieces[0] = static_cast<V>(remainderBits.to_ulong());
+
+            if (remainder >= divisor) {
+                remainder = remainder - divisor;
+                quotientBits.set(bitIndex, true);
+            }
+        }
+
+        quotientPieces.push_back(static_cast<V>(quotientBits.to_ulong()));
+    }
+
+    std::reverse(quotientPieces.begin(), quotientPieces.end());
+
+    big_int<V> quotient(quotientPieces, 0);
+
+    return {quotient.trim(), remainder.trim()};
+}
+
+template<class V>
+big_int<V> operator/(const big_int<V> &dividend, const big_int<V> &divisor) {
+    auto output = longDivision(dividend, divisor);
+
+    return output.first;
+}
+
+template<class T>
+big_int<T> big_int<T>::trim() const {
+    size_type end;
+    T fillValue = get_fill_value();
+    for (end = pieces.size(); end > 0; --end) {
+        if (pieces[end - 1] != fillValue) {
+            break;
+        }
+    }
+
+    if (end == pieces.size()) {
+        return *this;
+    }
+
+    return big_int<T>(std::vector<T>(pieces.begin(), pieces.begin() + end), sign);
+}
+
 template<class T>
 std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits) {
     using size_type = typename std::vector<uint8_t>::size_type;
@@ -293,3 +372,5 @@ template big_int<uint8_t> operator+(const big_int<uint8_t> &augend, const big_in
 template big_int<uint8_t> operator-(const big_int<uint8_t> &minuend, const big_int<uint8_t> &subtrahend);
 
 template big_int<uint8_t> operator*(const big_int<uint8_t> &multiplier, const big_int<uint8_t> &multiplicand);
+
+template big_int<uint8_t> operator/(const big_int<uint8_t> &dividend, const big_int<uint8_t> &divisor);

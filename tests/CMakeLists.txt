@@ -14,8 +14,13 @@ add_executable(int_multiplication int_multiplication.cpp)
 target_link_libraries(int_multiplication big_numbers big_numbers_debugger)
 add_test(NAME "big_int multiplication tests" COMMAND int_multiplication)
 
+add_executable(int_division int_division.cpp)
+target_link_libraries(int_division big_numbers big_numbers_debugger)
+add_test(NAME "big_int division tests" COMMAND int_division)
+
 add_executable(float_parse float_parse.cpp)
 target_link_libraries(float_parse big_numbers big_numbers_debugger)
-add_test(NAME "float parse tests" COMMAND float_parse)
+add_test(NAME "big_float parse tests" COMMAND float_parse)
 
 include_directories(../src)
+include_directories(../debug)
