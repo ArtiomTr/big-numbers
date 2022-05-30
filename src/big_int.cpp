@@ -153,12 +153,12 @@ big_int<T> big_int<T>::operator<<(const size_type &shift_by) const {
 
     for (size_type i = 1; i < pieces.size(); ++i) {
         output.pieces[i] = (pieces[i] << piece_shift) |
-                           ((pieces[i - 1] & mask) >> piece_shift_complement);
+                           (pieces[i - 1] >> piece_shift_complement);
     }
 
     T fill_value = output.get_fill_value();
 
-    T additional_piece = ((pieces[output.pieces.size() - 1] & mask) >> piece_shift_complement) |
+    T additional_piece = (pieces[output.pieces.size() - 1] >> piece_shift_complement) |
                          (fill_value << piece_shift);
 
     if (additional_piece != fill_value) {

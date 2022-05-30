@@ -1,6 +1,6 @@
 #include "big_int.hpp"
 
-#include "utils.h"
+#include "../utils.h"
 
 bool testSimple() {
     big_int<uint8_t> one({0b00000110}, 0);

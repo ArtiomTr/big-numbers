@@ -1,6 +1,6 @@
 #include "big_int.hpp"
 
-#include "utils.h"
+#include "../utils.h"
 
 // Testing sum of numbers which require only single cell.
 bool testSingleNumber() {

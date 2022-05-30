@@ -79,11 +79,14 @@ public:
 
     std::strong_ordering operator<=>(const big_int<T> &second_operand) const;
 
+    explicit operator T() const;
+
     std::string binary_str() const;
 
     static std::size_t get_box_size();
 
     big_int<T> trim() const;
+
 private:
     T get_fill_value() const;
 
