@@ -6,7 +6,6 @@
 #include <type_traits>
 #include <numeric>
 #include <string>
-#include <iostream>
 
 #include "padding.hpp"
 
@@ -17,6 +16,9 @@ template<class T = uint8_t>
 class big_int {
 private:
     friend class big_int_debugger<T>;
+
+    template<class V>
+    friend std::pair<big_int<V>, big_int<V>> longDivision(const big_int<V> &inDividend, const big_int<V> &inDivisor);
 
 private:
     uint8_t sign;
@@ -61,6 +63,9 @@ public:
     template<class V>
     friend big_int<V> operator*(const big_int<V> &multiplier, const big_int<V> &multiplicand);
 
+    template<class V>
+    friend big_int<V> operator/(const big_int<V> &dividend, const big_int<V> &divisor);
+
     big_int<T> operator<<(const size_type &shift_by) const;
 
     big_int<T> operator~() const;
@@ -75,6 +80,7 @@ public:
 
     static std::size_t get_box_size();
 
+    big_int<T> trim() const;
 private:
     T get_fill_value() const;
 

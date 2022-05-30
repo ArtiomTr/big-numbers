@@ -1,8 +1,10 @@
 #ifndef BIG_NUMBERS_UTILS_H
 #define BIG_NUMBERS_UTILS_H
 
-#include "../debug/big_int_debugger.h"
-#include "../debug/big_float_debugger.h"
+#include <iostream>
+
+#include "big_int_debugger.h"
+#include "big_float_debugger.h"
 
 enum class big_int_comparison_result : uint8_t {
     SIGNS_NOT_MATCH = 0,

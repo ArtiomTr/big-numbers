@@ -1,5 +1,7 @@
 #include "big_float.hpp"
 
+#include <iostream>
+
 bool testFloatParse() {
     big_float<uint8_t> num = parse_big_float<uint8_t>("1000.0", 10);
 
