@@ -1,6 +1,6 @@
 #include "big_int.hpp"
 
-#include "utils.h"
+#include "../utils.h"
 
 #include <chrono>
 #include <random>
