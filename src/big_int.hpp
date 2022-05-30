@@ -66,6 +66,9 @@ public:
     template<class V>
     friend big_int<V> operator/(const big_int<V> &dividend, const big_int<V> &divisor);
 
+    template<class V>
+    friend big_int<V> operator%(const big_int<V> &dividend, const big_int<V> &divisor);
+
     big_int<T> operator<<(const size_type &shift_by) const;
 
     big_int<T> operator~() const;

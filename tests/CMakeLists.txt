@@ -18,6 +18,10 @@ add_executable(int_division int_division.cpp)
 target_link_libraries(int_division big_numbers big_numbers_debugger)
 add_test(NAME "big_int division tests" COMMAND int_division)
 
+add_executable(int_modulo int_modulo.cpp)
+target_link_libraries(int_modulo big_numbers big_numbers_debugger)
+add_test(NAME "big_int modulo tests" COMMAND int_modulo)
+
 add_executable(float_parse float_parse.cpp)
 target_link_libraries(float_parse big_numbers big_numbers_debugger)
 add_test(NAME "big_float parse tests" COMMAND float_parse)
