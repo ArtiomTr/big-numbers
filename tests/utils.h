@@ -2,6 +2,7 @@
 #define BIG_NUMBERS_UTILS_H
 
 #include <iostream>
+#include <fstream>
 
 #include "big_int_debugger.h"
 #include "big_float_debugger.h"
@@ -87,6 +88,22 @@ bool test_big_float(const big_float<T> &received, const big_float<T> &expected) 
     }
 
     return true;
+}
+
+#define safeRelativeOpen(filename) safeRelativeOpenImpl(__FILE__, filename)
+
+std::ifstream safeRelativeOpenImpl(const std::string &current, const std::string &filename) {
+    std::size_t dirnameIndex = current.find_last_of("/\\");
+    std::string dirname = current.substr(0, dirnameIndex);
+    std::string filePath = dirname + "/" + filename;
+
+    std::ifstream input(filePath);
+
+    if (input.bad()) {
+        throw std::logic_error("Failed to open file \"" + filePath + "\"");
+    }
+
+    return input;
 }
 
 #endif //BIG_NUMBERS_UTILS_H
