@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <numeric>
 #include <string>
+#include <stdexcept>
 
 #include "padding.hpp"
 
@@ -79,7 +80,28 @@ public:
 
     std::strong_ordering operator<=>(const big_int<T> &second_operand) const;
 
-    explicit operator T() const;
+    template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
+    explicit operator Value() const {
+        const std::size_t outputSize = sizeof(Value);
+        const std::size_t requiredPieceCount = outputSize / sizeof(T);
+
+        big_int<T> current = trim();
+
+        if (current.pieces.size() > requiredPieceCount) {
+            throw std::logic_error("Cannot cast big_int to given type - value is too big.");
+        }
+
+        Value castedValue = 0b0;
+
+        std::size_t shiftSize = 0;
+
+        for (auto piece: pieces) {
+            castedValue |= (((Value) piece) << shiftSize);
+            shiftSize += sizeof(T) * 8;
+        }
+
+        return castedValue;
+    }
 
     std::string binary_str() const;
 
