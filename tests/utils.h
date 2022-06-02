@@ -62,21 +62,17 @@ bool test_big_float(const big_float<T> &received, const big_float<T> &expected) 
     big_float_debugger<T> received_debugger(received);
     big_float_debugger<T> expected_debugger(expected);
 
-    big_int_comparison_result compare_result =
-            compare_big_int(received_debugger.get_exponent(), expected_debugger.get_exponent());
-
-    std::string error_messages[] = {"Signs do not match", "Lengths do not match", "Numbers do not match"};
-
-    if (compare_result != big_int_comparison_result::EQUAL) {
+    if (received_debugger.get_exponent() != expected_debugger.get_exponent()) {
         std::cout << "Exponents do not match:\n"
-                  << error_messages[static_cast<int>(compare_result)] << ":\n"
-                  << "Expected: " << expected.binary_str() << '\n'
-                  << "Received: " << received.binary_str() << std::endl;
+                  << "Expected: " << expected_debugger.get_exponent() << '\n'
+                  << "Received: " << received_debugger.get_exponent() << std::endl;
 
         return false;
     }
 
-    compare_result = compare_big_int(received_debugger.get_mantissa(), received_debugger.get_mantissa());
+    std::string error_messages[] = {"Signs do not match", "Lengths do not match", "Numbers do not match"};
+    big_int_comparison_result compare_result
+            = compare_big_int(received_debugger.get_mantissa(), expected_debugger.get_mantissa());
 
     if (compare_result != big_int_comparison_result::EQUAL) {
         std::cout << "Mantissa do not match:\n"

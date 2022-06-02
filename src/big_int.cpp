@@ -276,38 +276,6 @@ big_int<T> big_int<T>::trim() const {
 }
 
 template<class T>
-std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits) {
-    using size_type = typename std::vector<uint8_t>::size_type;
-
-    std::vector<T> pieces;
-    size_type box_count = bits.size() / big_int<T>::get_box_size();
-
-    pieces.resize(box_count);
-
-    for (size_type i = 0; i < box_count; ++i) {
-        T box_value = 0;
-        for (size_type j = 0; j < big_int<T>::get_box_size(); ++j) {
-            uint8_t bit = *(bits.rbegin() + i * big_int<T>::get_box_size() + j);
-            box_value |= (bit << j);
-        }
-        pieces[i] = box_value;
-    }
-
-    size_type left = bits.size() % big_int<T>::get_box_size();
-
-    if (box_count * big_int<T>::get_box_size() < bits.size()) {
-        T box_value = 0;
-        for (size_type i = 0; i < left; ++i) {
-            uint8_t bit = *(bits.rbegin() + box_count * big_int<T>::get_box_size() + i);
-            box_value |= (bit << i);
-        }
-        pieces.push_back(box_value);
-    }
-
-    return pieces;
-}
-
-template<class T>
 std::strong_ordering big_int<T>::operator<=>(const big_int<T> &second_operand) const {
     const big_int<T> &first_operand = *this;
 
@@ -350,9 +318,9 @@ big_int<T> parse_big_int(std::string source) {
         source.erase(source.begin());
     }
 
-    std::vector<uint8_t> binary = integral_source_to_binary(source);
+    std::vector<T> pieces = integral_source_to_binary<T>(source);
 
-    std::vector<T> pieces = split_into_boxes<T>(binary);
+    std::reverse(pieces.begin(), pieces.end());
 
     big_int<T> out(pieces, 0);
 
