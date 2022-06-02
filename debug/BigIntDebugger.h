@@ -4,18 +4,18 @@
 #include <vector>
 #include <cstdint>
 
-#include "big_int.hpp"
+#include "BigInt.hpp"
 
 template<class T>
-class big_int_debugger {
+class BigIntDebugger {
 private:
-    const big_int<T> &debug_target;
+    const BigInt<T> &debugTarget;
 public:
-    explicit big_int_debugger(const big_int<T> &debug);
+    explicit BigIntDebugger(const BigInt<T> &debug);
 
-    std::vector<T> get_pieces();
+    std::vector<T> getPieces();
 
-    uint8_t get_sign();
+    uint8_t getSign();
 };
 
 #endif //BIG_NUMBERS_BIG_INT_DEBUGGER_H

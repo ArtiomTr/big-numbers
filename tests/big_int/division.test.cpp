@@ -1,43 +1,43 @@
-#include "big_int.hpp"
+#include "BigInt.hpp"
 
 #include "../utils.h"
 
 bool testSimple() {
-    big_int<uint8_t> one({0b00000110}, 0);
-    big_int<uint8_t> two({0b00000011}, 0);
+    BigInt<uint8_t> one({0b00000110}, 0);
+    BigInt<uint8_t> two({0b00000011}, 0);
 
-    big_int<uint8_t> result = one / two;
+    BigInt<uint8_t> result = one / two;
 
-    return test_big_int(result, big_int({0b00000010}, 0));
+    return testBigInt(result, BigInt({0b00000010}, 0));
 }
 
 bool testMultiplePieces() {
-    big_int<uint8_t> one({0b10010001, 0b00000110}, 0);
-    big_int<uint8_t> two({0b00000011}, 0);
+    BigInt<uint8_t> one({0b10010001, 0b00000110}, 0);
+    BigInt<uint8_t> two({0b00000011}, 0);
 
-    big_int<uint8_t> result = one / two;
+    BigInt<uint8_t> result = one / two;
 
-    return test_big_int(result, big_int({0b00110000, 0b00000010}, 0));
+    return testBigInt(result, BigInt({0b00110000, 0b00000010}, 0));
 }
 
 bool testFlooring() {
-    big_int<uint8_t> one({0b10010001, 0b00000110}, 0);
-    big_int<uint8_t> two({0b00000011}, 0);
+    BigInt<uint8_t> one({0b10010001, 0b00000110}, 0);
+    BigInt<uint8_t> two({0b00000011}, 0);
 
-    big_int<uint8_t> result = two / one;
+    BigInt<uint8_t> result = two / one;
 
-    return test_big_int(result, big_int({}, 0));
+    return testBigInt(result, BigInt({}, 0));
 }
 
 bool testNegative() {
-    big_int<uint8_t> one({0b11111010}, 1);
-    big_int<uint8_t> two({0b00000011}, 0);
+    BigInt<uint8_t> one({0b11111010}, 1);
+    BigInt<uint8_t> two({0b00000011}, 0);
 
     std::cout << (one < 0 ? "true" : "false") << std::endl;
 
-    big_int<uint8_t> result = one / two;
+    BigInt<uint8_t> result = one / two;
 
-    return test_big_int(result, big_int({0b11111110}, 1));
+    return testBigInt(result, BigInt({0b11111110}, 1));
 }
 
 int main() {
