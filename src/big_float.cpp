@@ -71,7 +71,7 @@ big_float<T> parse_big_float(std::string source, std::size_t mantissa_width) {
     std::reverse(integralPart.begin(), integralPart.end());
     big_int<T> mantissa(integralPart, 0);
 
-    return big_float<T>(mantissa, exponent);
+    return big_float<T>(sign ? -mantissa : mantissa, exponent);
 }
 
 template

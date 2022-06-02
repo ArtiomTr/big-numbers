@@ -77,18 +77,28 @@ bool testStripZeros() {
     return test_big_float(num, big_float<uint8_t>(mantissa, exponent));
 }
 
+bool testNegative() {
+    big_float<uint8_t> num = parse_big_float<uint8_t>("-1.0", 2);
+
+    big_int<uint8_t> mantissa({0b11111111}, 1);
+    int32_t exponent = 0;
+
+    return test_big_float(num, big_float<uint8_t>(mantissa, exponent));
+}
+
 int main() {
     using test = bool (*)();
 
     std::vector<std::pair<std::string, test>> tests{
-            {"No fractional part",  testNoFractional},
-            {"Test zero",           testZero},
-            {"Test one",            testOne},
-            {"Test small fraction", testFraction},
-            {"Test rounding",       testRounding},
-            {"Test rounding 2",     testRounding2},
-            {"Test rounding 3",     testRounding3},
-            {"Test strip zeros",    testStripZeros}
+            {"No fractional part",    testNoFractional},
+            {"Test zero",             testZero},
+            {"Test one",              testOne},
+            {"Test small fraction",   testFraction},
+            {"Test rounding",         testRounding},
+            {"Test rounding 2",       testRounding2},
+            {"Test rounding 3",       testRounding3},
+            {"Test strip zeros",      testStripZeros},
+            {"Test negative numbers", testNegative}
     };
 
     try {
