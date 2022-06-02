@@ -72,7 +72,7 @@ bool test_big_float(const big_float<T> &received, const big_float<T> &expected) 
 
     std::string error_messages[] = {"Signs do not match", "Lengths do not match", "Numbers do not match"};
     big_int_comparison_result compare_result
-            = compare_big_int(received_debugger.get_mantissa(), received_debugger.get_mantissa());
+            = compare_big_int(received_debugger.get_mantissa(), expected_debugger.get_mantissa());
 
     if (compare_result != big_int_comparison_result::EQUAL) {
         std::cout << "Mantissa do not match:\n"
