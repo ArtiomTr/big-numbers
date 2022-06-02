@@ -118,7 +118,4 @@ private:
 template<class T = uint8_t>
 big_int<T> parse_big_int(std::string source);
 
-template<class T>
-std::vector<T> split_into_boxes(const std::vector<uint8_t> &bits);
-
 #endif //BIG_NUMBERS_BIG_INT_HPP

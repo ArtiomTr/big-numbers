@@ -10,7 +10,7 @@ private:
 public:
     explicit big_float_debugger(const big_float<T> &target);
 
-    big_int<T> get_exponent();
+    int32_t get_exponent();
 
     big_int<T> get_mantissa();
 };

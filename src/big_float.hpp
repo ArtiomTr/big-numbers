@@ -11,12 +11,12 @@ class big_float {
 private:
     friend big_float_debugger<T>;
 private:
-    big_int<T> exponent;
+    int32_t exponent;
     big_int<T> mantissa;
 public:
-    explicit big_float(big_int<T> exponent, big_int<T> mantissa);
+    explicit big_float(big_int<T> mantissa, int32_t exponent);
 
-    std::string binary_str();
+    std::string binary_str() const;
 };
 
 template<typename T>
