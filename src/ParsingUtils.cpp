@@ -1,34 +1,33 @@
-#include "parsing_utils.h"
+#include "ParsingUtils.h"
 
 #include <bitset>
 #include <list>
 #include <forward_list>
-#include <iostream>
 
-std::vector<uint8_t> decimal_string_to_numbers(const std::string &source) {
-    std::vector<uint8_t> transformed_source;
-    transformed_source.resize(source.size());
+std::vector<uint8_t> decimalStringToNumbers(const std::string &source) {
+    std::vector<uint8_t> transformedSource;
+    transformedSource.resize(source.size());
 
-    std::transform(source.begin(), source.end(), transformed_source.begin(), [](char in) {
+    std::transform(source.begin(), source.end(), transformedSource.begin(), [](char in) {
         return in - '0';
     });
 
-    return transformed_source;
+    return transformedSource;
 }
 
 template<class V>
-std::vector<V> integral_source_to_binary(const std::string &source) {
-    std::forward_list<uint8_t> binary_numbers;
+std::vector<V> integralSourceToBinary(const std::string &source) {
+    std::forward_list<uint8_t> binaryNumbers;
 
-    std::vector<uint8_t> transformed_source = decimal_string_to_numbers(source);
+    std::vector<uint8_t> transformedSource = decimalStringToNumbers(source);
 
     uint8_t position = 0;
     constexpr std::size_t BIT_COUNT = 8 * sizeof(V);
     std::bitset<BIT_COUNT> buff;
 
-    while (!transformed_source.empty()) {
+    while (!transformedSource.empty()) {
         bool carry = false;
-        uint8_t &current = transformed_source.back();
+        uint8_t &current = transformedSource.back();
 
         if (current % 2 == 0) {
             buff.set(position, false);
@@ -40,11 +39,11 @@ std::vector<V> integral_source_to_binary(const std::string &source) {
         ++position;
         if (position == BIT_COUNT) {
             position = 0;
-            binary_numbers.push_front(buff.to_ulong());
+            binaryNumbers.push_front(buff.to_ulong());
             buff.reset();
         }
 
-        for (uint8_t &member: transformed_source) {
+        for (uint8_t &member: transformedSource) {
             bool oldCarry = carry;
             carry = member % 2;
             member /= 2;
@@ -53,35 +52,35 @@ std::vector<V> integral_source_to_binary(const std::string &source) {
             }
         }
 
-        if (transformed_source[0] == 0) {
-            transformed_source.erase(transformed_source.begin());
+        if (transformedSource[0] == 0) {
+            transformedSource.erase(transformedSource.begin());
         }
     }
 
     if (buff.any()) {
-        binary_numbers.push_front(buff.to_ulong());
+        binaryNumbers.push_front(buff.to_ulong());
     }
 
-    return {binary_numbers.begin(), binary_numbers.end()};
+    return {binaryNumbers.begin(), binaryNumbers.end()};
 }
 
 template<class V>
-std::pair<std::vector<V>, uint32_t> fractional_source_to_binary(const std::string &source,
-                                                                std::size_t width, bool shift) {
+std::pair<std::vector<V>, uint32_t> fractionalSourceToBinary(const std::string &source,
+                                                             std::size_t width, bool shift) {
     constexpr std::size_t BIT_COUNT = 8 * sizeof(V);
 
-    std::size_t current_width = 0;
+    std::size_t currentWidth = 0;
     std::list<V> pieces;
 
-    std::vector<uint8_t> transformed_source = decimal_string_to_numbers(source);
+    std::vector<uint8_t> transformedSource = decimalStringToNumbers(source);
     uint8_t bufferIndex = 0;
     std::bitset<BIT_COUNT> buffer;
     int32_t exponent = 0;
 
-    while (!transformed_source.empty() && current_width <= width) {
+    while (!transformedSource.empty() && currentWidth <= width) {
         bool carry = false;
 
-        for (auto member = transformed_source.rbegin(); member < transformed_source.rend(); ++member) {
+        for (auto member = transformedSource.rbegin(); member < transformedSource.rend(); ++member) {
             *member = (*member) * 2 + carry;
             carry = *member >= 10;
             *member %= 10;
@@ -89,19 +88,19 @@ std::pair<std::vector<V>, uint32_t> fractional_source_to_binary(const std::strin
 
         buffer.set(BIT_COUNT - bufferIndex - 1, carry);
 
-        if (transformed_source.back() == 0) {
-            transformed_source.pop_back();
+        if (transformedSource.back() == 0) {
+            transformedSource.pop_back();
         }
 
         ++bufferIndex;
         if (bufferIndex == BIT_COUNT) {
             bufferIndex = 0;
 
-            if (current_width <= 1 && !carry && shift) {
-                current_width = 0;
+            if (currentWidth <= 1 && !carry && shift) {
+                currentWidth = 0;
                 --exponent;
             } else {
-                ++current_width;
+                ++currentWidth;
                 pieces.push_back(buffer.to_ulong());
             }
 
@@ -111,13 +110,13 @@ std::pair<std::vector<V>, uint32_t> fractional_source_to_binary(const std::strin
 
     if (buffer.any()) {
         pieces.push_back(buffer.to_ulong());
-        ++current_width;
+        ++currentWidth;
     }
 
-    if (current_width > width) {
+    if (currentWidth > width) {
         buffer = pieces.back();
         pieces.pop_back();
-        --current_width;
+        --currentWidth;
 
         if (buffer[BIT_COUNT - 1]) {
             bool carry = true;
@@ -149,7 +148,7 @@ std::pair<std::vector<V>, uint32_t> fractional_source_to_binary(const std::strin
     return {{pieces.begin(), pieces.end()}, pieces.empty() ? 0 : exponent};
 }
 
-template std::vector<uint8_t> integral_source_to_binary(const std::string &source);
+template std::vector<uint8_t> integralSourceToBinary(const std::string &source);
 
-template std::pair<std::vector<uint8_t>, uint32_t> fractional_source_to_binary(const std::string &source,
-                                                                               std::size_t width, bool shift);
+template std::pair<std::vector<uint8_t>, uint32_t> fractionalSourceToBinary(const std::string &source,
+                                                                            std::size_t width, bool shift);

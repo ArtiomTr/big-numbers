@@ -1,53 +1,53 @@
-#include "big_int.hpp"
+#include "BigInt.hpp"
 
 #include "../utils.h"
 
 bool testSingleCell() {
-    big_int<uint8_t> one({0b00000001}, 0);
+    BigInt<uint8_t> one({0b00000001}, 0);
 
-    big_int<uint8_t> result = one << 1;
+    BigInt<uint8_t> result = one << 1;
 
-    return test_big_int(result, big_int({0b00000010}, 0));
+    return testBigInt(result, BigInt({0b00000010}, 0));
 }
 
 bool testFullBlock() {
-    big_int<uint8_t> one({0b11111111}, 0);
+    BigInt<uint8_t> one({0b11111111}, 0);
 
-    big_int<uint8_t> result = one << 1;
+    BigInt<uint8_t> result = one << 1;
 
-    return test_big_int(result, big_int({0b11111110, 0b00000001}, 0));
+    return testBigInt(result, BigInt({0b11111110, 0b00000001}, 0));
 }
 
 bool testMultipleShift() {
-    big_int<uint8_t> one({0b11111111}, 0);
+    BigInt<uint8_t> one({0b11111111}, 0);
 
-    big_int<uint8_t> result = one << 4;
+    BigInt<uint8_t> result = one << 4;
 
-    return test_big_int(result, big_int({0b11110000, 0b00001111}, 0));
+    return testBigInt(result, BigInt({0b11110000, 0b00001111}, 0));
 }
 
 bool testInsertion() {
-    big_int<uint8_t> one({0b11111111}, 0);
+    BigInt<uint8_t> one({0b11111111}, 0);
 
-    big_int<uint8_t> result = one << 16;
+    BigInt<uint8_t> result = one << 16;
 
-    return test_big_int(result, big_int({0b00000000, 0b00000000, 0b11111111}, 0));
+    return testBigInt(result, BigInt({0b00000000, 0b00000000, 0b11111111}, 0));
 }
 
 bool testWithRemainder() {
-    big_int<uint8_t> one({0b11111111}, 0);
+    BigInt<uint8_t> one({0b11111111}, 0);
 
-    big_int<uint8_t> result = one << 20;
+    BigInt<uint8_t> result = one << 20;
 
-    return test_big_int(result, big_int({0b00000000, 0b00000000, 0b11110000, 0b00001111}, 0));
+    return testBigInt(result, BigInt({0b00000000, 0b00000000, 0b11110000, 0b00001111}, 0));
 }
 
 bool testNegativeNumber() {
-    big_int<uint8_t> one({0b11111110}, 1);
+    BigInt<uint8_t> one({0b11111110}, 1);
 
-    big_int<uint8_t> result = one << 2;
+    BigInt<uint8_t> result = one << 2;
 
-    return test_big_int(result, big_int({0b11111000}, 1));
+    return testBigInt(result, BigInt({0b11111000}, 1));
 }
 
 int main() {

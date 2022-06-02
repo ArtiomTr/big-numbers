@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "big_int.hpp"
+#include "BigInt.hpp"
 
 bool testOnePiece() {
-    big_int<uint8_t> in({0b00001111}, 0);
+    BigInt<uint8_t> in({0b00001111}, 0);
 
     auto casted = (uint8_t) in;
 
@@ -11,7 +11,7 @@ bool testOnePiece() {
 }
 
 bool testMultiplePieces() {
-    big_int<uint8_t> in({0b01010000, 0b00001111}, 0);
+    BigInt<uint8_t> in({0b01010000, 0b00001111}, 0);
 
     auto casted = (uint16_t) in;
 
@@ -19,7 +19,7 @@ bool testMultiplePieces() {
 }
 
 bool testTrimming() {
-    big_int<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
+    BigInt<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
 
     auto casted = (uint16_t) in;
 
@@ -27,7 +27,7 @@ bool testTrimming() {
 }
 
 bool testZero() {
-    big_int<uint8_t> in({}, 0);
+    BigInt<uint8_t> in({}, 0);
 
     auto casted = (uint8_t) in;
 
@@ -35,7 +35,7 @@ bool testZero() {
 }
 
 bool testValidation() {
-    big_int<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
+    BigInt<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
 
     try {
         auto casted = (uint8_t) in;

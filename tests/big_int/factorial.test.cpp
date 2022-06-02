@@ -1,14 +1,14 @@
-#include "big_int.hpp"
+#include "BigInt.hpp"
 #include "../utils.h"
 
 #include <fstream>
 #include <iostream>
 
-big_int<uint8_t> computeFactorial(int in) {
-    big_int<uint8_t> result = 1;
+BigInt<uint8_t> computeFactorial(int in) {
+    BigInt<uint8_t> result = 1;
 
     for (int i = 1; i <= in; ++i) {
-        result = result * big_int<uint8_t>(i);
+        result = result * BigInt<uint8_t>(i);
     }
 
     return result;
@@ -25,7 +25,7 @@ int main() {
 
         input >> in >> resultSource;
 
-        big_int<uint8_t> result = parse_big_int(resultSource);
+        BigInt<uint8_t> result = parseBigInt(resultSource);
 
         if (computeFactorial(in) != result) {
             std::cout << "Failed to compute " << in << "!" << std::endl;

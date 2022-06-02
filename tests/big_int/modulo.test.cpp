@@ -1,23 +1,23 @@
-#include "big_int.hpp"
+#include "BigInt.hpp"
 
 #include "../utils.h"
 
 bool testSimple() {
-    big_int<uint8_t> one({0b00000110}, 0);
-    big_int<uint8_t> two({0b00000011}, 0);
+    BigInt<uint8_t> one({0b00000110}, 0);
+    BigInt<uint8_t> two({0b00000011}, 0);
 
-    big_int<uint8_t> result = one % two;
+    BigInt<uint8_t> result = one % two;
 
-    return test_big_int(result, big_int({}, 0));
+    return testBigInt(result, BigInt({}, 0));
 }
 
 bool testMultiplePieces() {
-    big_int<uint8_t> one({0b11101000, 0b00000011}, 0);
-    big_int<uint8_t> two({0b11010011, 0b00000010}, 0);
+    BigInt<uint8_t> one({0b11101000, 0b00000011}, 0);
+    BigInt<uint8_t> two({0b11010011, 0b00000010}, 0);
 
-    big_int<uint8_t> result = one % two;
+    BigInt<uint8_t> result = one % two;
 
-    return test_big_int(result, big_int({0b00010101, 0b00000001}, 0));
+    return testBigInt(result, BigInt({0b00010101, 0b00000001}, 0));
 }
 
 int main() {
