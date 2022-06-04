@@ -120,7 +120,7 @@ BigInt<T> BigInt<T>::operator~() const {
 
 template<class T>
 BigInt<T> BigInt<T>::operator-() const {
-    BigInt<T> output = ~(*this) + (BigInt<T>) 1;
+    BigInt<T> output = ~(*this) + (BigInt<T>) (T) 1;
     output.sign = !sign;
     return output;
 }
