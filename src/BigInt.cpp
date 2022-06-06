@@ -3,6 +3,7 @@
 #include <limits>
 #include <regex>
 #include <bitset>
+#include <iostream>
 
 #include "IsomorphicMath.hpp"
 #include "ParsingUtils.h"
@@ -277,17 +278,17 @@ std::strong_ordering BigInt<T>::operator<=>(const BigInt<T> &secondOperand) cons
         return normalizedFirst.pieces.size() <=> normalizedSecond.pieces.size();
     }
 
-    auto firstIt = firstOperand.pieces.rbegin(), secondIt = secondOperand.pieces.rend();
+    auto firstIt = normalizedFirst.pieces.rbegin(), secondIt = normalizedSecond.pieces.rbegin();
 
-    while (firstIt != firstOperand.pieces.rend() || secondIt != secondOperand.pieces.rend()) {
-        auto firstPiece = firstIt != firstOperand.pieces.rend() ? *firstIt : firstOperand.getFillValue();
-        auto secondPiece = firstIt != firstOperand.pieces.rend() ? *firstIt : firstOperand.getFillValue();
-
-        auto result = firstPiece <=> secondPiece;
+    while (firstIt != normalizedFirst.pieces.rend() && secondIt != normalizedSecond.pieces.rend()) {
+        auto result = (*firstIt) <=> (*secondIt);
 
         if (result != std::strong_ordering::equal) {
             return result;
         }
+
+        ++firstIt;
+        ++secondIt;
     }
 
     return std::strong_ordering::equal;
