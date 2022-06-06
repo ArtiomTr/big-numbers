@@ -8,8 +8,6 @@
 #include <string>
 #include <stdexcept>
 
-#include "Padding.hpp"
-
 template<class T>
 class BigIntDebugger;
 
@@ -17,30 +15,16 @@ template<class T = uint8_t>
 class BigInt {
 private:
     friend class BigIntDebugger<T>;
-
-    template<class V>
-    friend std::pair<BigInt<V>, BigInt<V>> longDivision(const BigInt<V> &inDividend, const BigInt<V> &inDivisor);
-
 private:
     uint8_t sign;
     std::vector<T> pieces;
-    Pad<T> *valuePad;
 
     using SizeType = typename std::vector<T>::size_type;
-
-    static constexpr std::size_t getBoxCount(std::size_t valueSize) {
-        std::size_t count = valueSize / sizeof(T);
-
-        return count + (valueSize > count * sizeof(T));
-    }
-
 public:
     explicit BigInt(std::vector<T> initialPieces, uint8_t initialSign);
 
-    explicit BigInt(std::vector<T> initialPieces, uint8_t initialSign, Pad<T> *pad);
-
     template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
-    BigInt(Value value): sign(value < 0), valuePad(new DefaultPad<T>()) {
+    BigInt(Value value): sign(value < 0) {
         using bytearray = std::array<std::byte, sizeof(Value)>;
         const auto &bytes = std::bit_cast<bytearray, Value>(value);
 
@@ -105,12 +89,21 @@ public:
 
     std::string toString() const;
 
-    static std::size_t getBoxSize();
-
     BigInt<T> trim() const;
 
 private:
+    static constexpr std::size_t getBoxCount(std::size_t valueSize) {
+        std::size_t count = valueSize / sizeof(T);
+
+        return count + (valueSize > count * sizeof(T));
+    }
+
+    static constexpr std::size_t boxSize = sizeof(T) * 8;
+
     T getFillValue() const;
+
+    template<class V>
+    friend std::pair<BigInt<V>, BigInt<V>> longDivision(const BigInt<V> &inDividend, const BigInt<V> &inDivisor);
 
     static std::pair<BigInt<T>, BigInt<T>> sortBySize(const BigInt<T> &first, const BigInt<T> &second);
 };

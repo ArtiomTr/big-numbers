@@ -3,6 +3,7 @@
 #include <limits>
 #include <regex>
 #include <bitset>
+#include <iostream>
 
 #include "IsomorphicMath.hpp"
 #include "ParsingUtils.h"
@@ -22,11 +23,6 @@ T BigInt<T>::getFillValue() const {
 }
 
 template<class T>
-std::size_t BigInt<T>::getBoxSize() {
-    return sizeof(T) * std::numeric_limits<uint8_t>::digits;
-}
-
-template<class T>
 std::string BigInt<T>::toString() const {
     std::string output = sign ? "-" : "+";
 
@@ -37,7 +33,7 @@ std::string BigInt<T>::toString() const {
     for (SizeType i = pieces.size(); i > 0; --i) {
         T piece = pieces[i - 1];
         std::string numberStr;
-        for (SizeType j = 0; j < BigInt<T>::getBoxSize(); ++j) {
+        for (SizeType j = 0; j < BigInt<T>::boxSize; ++j) {
             numberStr += ('0' + (piece & mask));
             piece >>= 1;
         }
@@ -48,55 +44,47 @@ std::string BigInt<T>::toString() const {
 }
 
 template<class T>
-BigInt<T>::BigInt(std::vector<T> initialPieces, uint8_t initialSign, Pad<T> *pad):
-        pieces(std::move(initialPieces)),
-        sign(initialSign),
-        valuePad(pad) {
+BigInt<T>::BigInt(std::vector<T> initialPieces, uint8_t initialSign): pieces(initialPieces), sign(initialSign) {
     if (initialSign != 0 && initialSign != 1) {
         throw std::invalid_argument("Sign should be 0 for positive numbers or 1 for negative");
     }
 }
 
 template<class T>
-BigInt<T>::BigInt(std::vector<T> initialPieces, uint8_t initialSign):
-        BigInt(initialPieces, initialSign, new DefaultPad<T>()) {
-}
-
-template<class T>
 BigInt<T> operator+(const BigInt<T> &augend, const BigInt<T> &addend) {
-    using SizeType = typename BigInt<T>::SizeType;
-
     BigInt<T> sum({}, 0);
 
     const auto &[_, longestSummand] = BigInt<T>::sortBySize(augend, addend);
 
-    SizeType maxSize = longestSummand.pieces.size();
-    sum.pieces.resize(maxSize);
-
-    PaddedList<T> *firstSummandPieces = augend.valuePad->padForSum(augend.pieces, augend.sign);
-    PaddedList<T> *secondSummandPieces = addend.valuePad->padForSum(addend.pieces, addend.sign);
+    auto firstIt = augend.pieces.begin(), secondIt = addend.pieces.begin();
 
     T carry = 0;
 
-    for (SizeType i = 0; i < maxSize; ++i) {
-        T value = firstSummandPieces->get(i) + secondSummandPieces->get(i) + carry;
+    while (firstIt != augend.pieces.end() || secondIt != addend.pieces.end()) {
+        T augendPiece = firstIt != augend.pieces.end() ? *firstIt : augend.getFillValue();
+        T addendPiece = secondIt != addend.pieces.end() ? *secondIt : addend.getFillValue();
 
-        carry = (firstSummandPieces->get(i) > value) || (secondSummandPieces->get(i) > value) ||
-                (carry && (firstSummandPieces->get(i) == value || secondSummandPieces->get(i) == value));
+        T value = augendPiece + addendPiece + carry;
 
-        sum.pieces[i] = value;
+        carry = (augendPiece > value) || (addendPiece > value) ||
+                (carry && (augendPiece == value || addendPiece == value));
+
+        sum.pieces.push_back(value);
+
+        if (firstIt != augend.pieces.end())
+            ++firstIt;
+
+        if (secondIt != addend.pieces.end())
+            ++secondIt;
     }
 
-    T additional = firstSummandPieces->get(maxSize) + secondSummandPieces->get(maxSize) + carry;
+    std::bitset<BigInt<T>::boxSize> additional(augend.getFillValue() + addend.getFillValue() + carry);
 
-    sum.sign = additional >> (BigInt<T>::getBoxSize() - 1);
+    sum.sign = additional[BigInt<T>::boxSize - 1];
 
     if (additional != sum.getFillValue()) {
-        sum.pieces.push_back(additional);
+        sum.pieces.push_back(additional.to_ulong());
     }
-
-    delete firstSummandPieces;
-    delete secondSummandPieces;
 
     return sum;
 }
@@ -131,8 +119,8 @@ BigInt<T> BigInt<T>::operator<<(const SizeType &shiftBy) const {
 
     output.pieces.resize(pieces.size());
 
-    SizeType pieceShift = shiftBy % BigInt<T>::getBoxSize();
-    SizeType pieceShiftComplement = BigInt<T>::getBoxSize() - pieceShift;
+    SizeType pieceShift = shiftBy % BigInt<T>::boxSize;
+    SizeType pieceShiftComplement = BigInt<T>::boxSize - pieceShift;
 
     T maskBuilder = 0b0;
 
@@ -165,7 +153,7 @@ BigInt<T> BigInt<T>::operator<<(const SizeType &shiftBy) const {
         output.pieces.push_back(additionalPiece);
     }
 
-    SizeType empty_piece_count = shiftBy / BigInt<T>::getBoxSize();
+    SizeType empty_piece_count = shiftBy / BigInt<T>::boxSize;
     if (empty_piece_count > 0) {
         output.pieces.insert(output.pieces.begin(), empty_piece_count, 0);
     }
@@ -180,7 +168,7 @@ BigInt<T> operator*(const BigInt<T> &multiplier, const BigInt<T> &multiplicand) 
     const auto &[shortestMultiplicand, longestMultiplicand] = BigInt<T>::sortBySize(multiplier, multiplicand);
 
     SizeType minSize = shortestMultiplicand.pieces.size();
-    SizeType shiftSize = BigInt<T>::getBoxSize();
+    SizeType shiftSize = BigInt<T>::boxSize;
 
     BigInt<T> product({}, multiplier.sign ^ multiplicand.sign);
 
@@ -283,17 +271,24 @@ std::strong_ordering BigInt<T>::operator<=>(const BigInt<T> &secondOperand) cons
         return secondOperand.sign <=> firstOperand.sign;
     }
 
-    PaddedList<T> *firstOperandPieces = valuePad->padForSum(firstOperand.pieces, firstOperand.sign);
-    PaddedList<T> *secondOperandPieces = valuePad->padForSum(secondOperand.pieces, secondOperand.sign);
+    BigInt<T> normalizedFirst = firstOperand.trim();
+    BigInt<T> normalizedSecond = secondOperand.trim();
 
-    SizeType longest = std::max(firstOperand.pieces.size(), secondOperand.pieces.size());
+    if (normalizedFirst.pieces.size() != normalizedSecond.pieces.size()) {
+        return normalizedFirst.pieces.size() <=> normalizedSecond.pieces.size();
+    }
 
-    for (SizeType i = longest; i > 0; --i) {
-        auto result = firstOperandPieces->get(i - 1) <=> secondOperandPieces->get(i - 1);
+    auto firstIt = normalizedFirst.pieces.rbegin(), secondIt = normalizedSecond.pieces.rbegin();
+
+    while (firstIt != normalizedFirst.pieces.rend() && secondIt != normalizedSecond.pieces.rend()) {
+        auto result = (*firstIt) <=> (*secondIt);
 
         if (result != std::strong_ordering::equal) {
             return result;
         }
+
+        ++firstIt;
+        ++secondIt;
     }
 
     return std::strong_ordering::equal;
