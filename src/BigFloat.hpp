@@ -19,6 +19,12 @@ public:
     template<class V>
     friend BigFloat<V> operator+(BigFloat<V> augend, BigFloat<V> addend);
 
+    template<class V>
+    friend BigFloat<V> operator-(const BigFloat<V> &minuend, const BigFloat<V> &subtrahend);
+
+    template<class V>
+    friend BigFloat<V> operator-(const BigFloat<V> &value);
+
     std::string toString() const;
 };
 
