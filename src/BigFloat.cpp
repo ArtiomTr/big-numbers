@@ -9,6 +9,9 @@
 
 template<class T>
 BigFloat<T>::BigFloat(BigInt<T> mantissa, int32_t exponent): exponent(exponent), mantissa(mantissa) {
+    if (mantissa.getWidth() == 0) {
+        this->exponent = 0;
+    }
 }
 
 template<class T>
@@ -101,6 +104,24 @@ BigFloat<V> operator-(const BigFloat<V> &value) {
     return BigFloat<V>(-value.mantissa, value.exponent);
 }
 
+inline std::size_t getFractionWidth(std::size_t totalCount) {
+    return totalCount > 0 ? totalCount - 1 : 0;
+}
+
+template<class V>
+BigFloat<V> operator*(const BigFloat<V> &multiplier, const BigFloat<V> &multiplicand) {
+    BigInt<V> mantissa = multiplier.mantissa * multiplicand.mantissa;
+    int32_t exponent = multiplier.exponent + multiplicand.exponent;
+
+    std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.getWidth())
+                                     + getFractionWidth(multiplicand.mantissa.getWidth());
+
+    std::size_t resultFractionWidth = getFractionWidth(mantissa.getWidth());
+    exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
+
+    return BigFloat<V>(mantissa, exponent);
+}
+
 template
 class BigFloat<uint8_t>;
 
@@ -111,3 +132,5 @@ template BigFloat<uint8_t> operator+(BigFloat<uint8_t> augend, BigFloat<uint8_t>
 template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &minuend, const BigFloat<uint8_t> &subtrahend);
 
 template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &value);
+
+template BigFloat<uint8_t> operator*(const BigFloat<uint8_t> &multiplier, const BigFloat<uint8_t> &multiplicand);
