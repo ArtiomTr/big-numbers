@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "ParsingUtils.h"
+#include "IsomorphicMath.hpp"
 
 template<class T>
 BigFloat<T>::BigFloat(BigInt<T> mantissa, int32_t exponent): exponent(exponent), mantissa(mantissa) {
@@ -65,7 +66,34 @@ BigFloat<T> parseBigFloat(std::string source, std::size_t mantissaWidth) {
     return BigFloat<T>(sign ? -mantissa : mantissa, exponent);
 }
 
+template<class V>
+BigFloat<V> operator+(BigFloat<V> augend, BigFloat<V> addend) {
+    int32_t exponent = std::max(augend.exponent, addend.exponent);
+
+    augend.mantissa.pushRight(IsomorphicMath::delta(augend.exponent, exponent));
+    addend.mantissa.pushRight(IsomorphicMath::delta(addend.exponent, exponent));
+
+    std::size_t width = std::max(augend.mantissa.getWidth(), addend.mantissa.getWidth());
+    augend.mantissa.padRight(width);
+    addend.mantissa.padRight(width);
+
+    BigInt<V> newMantissa = augend.mantissa + addend.mantissa;
+
+    exponent += newMantissa.getWidth() - width;
+
+    width = newMantissa.getWidth();
+    newMantissa = newMantissa.trim();
+    exponent += width - newMantissa.getWidth();
+    newMantissa.trimRight();
+
+    BigFloat<V> out(newMantissa, exponent);
+
+    return out;
+}
+
 template
 class BigFloat<uint8_t>;
 
 template BigFloat<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
+
+template BigFloat<uint8_t> operator+(BigFloat<uint8_t> augend, BigFloat<uint8_t> addend);

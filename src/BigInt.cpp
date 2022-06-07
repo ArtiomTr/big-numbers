@@ -295,6 +295,39 @@ std::strong_ordering BigInt<T>::operator<=>(const BigInt<T> &secondOperand) cons
 }
 
 template<class T>
+void BigInt<T>::trimRight() {
+    std::size_t newStart;
+    for (newStart = 0; newStart < pieces.size(); ++newStart) {
+        if (pieces[newStart] != getFillValue()) {
+            break;
+        }
+    }
+
+    if (newStart != 0) {
+        pieces.erase(pieces.begin(), pieces.begin() + newStart);
+    }
+}
+
+template<class T>
+std::size_t BigInt<T>::getWidth() const {
+    return pieces.size();
+}
+
+template<class T>
+void BigInt<T>::pushRight(std::size_t count) {
+    for (std::size_t i = 0; i < count; ++i) {
+        pieces.push_back(getFillValue());
+    }
+}
+
+template<class T>
+void BigInt<T>::padRight(std::size_t width) {
+    for (std::size_t i = pieces.size(); i < width; ++i) {
+        pieces.insert(pieces.begin(), getFillValue());
+    }
+}
+
+template<class T>
 bool BigInt<T>::operator==(const BigInt<T> &secondOperand) const {
     return (*this <=> secondOperand) == std::strong_ordering::equal;
 }

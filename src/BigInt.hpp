@@ -91,6 +91,14 @@ public:
 
     BigInt<T> trim() const;
 
+    void pushRight(std::size_t count);
+
+    void padRight(std::size_t width);
+
+    void trimRight();
+
+    std::size_t getWidth() const;
+
 private:
     static constexpr std::size_t getBoxCount(std::size_t valueSize) {
         std::size_t count = valueSize / sizeof(T);

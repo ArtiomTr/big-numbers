@@ -16,6 +16,9 @@ private:
 public:
     explicit BigFloat(BigInt<T> mantissa, int32_t exponent);
 
+    template<class V>
+    friend BigFloat<V> operator+(BigFloat<V> augend, BigFloat<V> addend);
+
     std::string toString() const;
 };
 
