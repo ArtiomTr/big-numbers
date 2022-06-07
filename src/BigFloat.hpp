@@ -25,6 +25,9 @@ public:
     template<class V>
     friend BigFloat<V> operator-(const BigFloat<V> &value);
 
+    template<class V>
+    friend BigFloat<V> operator*(const BigFloat<V> &multiplier, const BigFloat<V> &multiplicand);
+
     std::string toString() const;
 };
 
