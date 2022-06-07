@@ -91,9 +91,23 @@ BigFloat<V> operator+(BigFloat<V> augend, BigFloat<V> addend) {
     return out;
 }
 
+template<class V>
+BigFloat<V> operator-(const BigFloat<V> &minuend, const BigFloat<V> &subtrahend) {
+    return minuend + (-subtrahend);
+}
+
+template<class V>
+BigFloat<V> operator-(const BigFloat<V> &value) {
+    return BigFloat<V>(-value.mantissa, value.exponent);
+}
+
 template
 class BigFloat<uint8_t>;
 
 template BigFloat<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
 
 template BigFloat<uint8_t> operator+(BigFloat<uint8_t> augend, BigFloat<uint8_t> addend);
+
+template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &minuend, const BigFloat<uint8_t> &subtrahend);
+
+template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &value);
