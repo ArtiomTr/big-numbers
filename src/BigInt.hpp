@@ -13,8 +13,10 @@ namespace BigNumbers {
 
     template<class T = uint8_t>
     class BigInt {
+        // Wait, is that spaghetti code? Nah, it's just very friendly class :p
         friend class BigIntDebugger<T>;
 
+        friend BigInt<T> parseBigInt(std::string);
     private:
         uint8_t sign;
         DoubleEndedPolynomial<T> pieces;
@@ -112,9 +114,6 @@ namespace BigNumbers {
 
         static std::pair<BigInt<T>, BigInt<T>> sortBySize(const BigInt<T> &first, const BigInt<T> &second);
     };
-
-    template<class T = uint8_t>
-    BigInt<T> parseBigInt(std::string source);
 }
 
 #endif //BIG_NUMBERS_BIG_INT_HPP

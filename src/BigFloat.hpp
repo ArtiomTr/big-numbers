@@ -31,9 +31,6 @@ namespace BigNumbers {
 
         std::string toString() const;
     };
-
-    template<typename T>
-    BigFloat<T> parseBigFloat(std::string source, std::size_t mantissaWidth);
 }
 
 #endif //BIG_NUMBERS_BIG_FLOAT_HPP

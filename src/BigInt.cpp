@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include "IsomorphicMath.hpp"
-#include "ParsingUtils.h"
 
 namespace BigNumbers {
     template<class T>
@@ -146,18 +145,18 @@ namespace BigNumbers {
             output.pieces.pushBack(newPiece);
         }
 
-        T fill_value = output.getFillValue();
+        T fillValue = output.getFillValue();
 
         T additionalPiece = (pieces.back() >> pieceShiftComplement) |
-                            (fill_value << pieceShift);
+                            (fillValue << pieceShift);
 
-        if (additionalPiece != fill_value) {
+        if (additionalPiece != fillValue) {
             output.pieces.pushBack(additionalPiece);
         }
 
-        SizeType empty_piece_count = shiftBy / BigInt<T>::PIECE_SIZE;
-        if (empty_piece_count > 0) {
-            output.pieces.insert(output.pieces.begin(), empty_piece_count, 0);
+        SizeType emptyPieceCount = shiftBy / BigInt<T>::PIECE_SIZE;
+        if (emptyPieceCount > 0) {
+            extendFront(output.pieces, emptyPieceCount, 0);
         }
 
         return output;
@@ -171,7 +170,8 @@ namespace BigNumbers {
 
         SizeType minSize = shortestMultiplicand.pieces.getSize();
 
-        BigInt<T> product({}, multiplier.sign ^ multiplicand.sign);
+        BigInt<T> product;
+        product.sign = multiplier.sign ^ multiplicand.sign;
 
         T mask = 0b1;
 
@@ -193,15 +193,15 @@ namespace BigNumbers {
 
     template<class V>
     std::pair<BigInt<V>, BigInt<V>> longDivision(const BigInt<V> &inDividend, const BigInt<V> &inDivisor) {
-        BigInt<V> dividend = IsomorphicMath::abs(inDividend).trim();
-        BigInt<V> divisor = IsomorphicMath::abs(inDivisor).trim();
+        BigInt<V> dividend = IsomorphicMath::abs(inDividend);
+        BigInt<V> divisor = IsomorphicMath::abs(inDivisor);
 
         if (divisor == BigInt<V>(0)) {
             throw std::logic_error("Cannot divide by zero.");
         }
 
-        BigInt<V> remainder(0);
-        std::vector<V> quotientPieces;
+        BigInt<V> remainder;
+        BigInt<V> quotient;
 
         constexpr std::size_t BIT_COUNT = sizeof(V) * 8;
 
@@ -213,9 +213,9 @@ namespace BigNumbers {
                 std::size_t bitIndex = j - 1;
                 remainder = remainder << 1;
 
-                std::bitset<BIT_COUNT> remainderBits(remainder.pieces[0]);
+                std::bitset<BIT_COUNT> remainderBits(remainder.pieces.front());
                 remainderBits.set(0, pieceBits[bitIndex]);
-                remainder.pieces[0] = static_cast<V>(remainderBits.to_ulong());
+                remainder.pieces.front() = static_cast<V>(remainderBits.to_ulong());
 
                 if (remainder >= divisor) {
                     remainder = remainder - divisor;
@@ -223,15 +223,15 @@ namespace BigNumbers {
                 }
             }
 
-            quotientPieces.push_back(static_cast<V>(quotientBits.to_ulong()));
+            quotient.pieces.pushFront(static_cast<V>(quotientBits.to_ulong()));
         }
 
-        std::reverse(quotientPieces.begin(), quotientPieces.end());
-
-        BigInt<V> quotient(quotientPieces, 0);
+        quotient.normalize();
         uint8_t sign = inDividend.sign ^ inDivisor.sign;
 
-        return {(sign ? -quotient : quotient).trim(), remainder.trim()};
+        remainder.normalize();
+
+        return {(sign ? -quotient : quotient), remainder};
     }
 
     template<class V>
@@ -332,37 +332,12 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> parseBigInt(std::string source) {
-        std::regex bigIntRegex("^-?\\d+$");
-
-        if (!std::regex_match(source, bigIntRegex)) {
-            throw std::invalid_argument("Invalid BigInt format");
-        }
-
-        uint8_t sign = source[0] == '-';
-
-        if (sign) {
-            source.erase(source.begin());
-        }
-
-        std::vector<T> pieces = integralSourceToBinary<T>(source);
-
-        std::reverse(pieces.begin(), pieces.end());
-
-        BigInt<T> out(pieces, 0);
-
-        return sign ? -out : out;
-    }
-
-    template<class T>
     void BigInt<T>::normalize() {
-        trimEnd(pieces, getFillValue());
+        trimBack(pieces, getFillValue());
     }
 
     template
     class BigInt<uint8_t>;
-
-    template BigInt<uint8_t> parseBigInt(std::string source);
 
     template BigInt<uint8_t> operator+(const BigInt<uint8_t> &augend, const BigInt<uint8_t> &addend);
 

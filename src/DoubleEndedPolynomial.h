@@ -69,6 +69,10 @@ namespace BigNumbers {
 
         [[nodiscard]] bool empty() const;
 
+        void insert(Iterator iterator, CoefficientType coefficient);
+
+        void insert(ReverseIterator iterator, CoefficientType coefficient);
+
         void pushBack(CoefficientType coefficient);
 
         void pushFront(CoefficientType coefficient);
@@ -91,10 +95,14 @@ namespace BigNumbers {
     };
 
     template<class C>
-    void trimStart(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
+    void trimFront(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
 
     template<class C>
-    void trimEnd(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
+    void trimBack(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
+
+    template<class C>
+    void extendFront(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::SizeType count,
+                     typename DoubleEndedPolynomial<C>::CoefficientType value);
 }
 
 #endif //BIG_NUMBERS_DOUBLEENDEDPOLYNOMIAL_H
