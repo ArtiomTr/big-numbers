@@ -17,6 +17,8 @@ namespace BigNumbers {
     public:
         class Iterator : public std::iterator<std::bidirectional_iterator_tag, CoefficientType> {
         private:
+            friend class DoubleEndedPolynomial<C>;
+
             Node *current;
         public:
             explicit Iterator(DoubleEndedPolynomial<C>::Node *current);
@@ -71,16 +73,28 @@ namespace BigNumbers {
 
         void pushFront(CoefficientType coefficient);
 
+        void erase(Iterator it);
+
+        void erase(ReverseIterator it);
+
         void popBack();
 
         void popFront();
+
+        CoefficientType &front();
+
+        CoefficientType front() const;
+
+        CoefficientType &back();
+
+        CoefficientType back() const;
     };
 
     template<class C>
-    void trimStart(DoubleEndedPolynomial<C> polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
+    void trimStart(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
 
     template<class C>
-    void trimEnd(DoubleEndedPolynomial<C> polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
+    void trimEnd(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value);
 }
 
 #endif //BIG_NUMBERS_DOUBLEENDEDPOLYNOMIAL_H

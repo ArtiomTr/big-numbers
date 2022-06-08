@@ -196,79 +196,83 @@ namespace BigNumbers {
     }
 
     template<class C>
-    void DoubleEndedPolynomial<C>::popBack() {
+    void DoubleEndedPolynomial<C>::erase(DoubleEndedPolynomial<C>::Iterator it) {
         if (size == 0) {
             throw std::logic_error("Cannot pop back - already empty polynomial.");
         }
 
         --size;
-        if (size == 0) {
-            delete head;
 
-            head = nullptr;
-            tail = nullptr;
-
-            return;
+        if (it.current->previous != nullptr) {
+            it.current->previous->next = it.current->next;
         }
 
-        Node *oldTail = tail;
-        tail = tail->previous;
-        delete oldTail;
+        if (it.current->next != nullptr) {
+            it.current->next->previous = it.current->previous;
+        }
+
+        if (it.current == head) {
+            head = it.current->next;
+        }
+
+        if (it.current == tail) {
+            tail = it.current->previous;
+        }
+    }
+
+    template<class C>
+    void DoubleEndedPolynomial<C>::erase(DoubleEndedPolynomial<C>::ReverseIterator it) {
+        erase(it.base());
+    }
+
+    template<class C>
+    void DoubleEndedPolynomial<C>::popBack() {
+        erase(Iterator(tail));
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::popFront() {
-        if (size == 0) {
-            throw std::logic_error("Cannot pop back - already empty polynomial.");
-        }
-
-        --size;
-        if (size == 0) {
-            delete head;
-
-            head = nullptr;
-            tail = nullptr;
-
-            return;
-        }
-
-        Node *oldHead = head;
-        head = head->next;
-        delete oldHead;
+        erase(begin());
     }
 
     template<class C>
-    void trimStart(DoubleEndedPolynomial<C> polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value) {
-        typename DoubleEndedPolynomial<C>::Iterator it;
-        for (it = polynomial.begin(); it != polynomial.end(); ++it) {
-            if (*it != value) {
-                break;
-            }
+    typename DoubleEndedPolynomial<C>::CoefficientType &DoubleEndedPolynomial<C>::front() {
+        return head->coefficient;
+    }
 
-            if (it != polynomial.begin()) {
-                polynomial.popBack();
-            }
-        }
+    template<class C>
+    typename DoubleEndedPolynomial<C>::CoefficientType &DoubleEndedPolynomial<C>::back() {
+        return tail->coefficient;
+    }
 
-        if (it != polynomial.begin()) {
-            polynomial.popFront();
+    template<class C>
+    typename DoubleEndedPolynomial<C>::CoefficientType DoubleEndedPolynomial<C>::front() const {
+        return head->coefficient;
+    }
+
+    template<class C>
+    typename DoubleEndedPolynomial<C>::CoefficientType DoubleEndedPolynomial<C>::back() const {
+        return tail->coefficient;
+    }
+
+    template<class C, class ForwardIterator>
+    void trimDirection(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value,
+                       ForwardIterator begin, ForwardIterator end) {
+        auto it = begin;
+        while (it != end && *it == value) {
+            auto iteratorCopy = it;
+            ++it;
+            polynomial.erase(iteratorCopy);
         }
+    }
+
+    template<class C>
+    void trimStart(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value) {
+        trimDirection(polynomial, value, polynomial.begin(), polynomial.end());
     }
 
     template<class C>
     void trimEnd(DoubleEndedPolynomial<C> polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value) {
-        typename DoubleEndedPolynomial<C>::Iterator it;
-        for (it = polynomial.rbegin(); it != polynomial.rend(); ++it) {
-            if (*it != value) {
-                break;
-            }
-
-            if (it != polynomial.rbegin()) {
-                polynomial.popBack();
-            }
-        }
-        if (it != polynomial.rbegin()) {
-            polynomial.popFront();
-        }
+        trimDirection(polynomial, value, polynomial.rbegin(), polynomial.rend());
     }
 }
