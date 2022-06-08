@@ -3,7 +3,6 @@
 #include <limits>
 #include <regex>
 #include <bitset>
-#include <iostream>
 
 #include "IsomorphicMath.hpp"
 
@@ -38,14 +37,6 @@ namespace BigNumbers {
     BigInt<T>::BigInt() : pieces(DoubleEndedPolynomial<T>()), sign(0) {
 
     }
-
-//    template<class T>
-//    BigInt<T>::BigInt(std::vector<T> initialPieces, uint8_t initialSign):
-//            pieces(DoubleEndedPolynomial<T>(initialPieces.begin(), initialPieces.end())), sign(initialSign) {
-//        if (initialSign != 0 && initialSign != 1) {
-//            throw std::invalid_argument("Sign should be 0 for positive numbers or 1 for negative");
-//        }
-//    }
 
     template<class T>
     BigInt<T> operator+(const BigInt<T> &augend, const BigInt<T> &addend) {
@@ -248,23 +239,6 @@ namespace BigNumbers {
         return output.first;
     }
 
-//    template<class T>
-//    BigInt<T> BigInt<T>::trim() const {
-//        SizeType end;
-//        T fillValue = getFillValue();
-//        for (end = pieces.getSize(); end > 0; --end) {
-//            if (pieces[end - 1] != fillValue) {
-//                break;
-//            }
-//        }
-//
-//        if (end == pieces.getSize()) {
-//            return *this;
-//        }
-//
-//        return BigInt<T>(std::vector<T>(pieces.begin(), pieces.begin() + end), sign);
-//    }
-
     template<class T>
     std::strong_ordering BigInt<T>::operator<=>(const BigInt<T> &secondOperand) const {
         const BigInt<T> &firstOperand = *this;
@@ -292,39 +266,6 @@ namespace BigNumbers {
 
         return std::strong_ordering::equal;
     }
-
-//    template<class T>
-//    void BigInt<T>::trimRight() {
-//        std::size_t newStart;
-//        for (newStart = 0; newStart < pieces.getSize(); ++newStart) {
-//            if (pieces[newStart] != getFillValue()) {
-//                break;
-//            }
-//        }
-//
-//        if (newStart != 0) {
-//            pieces.erase(pieces.begin(), pieces.begin() + newStart);
-//        }
-//    }
-//
-//    template<class T>
-//    std::size_t BigInt<T>::getWidth() const {
-//        return pieces.getSize();
-//    }
-//
-//    template<class T>
-//    void BigInt<T>::pushRight(std::size_t count) {
-//        for (std::size_t i = 0; i < count; ++i) {
-//            pieces.pushBack(getFillValue());
-//        }
-//    }
-//
-//    template<class T>
-//    void BigInt<T>::padRight(std::size_t width) {
-//        for (std::size_t i = pieces.getSize(); i < width; ++i) {
-//            pieces.pushFront(getFillValue());
-//        }
-//    }
 
     template<class T>
     bool BigInt<T>::operator==(const BigInt<T> &secondOperand) const {
