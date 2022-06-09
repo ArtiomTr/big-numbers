@@ -5,31 +5,34 @@
 #include <chrono>
 #include <random>
 
+using namespace BigNumbers;
+
+// TODO: add negative value tests
 bool testSingleCell() {
-    BigInt<uint8_t> one({0b00000010}, 0);
-    BigInt<uint8_t> two({0b00000010}, 0);
+    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b00000010}, 0);
+    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b00000010}, 0);
 
     BigInt<uint8_t> result = one * two;
 
-    return testBigInt(result, BigInt({0b00000100}, 0));
+    return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0b00000100}, 0));
 }
 
 bool testMultipleCells() {
-    BigInt<uint8_t> one({0b10000000}, 0);
-    BigInt<uint8_t> two({0b01000000}, 0);
+    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b10000000}, 0);
+    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b01000000}, 0);
 
     BigInt<uint8_t> result = one * two;
 
-    return testBigInt(result, BigInt({0b00000000, 0b00100000}, 0));
+    return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0b00000000, 0b00100000}, 0));
 }
 
 bool testFilledCells() {
-    BigInt<uint8_t> one({0b11111111}, 0);
-    BigInt<uint8_t> two({0b11111111}, 0);
+    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b11111111}, 0);
+    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b11111111}, 0);
 
     BigInt<uint8_t> result = one * two;
 
-    return testBigInt(result, BigInt({0b00000001, 0b11111110}, 0));
+    return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0b00000001, 0b11111110}, 0));
 }
 
 int main() {

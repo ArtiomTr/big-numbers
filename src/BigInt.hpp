@@ -94,7 +94,7 @@ namespace BigNumbers {
 
             const BigInt<T> &current = *this;
 
-            if (current.pieces.size() > requiredPieceCount) {
+            if (current.pieces.getSize() > requiredPieceCount) {
                 throw std::logic_error("Cannot cast BigInt to given type - value is too big.");
             }
 

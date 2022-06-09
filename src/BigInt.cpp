@@ -23,14 +23,17 @@ namespace BigNumbers {
 
     template<class T>
     std::string BigInt<T>::toString() const {
-        std::string output = sign ? "-" : "+";
+        std::stringstream output;
+        output << (sign ? '-' : '+');
 
         for (auto it = pieces.rbegin(); it != pieces.rend(); ++it) {
             std::bitset<BigInt<T>::PIECE_SIZE> buff(*it);
-            output += buff.to_string();
-        }
+            output << buff.to_string();
 
-        return output;
+        }
+        output << " (length " << pieces.getSize() << ")";
+
+        return output.str();
     }
 
     template<class T>

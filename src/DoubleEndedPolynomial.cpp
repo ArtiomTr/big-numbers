@@ -30,6 +30,8 @@ namespace BigNumbers {
         if (current != nullptr) {
             current = current->next;
         }
+
+        return *this;
     }
 
     template<class C>
@@ -44,6 +46,8 @@ namespace BigNumbers {
         if (current != nullptr) {
             current = current->previous;
         }
+
+        return *this;
     }
 
     template<class C>
@@ -65,7 +69,7 @@ namespace BigNumbers {
 
     template<class C>
     typename DoubleEndedPolynomial<C>::CoefficientType &DoubleEndedPolynomial<C>::Iterator::operator*() {
-        return *current;
+        return current->coefficient;
     }
 
     template<class C>
@@ -107,14 +111,14 @@ namespace BigNumbers {
     }
 
     template<class C>
-    DoubleEndedPolynomial<C>::DoubleEndedPolynomial(const DoubleEndedPolynomial<C> &copySource) :
-            DoubleEndedPolynomial(copySource.startFill, copySource.endFill) {
+    DoubleEndedPolynomial<C>::DoubleEndedPolynomial(const DoubleEndedPolynomial<C> &copySource)
+            : DoubleEndedPolynomial() {
         copyFrom(copySource);
     }
 
     template<class C>
     DoubleEndedPolynomial<C> &DoubleEndedPolynomial<C>::operator=(const DoubleEndedPolynomial<C> &copySource) {
-        if (&copySource != *this) {
+        if (&copySource != this) {
             copyFrom(copySource);
         }
 
@@ -143,7 +147,7 @@ namespace BigNumbers {
 
     template<class C>
     typename DoubleEndedPolynomial<C>::Iterator DoubleEndedPolynomial<C>::end() const {
-        return Iterator(nullptr);
+        return Iterator(tail);
     }
 
     template<class C>
@@ -173,6 +177,10 @@ namespace BigNumbers {
         } else if (tail != nullptr) {
             newNode->previous = tail;
             tail->next = newNode;
+            tail = newNode;
+        }
+
+        if (iterator.current == tail) {
             tail = newNode;
         }
 
@@ -275,7 +283,7 @@ namespace BigNumbers {
     }
 
     template<class C>
-    void trimBack(DoubleEndedPolynomial<C> polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value) {
+    void trimBack(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value) {
         trimDirection(polynomial, value, polynomial.rbegin(), polynomial.rend());
     }
 
@@ -299,4 +307,24 @@ namespace BigNumbers {
                     typename DoubleEndedPolynomial<C>::CoefficientType value) {
         extendDirection(polynomial, count, value, polynomial.end());
     }
+
+    template
+    class DoubleEndedPolynomial<uint8_t>;
+
+    template
+    void trimFront(DoubleEndedPolynomial<uint8_t> &polynomial,
+                   typename DoubleEndedPolynomial<uint8_t>::CoefficientType value);
+
+    template
+    void trimBack(DoubleEndedPolynomial<uint8_t> &polynomial,
+                  typename DoubleEndedPolynomial<uint8_t>::CoefficientType value);
+
+    template
+    void extendFront(DoubleEndedPolynomial<uint8_t> &polynomial,
+                     typename DoubleEndedPolynomial<uint8_t>::SizeType count,
+                     typename DoubleEndedPolynomial<uint8_t>::CoefficientType value);
+
+    template
+    void extendBack(DoubleEndedPolynomial<uint8_t> &polynomial, typename DoubleEndedPolynomial<uint8_t>::SizeType count,
+                    typename DoubleEndedPolynomial<uint8_t>::CoefficientType value);
 }

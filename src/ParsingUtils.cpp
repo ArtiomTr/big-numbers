@@ -62,7 +62,7 @@ namespace BigNumbers {
 
     template<class V>
     uint32_t fractionalSourceToBinary(const std::string &source, std::size_t width, bool shift,
-                                      DoubleEndedPolynomial <V> &output) {
+                                      DoubleEndedPolynomial<V> &output) {
         constexpr std::size_t BIT_COUNT = 8 * sizeof(V);
 
         auto beginIt = output.rbegin();
@@ -177,17 +177,17 @@ namespace BigNumbers {
 
         trimBack(mantissa.pieces, 0);
 
-        int32_t exponent = std::max(mantissa.pieces.size(), 1) - 1;
+        int32_t exponent = std::max(mantissa.pieces.getSize(), static_cast<std::size_t>(1)) - 1;
 
-        if (mantissa.pieces.size() > mantissaWidth) {
+        if (mantissa.pieces.getSize() > mantissaWidth) {
             throw std::logic_error(
                     "Too small precision: unsafe integer bound exceeded, precision is less than 1 unit.");
         }
 
-        if (mantissa.pieces.size() < mantissaWidth) {
+        if (mantissa.pieces.getSize() < mantissaWidth) {
 
             int32_t exponentCorrection = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
-                                                                     mantissaWidth - mantissa.pieces.size(),
+                                                                     mantissaWidth - mantissa.pieces.getSize(),
                                                                      mantissa.pieces.empty(),
                                                                      mantissa.pieces);
 
@@ -196,4 +196,8 @@ namespace BigNumbers {
 
         return BigFloat<T>(sign ? -mantissa : mantissa, exponent);
     }
+
+    template BigInt<uint8_t> parseBigInt(std::string source);
+
+    template BigFloat<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
 }

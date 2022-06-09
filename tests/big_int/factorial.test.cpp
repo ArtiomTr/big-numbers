@@ -1,8 +1,11 @@
-#include "BigInt.hpp"
-#include "../utils.h"
-
 #include <fstream>
 #include <iostream>
+
+#include "BigInt.hpp"
+#include "ParsingUtils.h"
+#include "../utils.h"
+
+using namespace BigNumbers;
 
 BigInt<uint8_t> computeFactorial(int in) {
     BigInt<uint8_t> result = 1;
@@ -25,7 +28,7 @@ int main() {
 
         input >> in >> resultSource;
 
-        BigInt<uint8_t> result = parseBigInt(resultSource);
+        BigInt<uint8_t> result = parseBigInt<uint8_t>(resultSource);
 
         if (computeFactorial(in) != result) {
             std::cout << "Failed to compute " << in << "!" << std::endl;

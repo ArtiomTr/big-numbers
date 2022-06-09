@@ -1,9 +1,13 @@
 #include <iostream>
+#include <vector>
 
 #include "BigInt.hpp"
+#include "BigIntDebugger.h"
+
+using namespace BigNumbers;
 
 bool testOnePiece() {
-    BigInt<uint8_t> in({0b00001111}, 0);
+    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b00001111}, 0);
 
     auto casted = (uint8_t) in;
 
@@ -11,15 +15,17 @@ bool testOnePiece() {
 }
 
 bool testMultiplePieces() {
-    BigInt<uint8_t> in({0b01010000, 0b00001111}, 0);
+    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b01010000, 0b00001111}, 0);
 
     auto casted = (uint16_t) in;
+
+    std::cout << in.toString() << " " << casted << std::endl;
 
     return casted == 3920;
 }
 
 bool testTrimming() {
-    BigInt<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
+    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
 
     auto casted = (uint16_t) in;
 
@@ -27,7 +33,7 @@ bool testTrimming() {
 }
 
 bool testZero() {
-    BigInt<uint8_t> in({}, 0);
+    BigInt<uint8_t> in;
 
     auto casted = (uint8_t) in;
 
@@ -35,7 +41,7 @@ bool testZero() {
 }
 
 bool testValidation() {
-    BigInt<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
+    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
 
     try {
         auto casted = (uint8_t) in;

@@ -1,16 +1,17 @@
 #include "BigFloat.hpp"
+#include "../utils.h"
 
 #include <iostream>
 
-#include "../utils.h"
+using namespace BigNumbers;
 
 bool testInvert() {
-    BigFloat<uint8_t> first(BigInt<uint8_t>({0b11101000}, 0), -1); // 0.90625
-    BigFloat<uint8_t> second(BigInt<uint8_t>({0b11101000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), -1); // 0.90625
 
     BigFloat<uint8_t> out = first - second;
 
-    BigInt<uint8_t> mantissa({}, 0); // 0
+    BigInt<uint8_t> mantissa; // 0
     int32_t exponent = 0;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, exponent));
