@@ -103,6 +103,10 @@ namespace BigNumbers {
     template<class C>
     void extendFront(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::SizeType count,
                      typename DoubleEndedPolynomial<C>::CoefficientType value);
+
+    template<class C>
+    void extendBack(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::SizeType count,
+                    typename DoubleEndedPolynomial<C>::CoefficientType value);
 }
 
 #endif //BIG_NUMBERS_DOUBLEENDEDPOLYNOMIAL_H

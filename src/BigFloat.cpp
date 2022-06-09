@@ -2,15 +2,20 @@
 
 #include <regex>
 #include <string>
-#include <iostream>
+#include <sstream>
 
 #include "IsomorphicMath.hpp"
 
 namespace BigNumbers {
 
     template<class T>
+    BigFloat<T>::BigFloat(): exponent(0), mantissa(BigInt<T>{}) {
+
+    }
+
+    template<class T>
     BigFloat<T>::BigFloat(BigInt<T> mantissa, int32_t exponent): exponent(exponent), mantissa(mantissa) {
-        if (mantissa.getWidth() == 0) {
+        if (mantissa.pieces.getSize() == 0) {
             this->exponent = 0;
         }
     }
@@ -23,29 +28,35 @@ namespace BigNumbers {
         return out.str();
     }
 
-    template<class V>
-    BigFloat<V> operator+(BigFloat<V> augend, BigFloat<V> addend) {
-        int32_t exponent = std::max(augend.exponent, addend.exponent);
+    template<class T>
+    BigFloat<T> BigFloat<T>::operator+(BigFloat<T> addend) const {
+        BigFloat<T> augend = *this;
+        int32_t outputExponent = std::max(augend.exponent, addend.exponent);
 
-        augend.mantissa.pushRight(IsomorphicMath::delta(augend.exponent, exponent));
-        addend.mantissa.pushRight(IsomorphicMath::delta(addend.exponent, exponent));
+        extendBack(augend.mantissa.pieces, IsomorphicMath::delta(augend.exponent, outputExponent),
+                   augend.mantissa.getFillValue());
+        extendBack(addend.mantissa.pieces, IsomorphicMath::delta(addend.exponent, outputExponent),
+                   addend.mantissa.getFillValue());
 
-        std::size_t width = std::max(augend.mantissa.getWidth(), addend.mantissa.getWidth());
-        augend.mantissa.padRight(width);
-        addend.mantissa.padRight(width);
+        std::size_t width = std::max(augend.mantissa.pieces.getSize(), addend.mantissa.pieces.getSize());
 
-        BigInt<V> newMantissa = augend.mantissa + addend.mantissa;
+        extendFront(augend.mantissa.pieces, IsomorphicMath::delta(width, augend.mantissa.pieces.getSize()),
+                    augend.mantissa.getFillValue());
+        extendFront(addend.mantissa.pieces, IsomorphicMath::delta(width, addend.mantissa.pieces.getSize()),
+                    addend.mantissa.getFillValue());
 
-        exponent += newMantissa.getWidth() - width;
+        augend.mantissa = augend.mantissa + addend.mantissa;
 
-        width = newMantissa.getWidth();
-        newMantissa = newMantissa.trim();
-        exponent += width - newMantissa.getWidth();
-        newMantissa.trimRight();
+        outputExponent += augend.mantissa.pieces.getSize() - width;
 
-        BigFloat<V> out(newMantissa, exponent);
+        width = augend.mantissa.pieces.getSize();
+        augend.mantissa.normalize();
+        outputExponent += width - augend.mantissa.pieces.getSize();
+        trimFront(augend.mantissa.pieces, augend.mantissa.getFillValue());
 
-        return out;
+        augend.exponent = outputExponent;
+
+        return augend;
     }
 
     template<class V>
@@ -63,27 +74,25 @@ namespace BigNumbers {
     }
 
     template<class V>
-    BigFloat<V> operator*(const BigFloat<V> &multiplier, const BigFloat<V> &multiplicand) {
-        BigInt<V> mantissa = multiplier.mantissa * multiplicand.mantissa;
-        int32_t exponent = multiplier.exponent + multiplicand.exponent;
+    BigFloat<V> BigFloat<V>::operator*(const BigFloat<V> &multiplicand) {
+        const BigFloat<V> &multiplier = *this;
+        BigFloat<V> output{};
+        output.mantissa = multiplier.mantissa * multiplicand.mantissa;
+        output.exponent = multiplier.exponent + multiplicand.exponent;
 
-        std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.getWidth())
-                                         + getFractionWidth(multiplicand.mantissa.getWidth());
+        std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.pieces.getSize())
+                                         + getFractionWidth(multiplicand.mantissa.pieces.getSize());
 
-        std::size_t resultFractionWidth = getFractionWidth(mantissa.getWidth());
-        exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
+        std::size_t resultFractionWidth = getFractionWidth(output.mantissa.pieces.getSize());
+        output.exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
 
-        return BigFloat<V>(mantissa, exponent);
+        return output;
     }
 
     template
     class BigFloat<uint8_t>;
 
-    template BigFloat<uint8_t> operator+(BigFloat<uint8_t> augend, BigFloat<uint8_t> addend);
-
     template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &minuend, const BigFloat<uint8_t> &subtrahend);
 
     template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &value);
-
-    template BigFloat<uint8_t> operator*(const BigFloat<uint8_t> &multiplier, const BigFloat<uint8_t> &multiplicand);
 }

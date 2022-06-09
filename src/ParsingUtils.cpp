@@ -61,12 +61,13 @@ namespace BigNumbers {
     }
 
     template<class V>
-    std::pair<std::vector<V>, uint32_t> fractionalSourceToBinary(const std::string &source,
-                                                                 std::size_t width, bool shift) {
+    uint32_t fractionalSourceToBinary(const std::string &source, std::size_t width, bool shift,
+                                      DoubleEndedPolynomial <V> &output) {
         constexpr std::size_t BIT_COUNT = 8 * sizeof(V);
 
+        auto beginIt = output.rbegin();
+
         std::size_t currentWidth = 0;
-        std::list<V> pieces;
 
         std::vector<uint8_t> transformedSource = decimalStringToNumbers(source);
         uint8_t bufferIndex = 0;
@@ -97,7 +98,7 @@ namespace BigNumbers {
                     --exponent;
                 } else {
                     ++currentWidth;
-                    pieces.push_back(buffer.to_ulong());
+                    output.insert(beginIt, buffer.to_ulong());
                 }
 
                 buffer.reset();
@@ -105,18 +106,18 @@ namespace BigNumbers {
         }
 
         if (buffer.any()) {
-            pieces.push_back(buffer.to_ulong());
+            output.insert(beginIt, buffer.to_ulong());
             ++currentWidth;
         }
 
         if (currentWidth > width) {
-            buffer = pieces.back();
-            pieces.pop_back();
+            buffer = output.back();
+            output.popBack();
             --currentWidth;
 
             if (buffer[BIT_COUNT - 1]) {
                 bool carry = true;
-                for (auto it = pieces.rbegin(); it != pieces.rend(); ++it) {
+                for (auto it = output.rbegin(); it != output.rend(); ++it) {
                     V oldValue = *it;
                     *it += 1;
                     if (*it > oldValue) {
@@ -126,22 +127,14 @@ namespace BigNumbers {
                 }
 
                 if (carry) {
-                    pieces.push_front(0b1);
+                    output.pushBack(0b1);
                 }
 
-                typename std::list<V>::iterator lastNonZero;
-                for (auto it = pieces.begin(); it != pieces.end(); ++it) {
-                    if (*it != 0) {
-                        lastNonZero = it;
-                    }
-                }
-
-                ++lastNonZero;
-                pieces.erase(lastNonZero, pieces.end());
+                trimBack(output, 0);
             }
         }
 
-        return {{pieces.begin(), pieces.end()}, pieces.empty() ? 0 : exponent};
+        return output.empty() ? 0 : exponent;
     }
 
     template<class T>
@@ -179,35 +172,27 @@ namespace BigNumbers {
         }
 
         std::string::size_type dotPosition = source.find('.');
-        std::vector<T> integralPart = integralSourceToBinary<T>(source.substr(0, dotPosition));
+        BigInt<T> mantissa;
+        integralSourceToBinary<T>(source.substr(0, dotPosition), mantissa.pieces);
 
-        std::size_t end;
-        for (end = integralPart.size(); end > 0; --end) {
-            if (integralPart[end - 1] != 0b0) {
-                break;
-            }
-        }
+        trimBack(mantissa.pieces, 0);
 
-        integralPart.erase(integralPart.begin() + end, integralPart.end());
-        int32_t exponent = std::max((int) integralPart.size() - 1, 0);
+        int32_t exponent = std::max(mantissa.pieces.size(), 1) - 1;
 
-        if (integralPart.size() > mantissaWidth) {
+        if (mantissa.pieces.size() > mantissaWidth) {
             throw std::logic_error(
                     "Too small precision: unsafe integer bound exceeded, precision is less than 1 unit.");
         }
 
-        if (integralPart.size() < mantissaWidth) {
-            auto fractionPart = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
-                                                            mantissaWidth - integralPart.size(),
-                                                            integralPart.empty());
+        if (mantissa.pieces.size() < mantissaWidth) {
 
-            integralPart.insert(integralPart.end(), fractionPart.first.begin(), fractionPart.first.end());
+            int32_t exponentCorrection = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
+                                                                     mantissaWidth - mantissa.pieces.size(),
+                                                                     mantissa.pieces.empty(),
+                                                                     mantissa.pieces);
 
-            exponent += fractionPart.second;
+            exponent += exponentCorrection;
         }
-
-        std::reverse(integralPart.begin(), integralPart.end());
-        BigInt<T> mantissa(integralPart, 0);
 
         return BigFloat<T>(sign ? -mantissa : mantissa, exponent);
     }

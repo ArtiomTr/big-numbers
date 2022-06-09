@@ -293,4 +293,10 @@ namespace BigNumbers {
                      typename DoubleEndedPolynomial<C>::CoefficientType value) {
         extendDirection(polynomial, count, value, polynomial.rbegin());
     }
+
+    template<class C>
+    void extendBack(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::SizeType count,
+                    typename DoubleEndedPolynomial<C>::CoefficientType value) {
+        extendDirection(polynomial, count, value, polynomial.end());
+    }
 }

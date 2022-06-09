@@ -11,12 +11,22 @@ namespace BigNumbers {
     template<class T>
     class BigIntDebugger;
 
+    template<class T>
+    class BigFloat;
+
     template<class T = uint8_t>
     class BigInt {
         // Wait, is that spaghetti code? Nah, it's just very friendly class :p
         friend class BigIntDebugger<T>;
 
-        friend BigInt<T> parseBigInt(std::string);
+        friend class BigFloat<T>;
+
+        template<class V>
+        friend BigInt<V> parseBigInt(std::string);
+
+        template<class V>
+        friend BigFloat<V> parseBigFloat(std::string, std::size_t);
+
     private:
         uint8_t sign;
         DoubleEndedPolynomial<T> pieces;
@@ -101,8 +111,6 @@ namespace BigNumbers {
         }
 
         std::string toString() const;
-
-        SizeType getWidth() const;
 
     private:
         void normalize();
