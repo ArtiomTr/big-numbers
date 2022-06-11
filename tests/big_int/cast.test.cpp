@@ -8,7 +8,6 @@ using namespace BigNumbers;
 
 bool testOnePiece() {
     BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b00001111}, 0);
-
     auto casted = (uint8_t) in;
 
     return casted == 15;
@@ -16,16 +15,6 @@ bool testOnePiece() {
 
 bool testMultiplePieces() {
     BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b01010000, 0b00001111}, 0);
-
-    auto casted = (uint16_t) in;
-
-    std::cout << in.toString() << " " << casted << std::endl;
-
-    return casted == 3920;
-}
-
-bool testTrimming() {
-    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
 
     auto casted = (uint16_t) in;
 
@@ -58,7 +47,6 @@ int main() {
     std::vector<std::pair<std::string, test>> tests{
             {"One piece test",       testOnePiece},
             {"Test multiple pieces", testMultiplePieces},
-            {"Test trimming",        testTrimming},
             {"Test zero",            testZero},
             {"Test validation",      testValidation}
     };

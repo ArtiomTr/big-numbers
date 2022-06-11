@@ -20,8 +20,9 @@ namespace BigNumbers {
             friend class DoubleEndedPolynomial<C>;
 
             Node *current;
+            bool endReached, beginReached;
         public:
-            explicit Iterator(DoubleEndedPolynomial<C>::Node *current);
+            explicit Iterator(DoubleEndedPolynomial<C>::Node *current, bool endReached, bool beginReached);
 
             Iterator &operator++();
 
