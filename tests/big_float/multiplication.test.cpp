@@ -23,7 +23,7 @@ bool testZero() {
     BigFloat<uint8_t> second(BigInt<uint8_t>(), 0);
 
     BigFloat<uint8_t> out = first * second;
-
+    std::cout << out.toString() << std::endl;
     BigInt<uint8_t> mantissa;
     int32_t exponent = 0;
 

@@ -15,7 +15,7 @@ namespace BigNumbers {
 
     template<class T>
     BigFloat<T>::BigFloat(BigInt<T> mantissa, int32_t exponent): exponent(exponent), mantissa(mantissa) {
-        if (mantissa.pieces.getSize() == 0) {
+        if (mantissa.pieces.empty()) {
             this->exponent = 0;
         }
     }
@@ -85,6 +85,10 @@ namespace BigNumbers {
 
         std::size_t resultFractionWidth = getFractionWidth(output.mantissa.pieces.getSize());
         output.exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
+
+        if (output.mantissa.pieces.empty()) {
+            output.exponent = 0;
+        }
 
         return output;
     }
