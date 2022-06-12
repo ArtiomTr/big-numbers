@@ -49,12 +49,12 @@ bool testDiffSizedNumbers() {
 }
 
 bool testEmptySubtraction() {
-    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({}, 0);
-    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({}, 0);
+    BigInt<uint8_t> one;
+    BigInt<uint8_t> two;
 
     BigInt<uint8_t> result = one - two;
 
-    return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0}, 1));
+    return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({}, 0));
 }
 
 int main() {

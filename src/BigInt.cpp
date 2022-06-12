@@ -99,6 +99,10 @@ namespace BigNumbers {
 
     template<class T>
     BigInt<T> BigInt<T>::operator-() const {
+        if (pieces.empty()) {
+            return *this;
+        }
+
         BigInt<T> output = ~(*this) + BigInt<T>((T) 1);
         output.sign = !sign;
         return output;
