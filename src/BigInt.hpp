@@ -120,7 +120,8 @@ namespace BigNumbers {
         template<class V>
         friend std::pair<BigInt<V>, BigInt<V>> longDivision(const BigInt<V> &inDividend, const BigInt<V> &inDivisor);
 
-        static std::pair<BigInt<T>, BigInt<T>> sortBySize(const BigInt<T> &first, const BigInt<T> &second);
+        static std::pair<const BigInt<T> &, const BigInt<T> &>
+        sortBySize(const BigInt<T> &first, const BigInt<T> &second);
     };
 }
 

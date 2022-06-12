@@ -99,8 +99,9 @@ namespace BigNumbers {
             return;
         }
 
+        size = copySource.size;
         head = new Node(copySource.head->coefficient);
-        Node *current = copySource.head;
+        Node *current = copySource.head->next;
         Node *previous = head;
 
         while (current != nullptr) {
@@ -305,20 +306,20 @@ namespace BigNumbers {
                          typename DoubleEndedPolynomial<C>::CoefficientType value, ForwardIterator position) {
         for (std::size_t i = 0; i < count; ++i) {
             polynomial.insert(position, value);
-            ++position;
+            --position;
         }
     }
 
     template<class C>
     void extendFront(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::SizeType count,
                      typename DoubleEndedPolynomial<C>::CoefficientType value) {
-        extendDirection(polynomial, count, value, polynomial.rbegin());
+        extendDirection(polynomial, count, value, polynomial.begin());
     }
 
     template<class C>
     void extendBack(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::SizeType count,
                     typename DoubleEndedPolynomial<C>::CoefficientType value) {
-        extendDirection(polynomial, count, value, polynomial.end());
+        extendDirection(polynomial, count, value, polynomial.rbegin());
     }
 
     template

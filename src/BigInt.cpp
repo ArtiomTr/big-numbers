@@ -8,7 +8,8 @@
 
 namespace BigNumbers {
     template<class T>
-    std::pair<BigInt<T>, BigInt<T>> BigInt<T>::sortBySize(const BigInt<T> &first, const BigInt<T> &second) {
+    std::pair<const BigInt<T> &, const BigInt<T> &>
+    BigInt<T>::sortBySize(const BigInt<T> &first, const BigInt<T> &second) {
         if (first.pieces.getSize() > second.pieces.getSize()) {
             return {second, first};
         } else {
@@ -122,16 +123,13 @@ namespace BigNumbers {
             maskBuilder = std::numeric_limits<T>::max();
         }
 
-        const std::vector<int> a;
-        a.front();
-
         T mask = ~maskBuilder;
 
         if (!pieces.empty()) {
             output.pieces.pushBack(pieces.front() << pieceShift);
         }
 
-        for (auto it = pieces.begin(); it != pieces.end(); ++it) {
+        for (auto it = ++pieces.begin(); it != pieces.end(); ++it) {
             auto previous = it;
             --previous;
             T newPiece = (*it << pieceShift) | (*previous >> pieceShiftComplement);
@@ -161,8 +159,6 @@ namespace BigNumbers {
         using SizeType = typename BigInt<T>::SizeType;
 
         const auto &[shortestMultiplicand, longestMultiplicand] = BigInt<T>::sortBySize(multiplier, multiplicand);
-
-        SizeType minSize = shortestMultiplicand.pieces.getSize();
 
         BigInt<T> product;
         product.sign = multiplier.sign ^ multiplicand.sign;

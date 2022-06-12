@@ -98,6 +98,15 @@ bool testEmptySum() {
     return testBigInt(result, BigInt());
 }
 
+bool testSumWithZero() {
+    BigInt<uint8_t> one;
+    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b10101010}, 0);
+
+    BigInt<uint8_t> result = one + two;
+
+    return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0b10101010}, 0));
+}
+
 int main() {
     using test = bool (*)();
 
@@ -110,7 +119,8 @@ int main() {
             {"Sum carrying (between cells)",   testLongCarry},
             {"Sum carrying (cell creation)",   testCellCreation},
             {"Sum carrying (full cell carry)", testFullCellCarry},
-            {"Empty numbers",                  testEmptySum}
+            {"Empty numbers",                  testEmptySum},
+            {"Sum with zero",                  testSumWithZero}
     };
 
     for (auto[testName, runTest]: tests) {
