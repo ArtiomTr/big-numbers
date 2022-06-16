@@ -16,9 +16,9 @@ enum class BigIntComparisonResult : uint8_t {
 
 // Strictly compares two BigInt's.
 template<class T>
-BigIntComparisonResult compareBigInt(const BigInt<T> &first, const BigInt<T> &second) {
-    BigIntDebugger<T> firstDebugger(first);
-    BigIntDebugger<T> secondDebugger(second);
+BigIntComparisonResult compareBigInt(const BigNumbers::BigInt<T> &first, const BigNumbers::BigInt<T> &second) {
+    BigNumbers::BigIntDebugger<T> firstDebugger(first);
+    BigNumbers::BigIntDebugger<T> secondDebugger(second);
 
     if (firstDebugger.getSign() != secondDebugger.getSign()) {
         return BigIntComparisonResult::SIGNS_NOT_MATCH;
@@ -41,7 +41,7 @@ BigIntComparisonResult compareBigInt(const BigInt<T> &first, const BigInt<T> &se
 }
 
 template<class T>
-bool testBigInt(const BigInt<T> &received, const BigInt<T> &expected) {
+bool testBigInt(const BigNumbers::BigInt<T> &received, const BigNumbers::BigInt<T> &expected) {
     BigIntComparisonResult comparisonResult = compareBigInt(received, expected);
 
     if (comparisonResult == BigIntComparisonResult::EQUAL) {
@@ -58,9 +58,9 @@ bool testBigInt(const BigInt<T> &received, const BigInt<T> &expected) {
 }
 
 template<class T>
-bool testBigFloat(const BigFloat<T> &received, const BigFloat<T> &expected) {
-    BigFloatDebugger<T> receivedDebugger(received);
-    BigFloatDebugger<T> expectedDebugger(expected);
+bool testBigFloat(const BigNumbers::BigFloat<T> &received, const BigNumbers::BigFloat<T> &expected) {
+    BigNumbers::BigFloatDebugger<T> receivedDebugger(received);
+    BigNumbers::BigFloatDebugger<T> expectedDebugger(expected);
 
     if (receivedDebugger.getExponent() != expectedDebugger.getExponent()) {
         std::cout << "Exponents do not match:\n"

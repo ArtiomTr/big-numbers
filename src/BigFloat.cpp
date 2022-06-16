@@ -2,135 +2,106 @@
 
 #include <regex>
 #include <string>
-#include <iostream>
+#include <sstream>
 
-#include "ParsingUtils.h"
 #include "IsomorphicMath.hpp"
+#include "VectorUtils.h"
 
-template<class T>
-BigFloat<T>::BigFloat(BigInt<T> mantissa, int32_t exponent): exponent(exponent), mantissa(mantissa) {
-    if (mantissa.getWidth() == 0) {
-        this->exponent = 0;
-    }
-}
+namespace BigNumbers {
 
-template<class T>
-std::string BigFloat<T>::toString() const {
-    std::stringstream out{};
-    out << mantissa.toString() << "E" << exponent;
+    template<class T>
+    BigFloat<T>::BigFloat(): exponent(0), mantissa(BigInt<T>{}) {
 
-    return out.str();
-}
-
-template<typename T>
-BigFloat<T> parseBigFloat(std::string source, std::size_t mantissaWidth) {
-    std::regex bigFloatRegex(R"(^-?\d+\.\d+$)");
-
-    if (!std::regex_match(source, bigFloatRegex)) {
-        throw std::invalid_argument("Invalid BigFloat format");
     }
 
-    uint8_t sign = source[0] == '-';
-
-    if (sign) {
-        source.erase(source.begin());
-    }
-
-    std::string::size_type dotPosition = source.find('.');
-    std::vector<T> integralPart = integralSourceToBinary<T>(source.substr(0, dotPosition));
-
-    std::size_t end;
-    for (end = integralPart.size(); end > 0; --end) {
-        if (integralPart[end - 1] != 0b0) {
-            break;
+    template<class T>
+    BigFloat<T>::BigFloat(BigInt<T> mantissa, int32_t exponent): exponent(exponent), mantissa(mantissa) {
+        if (mantissa.pieces.empty()) {
+            this->exponent = 0;
         }
     }
 
-    integralPart.erase(integralPart.begin() + end, integralPart.end());
-    int32_t exponent = std::max((int) integralPart.size() - 1, 0);
+    template<class T>
+    std::string BigFloat<T>::toString() const {
+        std::stringstream out{};
+        out << mantissa.toString() << "E" << exponent;
 
-    if (integralPart.size() > mantissaWidth) {
-        throw std::logic_error("Too small precision: unsafe integer bound exceeded, precision is less than 1 unit.");
+        return out.str();
     }
 
-    if (integralPart.size() < mantissaWidth) {
-        auto fractionPart = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
-                                                        mantissaWidth - integralPart.size(),
-                                                        integralPart.empty());
+    template<class T>
+    BigFloat<T> BigFloat<T>::operator+(BigFloat<T> addend) const {
+        BigFloat<T> augend = *this;
+        int32_t outputExponent = std::max(augend.exponent, addend.exponent);
 
-        integralPart.insert(integralPart.end(), fractionPart.first.begin(), fractionPart.first.end());
+        augend.mantissa.pieces.insert(augend.mantissa.pieces.end(),
+                                      IsomorphicMath::delta(augend.exponent, outputExponent),
+                                      augend.mantissa.getFillValue());
+        addend.mantissa.pieces.insert(addend.mantissa.pieces.end(),
+                                      IsomorphicMath::delta(addend.exponent, outputExponent),
+                                      addend.mantissa.getFillValue());
 
-        exponent += fractionPart.second;
+        std::size_t width = std::max(augend.mantissa.pieces.size(), addend.mantissa.pieces.size());
+
+        augend.mantissa.pieces.insert(augend.mantissa.pieces.begin(),
+                                      IsomorphicMath::delta(width, augend.mantissa.pieces.size()),
+                                      augend.mantissa.getFillValue());
+        addend.mantissa.pieces.insert(addend.mantissa.pieces.begin(),
+                                      IsomorphicMath::delta(width, addend.mantissa.pieces.size()),
+                                      addend.mantissa.getFillValue());
+
+        augend.mantissa = augend.mantissa + addend.mantissa;
+
+        outputExponent += augend.mantissa.pieces.size() - width;
+
+        width = augend.mantissa.pieces.size();
+        augend.mantissa.normalize();
+        outputExponent += width - augend.mantissa.pieces.size();
+        trimFront(augend.mantissa.pieces, augend.mantissa.getFillValue());
+
+        augend.exponent = outputExponent;
+
+        return augend;
     }
 
-    std::reverse(integralPart.begin(), integralPart.end());
-    BigInt<T> mantissa(integralPart, 0);
+    template<class V>
+    BigFloat<V> operator-(const BigFloat<V> &minuend, const BigFloat<V> &subtrahend) {
+        return minuend + (-subtrahend);
+    }
 
-    return BigFloat<T>(sign ? -mantissa : mantissa, exponent);
+    template<class V>
+    BigFloat<V> operator-(const BigFloat<V> &value) {
+        return BigFloat<V>(-value.mantissa, value.exponent);
+    }
+
+    inline std::size_t getFractionWidth(std::size_t totalCount) {
+        return totalCount > 0 ? totalCount - 1 : 0;
+    }
+
+    template<class V>
+    BigFloat<V> BigFloat<V>::operator*(const BigFloat<V> &multiplicand) {
+        const BigFloat<V> &multiplier = *this;
+        BigFloat<V> output{};
+        output.mantissa = multiplier.mantissa * multiplicand.mantissa;
+        output.exponent = multiplier.exponent + multiplicand.exponent;
+
+        std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.pieces.size())
+                                         + getFractionWidth(multiplicand.mantissa.pieces.size());
+
+        std::size_t resultFractionWidth = getFractionWidth(output.mantissa.pieces.size());
+        output.exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
+
+        if (output.mantissa.pieces.empty()) {
+            output.exponent = 0;
+        }
+
+        return output;
+    }
+
+    template
+    class BigFloat<uint8_t>;
+
+    template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &minuend, const BigFloat<uint8_t> &subtrahend);
+
+    template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &value);
 }
-
-template<class V>
-BigFloat<V> operator+(BigFloat<V> augend, BigFloat<V> addend) {
-    int32_t exponent = std::max(augend.exponent, addend.exponent);
-
-    augend.mantissa.pushRight(IsomorphicMath::delta(augend.exponent, exponent));
-    addend.mantissa.pushRight(IsomorphicMath::delta(addend.exponent, exponent));
-
-    std::size_t width = std::max(augend.mantissa.getWidth(), addend.mantissa.getWidth());
-    augend.mantissa.padRight(width);
-    addend.mantissa.padRight(width);
-
-    BigInt<V> newMantissa = augend.mantissa + addend.mantissa;
-
-    exponent += newMantissa.getWidth() - width;
-
-    width = newMantissa.getWidth();
-    newMantissa = newMantissa.trim();
-    exponent += width - newMantissa.getWidth();
-    newMantissa.trimRight();
-
-    BigFloat<V> out(newMantissa, exponent);
-
-    return out;
-}
-
-template<class V>
-BigFloat<V> operator-(const BigFloat<V> &minuend, const BigFloat<V> &subtrahend) {
-    return minuend + (-subtrahend);
-}
-
-template<class V>
-BigFloat<V> operator-(const BigFloat<V> &value) {
-    return BigFloat<V>(-value.mantissa, value.exponent);
-}
-
-inline std::size_t getFractionWidth(std::size_t totalCount) {
-    return totalCount > 0 ? totalCount - 1 : 0;
-}
-
-template<class V>
-BigFloat<V> operator*(const BigFloat<V> &multiplier, const BigFloat<V> &multiplicand) {
-    BigInt<V> mantissa = multiplier.mantissa * multiplicand.mantissa;
-    int32_t exponent = multiplier.exponent + multiplicand.exponent;
-
-    std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.getWidth())
-                                     + getFractionWidth(multiplicand.mantissa.getWidth());
-
-    std::size_t resultFractionWidth = getFractionWidth(mantissa.getWidth());
-    exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
-
-    return BigFloat<V>(mantissa, exponent);
-}
-
-template
-class BigFloat<uint8_t>;
-
-template BigFloat<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
-
-template BigFloat<uint8_t> operator+(BigFloat<uint8_t> augend, BigFloat<uint8_t> addend);
-
-template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &minuend, const BigFloat<uint8_t> &subtrahend);
-
-template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &value);
-
-template BigFloat<uint8_t> operator*(const BigFloat<uint8_t> &multiplier, const BigFloat<uint8_t> &multiplicand);

@@ -1,52 +1,54 @@
 #include "BigFloat.hpp"
+#include "../utils.h"
 
 #include <iostream>
 
-#include "../utils.h"
+using namespace BigNumbers;
 
 bool testFractionAlignment() {
-    BigFloat<uint8_t> first(BigInt<uint8_t>({0b11101000}, 0), -1); // 0.90625
-    BigFloat<uint8_t> second(BigInt<uint8_t>({0b11101000}, 0), 1); // 59392
+    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 1); // 59392
 
     BigFloat<uint8_t> out = first + second;
 
-    BigInt<uint8_t> mantissa({0b11101000, 0b00000000, 0b11101000}, 0); // 59392.90625
+    BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b11101000, 0b00000000, 0b11101000},
+                                                                         0); // 59392.90625
     int32_t exponent = 1;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, exponent));
 }
 
 bool testExponent() {
-    BigFloat<uint8_t> first(BigInt<uint8_t>({0b11101000}, 0), -1); // 0.90625
-    BigFloat<uint8_t> second(BigInt<uint8_t>({0b11101000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), -1); // 0.90625
 
     BigFloat<uint8_t> out = first + second;
 
-    BigInt<uint8_t> mantissa({0b11010000, 0b00000001}, 0); // 1.8125
+    BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b11010000, 0b00000001}, 0); // 1.8125
     int32_t exponent = 0;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, exponent));
 }
 
 bool testNegative() {
-    BigFloat<uint8_t> first(BigInt<uint8_t>({0b11101000}, 0), -1); // 0.90625
-    BigFloat<uint8_t> second(-BigInt<uint8_t>({0b11101000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> second(-BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), -1); // 0.90625
 
     BigFloat<uint8_t> out = first + second;
 
-    BigInt<uint8_t> mantissa({}, 0); // 0
+    BigInt<uint8_t> mantissa; // 0
     int32_t exponent = 0;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, exponent));
 }
 
 bool testMemoryOptimization() {
-    BigFloat<uint8_t> first(BigInt<uint8_t>({0b0100000, 0b11001100}, 0), 0); // 0.90625
-    BigFloat<uint8_t> second(-BigInt<uint8_t>({0b0100000}, 0), -1); // 0.90625
+    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b0100000, 0b11001100}, 0), 0); // 0.90625
+    BigFloat<uint8_t> second(-BigIntDebugger<uint8_t>::createFromSource({0b0100000}, 0), -1); // 0.90625
 
     BigFloat<uint8_t> out = first + second;
 
-    BigInt<uint8_t> mantissa({0b11001100}, 0); // 0
+    BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b11001100}, 0); // 0
     int32_t exponent = 0;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, exponent));
