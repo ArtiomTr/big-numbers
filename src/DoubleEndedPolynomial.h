@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <iterator>
+#include <list>
 
 namespace BigNumbers {
 
@@ -12,53 +13,34 @@ namespace BigNumbers {
     public:
         using CoefficientType = C;
         using SizeType = std::size_t;
+        using Iterator = typename std::list<C>::iterator;
+        using ConstIterator = typename std::list<C>::const_iterator;
+        using ReverseIterator = typename std::list<C>::reverse_iterator;
+        using ConstReverseIterator = typename std::list<C>::const_reverse_iterator;
     private:
-        struct Node;
-    public:
-        class Iterator : public std::iterator<std::bidirectional_iterator_tag, CoefficientType> {
-        private:
-            friend class DoubleEndedPolynomial<C>;
-
-            Node *current;
-        public:
-            explicit Iterator(DoubleEndedPolynomial<C>::Node *current);
-
-            Iterator &operator++();
-
-            Iterator operator++(int);
-
-            Iterator &operator--();
-
-            Iterator operator--(int);
-
-            bool operator==(const Iterator &other) const;
-
-            bool operator!=(const Iterator &other) const;
-
-            CoefficientType &operator*();
-        };
-
-        using ReverseIterator = std::reverse_iterator<Iterator>;
-    private:
-        Node *header;
         SizeType size;
 
-        void copyFrom(const DoubleEndedPolynomial<C> &copySource);
-
+        std::list<C> values;
     public:
         DoubleEndedPolynomial();
 
-        ~DoubleEndedPolynomial();
-
         DoubleEndedPolynomial(const DoubleEndedPolynomial<C> &copySource);
 
-        Iterator begin() const;
+        Iterator begin();
 
-        Iterator end() const;
+        Iterator end();
 
-        ReverseIterator rbegin() const;
+        ConstIterator begin() const;
 
-        ReverseIterator rend() const;
+        ConstIterator end() const;
+
+        ReverseIterator rbegin();
+
+        ReverseIterator rend();
+
+        ConstReverseIterator rbegin() const;
+
+        ConstReverseIterator rend() const;
 
         [[nodiscard]] SizeType getSize() const;
 
