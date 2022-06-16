@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "IsomorphicMath.hpp"
+#include "VectorUtils.h"
 
 namespace BigNumbers {
 
@@ -33,25 +34,29 @@ namespace BigNumbers {
         BigFloat<T> augend = *this;
         int32_t outputExponent = std::max(augend.exponent, addend.exponent);
 
-        extendBack(augend.mantissa.pieces, IsomorphicMath::delta(augend.exponent, outputExponent),
-                   augend.mantissa.getFillValue());
-        extendBack(addend.mantissa.pieces, IsomorphicMath::delta(addend.exponent, outputExponent),
-                   addend.mantissa.getFillValue());
+        augend.mantissa.pieces.insert(augend.mantissa.pieces.end(),
+                                      IsomorphicMath::delta(augend.exponent, outputExponent),
+                                      augend.mantissa.getFillValue());
+        addend.mantissa.pieces.insert(addend.mantissa.pieces.end(),
+                                      IsomorphicMath::delta(addend.exponent, outputExponent),
+                                      addend.mantissa.getFillValue());
 
-        std::size_t width = std::max(augend.mantissa.pieces.getSize(), addend.mantissa.pieces.getSize());
+        std::size_t width = std::max(augend.mantissa.pieces.size(), addend.mantissa.pieces.size());
 
-        extendFront(augend.mantissa.pieces, IsomorphicMath::delta(width, augend.mantissa.pieces.getSize()),
-                    augend.mantissa.getFillValue());
-        extendFront(addend.mantissa.pieces, IsomorphicMath::delta(width, addend.mantissa.pieces.getSize()),
-                    addend.mantissa.getFillValue());
+        augend.mantissa.pieces.insert(augend.mantissa.pieces.begin(),
+                                      IsomorphicMath::delta(width, augend.mantissa.pieces.size()),
+                                      augend.mantissa.getFillValue());
+        addend.mantissa.pieces.insert(addend.mantissa.pieces.begin(),
+                                      IsomorphicMath::delta(width, addend.mantissa.pieces.size()),
+                                      addend.mantissa.getFillValue());
 
         augend.mantissa = augend.mantissa + addend.mantissa;
 
-        outputExponent += augend.mantissa.pieces.getSize() - width;
+        outputExponent += augend.mantissa.pieces.size() - width;
 
-        width = augend.mantissa.pieces.getSize();
+        width = augend.mantissa.pieces.size();
         augend.mantissa.normalize();
-        outputExponent += width - augend.mantissa.pieces.getSize();
+        outputExponent += width - augend.mantissa.pieces.size();
         trimFront(augend.mantissa.pieces, augend.mantissa.getFillValue());
 
         augend.exponent = outputExponent;
@@ -80,10 +85,10 @@ namespace BigNumbers {
         output.mantissa = multiplier.mantissa * multiplicand.mantissa;
         output.exponent = multiplier.exponent + multiplicand.exponent;
 
-        std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.pieces.getSize())
-                                         + getFractionWidth(multiplicand.mantissa.pieces.getSize());
+        std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.pieces.size())
+                                         + getFractionWidth(multiplicand.mantissa.pieces.size());
 
-        std::size_t resultFractionWidth = getFractionWidth(output.mantissa.pieces.getSize());
+        std::size_t resultFractionWidth = getFractionWidth(output.mantissa.pieces.size());
         output.exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
 
         if (output.mantissa.pieces.empty()) {

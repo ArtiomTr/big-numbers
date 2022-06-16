@@ -5,12 +5,13 @@
 #include <bitset>
 
 #include "IsomorphicMath.hpp"
+#include "VectorUtils.h"
 
 namespace BigNumbers {
     template<class T>
     std::pair<const BigInt<T> &, const BigInt<T> &>
     BigInt<T>::sortBySize(const BigInt<T> &first, const BigInt<T> &second) {
-        if (first.pieces.getSize() > second.pieces.getSize()) {
+        if (first.pieces.size() > second.pieces.size()) {
             return {second, first};
         } else {
             return {first, second};
@@ -32,13 +33,13 @@ namespace BigNumbers {
             output << buff.to_string();
 
         }
-        output << " (length " << pieces.getSize() << ")";
+        output << " (length " << pieces.size() << ")";
 
         return output.str();
     }
 
     template<class T>
-    BigInt<T>::BigInt() : pieces(DoubleEndedPolynomial<T>()), sign(0) {
+    BigInt<T>::BigInt() : pieces(std::vector<T>()), sign(0) {
 
     }
 
@@ -61,7 +62,7 @@ namespace BigNumbers {
             carry = (augendPiece > value) || (addendPiece > value) ||
                     (carry && (augendPiece == value || addendPiece == value));
 
-            sum.pieces.pushBack(value);
+            sum.pieces.push_back(value);
 
             if (firstIt != augend.pieces.end())
                 ++firstIt;
@@ -75,7 +76,7 @@ namespace BigNumbers {
         sum.sign = additional[BigInt<T>::PIECE_SIZE - 1];
 
         if (additional != sum.getFillValue()) {
-            sum.pieces.pushBack(additional.to_ulong());
+            sum.pieces.push_back(additional.to_ulong());
         }
 
         return sum;
@@ -112,7 +113,7 @@ namespace BigNumbers {
     BigInt<T> BigInt<T>::operator<<(const SizeType &shiftBy) const {
         BigInt<T> output;
         output.sign = sign;
-        output.pieces.resize(pieces.getSize());
+        output.pieces.resize(pieces.size());
 
         SizeType pieceShift = shiftBy % BigInt<T>::PIECE_SIZE;
         SizeType pieceShiftComplement = BigInt<T>::PIECE_SIZE - pieceShift;
@@ -134,15 +135,9 @@ namespace BigNumbers {
             output.pieces.front() = pieces.front() << pieceShift;
         }
 
-        typename DoubleEndedPolynomial<T>::ConstIterator sourceIt;
-        typename DoubleEndedPolynomial<T>::Iterator outIt;
-        for (sourceIt = ++pieces.begin(), outIt = ++output.pieces.begin();
-             sourceIt != pieces.end() && outIt != output.pieces.end();
-             ++sourceIt, ++outIt) {
-            auto previous = std::prev(sourceIt);
-            T newPiece = (*sourceIt << pieceShift) | (*previous >> pieceShiftComplement);
-
-            *outIt = newPiece;
+        for (std::size_t i = 1; i < pieces.size(); ++i) {
+            output.pieces[i] = (pieces[i] << pieceShift) |
+                               (pieces[i - 1] >> pieceShiftComplement);
         }
 
         T fillValue = output.getFillValue();
@@ -151,12 +146,12 @@ namespace BigNumbers {
                             (fillValue << pieceShift);
 
         if (additionalPiece != fillValue) {
-            output.pieces.pushBack(additionalPiece);
+            output.pieces.push_back(additionalPiece);
         }
 
         SizeType emptyPieceCount = shiftBy / BigInt<T>::PIECE_SIZE;
         if (emptyPieceCount > 0) {
-            extendFront(output.pieces, emptyPieceCount, 0);
+            output.pieces.insert(output.pieces.begin(), emptyPieceCount, 0);
         }
 
         return output;
@@ -199,7 +194,7 @@ namespace BigNumbers {
         }
 
         BigInt<V> remainder;
-        remainder.pieces.pushFront(0);
+        remainder.pieces.insert(remainder.pieces.begin(), 0);
         BigInt<V> quotient;
 
         constexpr std::size_t BIT_COUNT = sizeof(V) * 8;
@@ -222,7 +217,7 @@ namespace BigNumbers {
                 }
             }
 
-            quotient.pieces.pushFront(static_cast<V>(quotientBits.to_ulong()));
+            quotient.pieces.insert(quotient.pieces.begin(), static_cast<V>(quotientBits.to_ulong()));
         }
 
         quotient.normalize();
@@ -255,8 +250,8 @@ namespace BigNumbers {
             return secondOperand.sign <=> firstOperand.sign;
         }
 
-        if (firstOperand.pieces.getSize() != secondOperand.pieces.getSize()) {
-            return firstOperand.pieces.getSize() <=> secondOperand.pieces.getSize();
+        if (firstOperand.pieces.size() != secondOperand.pieces.size()) {
+            return firstOperand.pieces.size() <=> secondOperand.pieces.size();
         }
 
         auto firstIt = firstOperand.pieces.rbegin(), secondIt = secondOperand.pieces.rbegin();

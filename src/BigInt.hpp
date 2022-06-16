@@ -2,10 +2,9 @@
 #define BIG_NUMBERS_BIG_INT_HPP
 
 #include <string>
+#include <vector>
 #include <stdexcept>
 #include <bitset>
-
-#include "DoubleEndedPolynomial.h"
 
 namespace BigNumbers {
     template<class T>
@@ -29,11 +28,11 @@ namespace BigNumbers {
 
     private:
         uint8_t sign;
-        DoubleEndedPolynomial<T> pieces;
+        std::vector<T> pieces;
 
         static constexpr std::size_t PIECE_SIZE = sizeof(T) * 8;
     public:
-        using SizeType = typename DoubleEndedPolynomial<T>::SizeType;
+        using SizeType = typename std::vector<T>::size_type;
 
         explicit BigInt();
 
@@ -44,19 +43,27 @@ namespace BigNumbers {
             std::bitset<PIECE_SIZE> buffer;
             std::size_t bufferIndex = 0;
 
+            std::size_t pieceCount = sizeof(Value) / sizeof(T);
+            pieceCount += (sizeof(Value) > pieceCount * sizeof(T));
+            pieces.resize(pieceCount);
+
+            std::size_t pieceIndex = 0;
             for (std::size_t i = 0; i < BIT_COUNT; ++i) {
                 buffer[bufferIndex] = input[i];
                 ++bufferIndex;
 
                 if (bufferIndex == PIECE_SIZE) {
-                    pieces.pushBack(buffer.to_ulong());
+                    pieces[pieceIndex] = buffer.to_ulong();
+                    ++pieceIndex;
                     buffer.reset();
                     bufferIndex = 0;
                 }
             }
 
             if (buffer.any()) {
-                pieces.pushBack(buffer.to_ulong());
+                pieces.back() = buffer.to_ulong();
+            } else if (pieceIndex != pieceCount) {
+                pieces.back() = getFillValue();
             }
 
             normalize();
@@ -94,7 +101,7 @@ namespace BigNumbers {
 
             const BigInt<T> &current = *this;
 
-            if (current.pieces.getSize() > requiredPieceCount) {
+            if (current.pieces.size() > requiredPieceCount) {
                 throw std::logic_error("Cannot cast BigInt to given type - value is too big.");
             }
 
