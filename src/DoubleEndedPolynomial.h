@@ -20,9 +20,8 @@ namespace BigNumbers {
             friend class DoubleEndedPolynomial<C>;
 
             Node *current;
-            bool endReached, beginReached;
         public:
-            explicit Iterator(DoubleEndedPolynomial<C>::Node *current, bool endReached, bool beginReached);
+            explicit Iterator(DoubleEndedPolynomial<C>::Node *current);
 
             Iterator &operator++();
 
@@ -41,8 +40,7 @@ namespace BigNumbers {
 
         using ReverseIterator = std::reverse_iterator<Iterator>;
     private:
-        Node *head;
-        Node *tail;
+        Node *header;
         SizeType size;
 
         void copyFrom(const DoubleEndedPolynomial<C> &copySource);

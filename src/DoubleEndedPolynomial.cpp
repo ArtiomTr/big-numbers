@@ -12,30 +12,36 @@ namespace BigNumbers {
 
         DoubleEndedPolynomial<C>::CoefficientType coefficient;
 
+        explicit Node();
+
         explicit Node(DoubleEndedPolynomial<C>::CoefficientType coefficient);
+
+        ~Node();
     };
 
     template<class C>
-    DoubleEndedPolynomial<C>::Node::Node(CoefficientType coefficient):
-            coefficient(coefficient), next(nullptr), previous(nullptr) {
+    DoubleEndedPolynomial<C>::Node::Node(): coefficient(0), next(this), previous(this) {
     }
 
     template<class C>
-    DoubleEndedPolynomial<C>::Iterator::Iterator(DoubleEndedPolynomial<C>::Node *current,
-                                                 bool endReached, bool beginReached):
-            current(current), beginReached(beginReached), endReached(endReached) {
+    DoubleEndedPolynomial<C>::Node::Node(CoefficientType coefficient):
+            coefficient(coefficient), next(this), previous(this) {
+    }
+
+    template<class C>
+    DoubleEndedPolynomial<C>::Node::~Node() {
+        next->previous = previous;
+        previous->next = next;
+    }
+
+    template<class C>
+    DoubleEndedPolynomial<C>::Iterator::Iterator(DoubleEndedPolynomial<C>::Node *current): current(current) {
 
     }
 
     template<class C>
     typename DoubleEndedPolynomial<C>::Iterator &DoubleEndedPolynomial<C>::Iterator::operator++() {
-        if (beginReached) {
-            beginReached = false;
-        } else if (current->next != nullptr) {
-            current = current->next;
-        } else {
-            endReached = true;
-        }
+        current = current->next;
 
         return *this;
     }
@@ -49,13 +55,7 @@ namespace BigNumbers {
 
     template<class C>
     typename DoubleEndedPolynomial<C>::Iterator &DoubleEndedPolynomial<C>::Iterator::operator--() {
-        if (endReached) {
-            endReached = false;
-        } else if (current->previous != nullptr) {
-            current = current->previous;
-        } else {
-            beginReached = true;
-        }
+        current = current->previous;
 
         return *this;
     }
@@ -69,12 +69,12 @@ namespace BigNumbers {
 
     template<class C>
     bool DoubleEndedPolynomial<C>::Iterator::operator==(const DoubleEndedPolynomial<C>::Iterator &other) const {
-        return current == other.current && beginReached == other.beginReached && endReached == other.endReached;
+        return current == other.current;
     }
 
     template<class C>
     bool DoubleEndedPolynomial<C>::Iterator::operator!=(const DoubleEndedPolynomial<C>::Iterator &other) const {
-        return current != other.current || beginReached != other.beginReached || endReached != other.endReached;
+        return current != other.current;
     }
 
     template<class C>
@@ -83,12 +83,13 @@ namespace BigNumbers {
     }
 
     template<class C>
-    DoubleEndedPolynomial<C>::DoubleEndedPolynomial(): head(nullptr), tail(nullptr), size(0) {
+    DoubleEndedPolynomial<C>::DoubleEndedPolynomial(): size(0), header(new Node()) {
     }
 
     template<class C>
     DoubleEndedPolynomial<C>::~DoubleEndedPolynomial() {
         clear();
+        delete header;
     }
 
     template<class C>
@@ -100,20 +101,22 @@ namespace BigNumbers {
         }
 
         size = copySource.size;
-        head = new Node(copySource.head->coefficient);
-        Node *current = copySource.head->next;
-        Node *previous = head;
+        header = new Node();
 
-        while (current != nullptr) {
-            Node *newNode = new Node(current->coefficient);
-            newNode->previous = previous;
-            previous->next = newNode;
+        Node *current = copySource.header->next;
+        Node *previous = header;
 
-            previous = newNode;
+        while (current != copySource.header) {
+            Node *copiedNode = new Node(current->coefficient);
+            copiedNode->previous = previous;
+            previous->next = copiedNode;
+
+            previous = copiedNode;
             current = current->next;
         }
 
-        tail = previous;
+        previous->next = header;
+        header->previous = previous;
     }
 
     template<class C>
@@ -138,27 +141,27 @@ namespace BigNumbers {
 
     template<class C>
     void DoubleEndedPolynomial<C>::clear() {
-        Node *current = head;
+        Node *current = header->next;
 
-        while (current != nullptr) {
+        while (current != header) {
             Node *toDelete = current;
             current = current->next;
             delete toDelete;
         }
 
         size = 0;
-        head = nullptr;
-        tail = nullptr;
+        header->previous = header;
+        header->next = header;
     }
 
     template<class C>
     typename DoubleEndedPolynomial<C>::Iterator DoubleEndedPolynomial<C>::begin() const {
-        return Iterator(head, false, false);
+        return Iterator(header->next);
     }
 
     template<class C>
     typename DoubleEndedPolynomial<C>::Iterator DoubleEndedPolynomial<C>::end() const {
-        return Iterator(tail, tail != nullptr, false);
+        return Iterator(header);
     }
 
     template<class C>
@@ -181,27 +184,15 @@ namespace BigNumbers {
         Node *newNode = new Node(coefficient);
         ++size;
 
-        if (iterator.current != nullptr && !iterator.endReached) {
-            newNode->previous = iterator.current->previous;
-            iterator.current->previous = newNode;
-            newNode->next = iterator.current;
-        } else if (iterator.current != nullptr) {
-            newNode->previous = iterator.current;
-            iterator.current->next = newNode;
-        }
-
-        if (head == nullptr || (iterator.current == head && !iterator.endReached)) {
-            head = newNode;
-        }
-
-        if (tail == nullptr || (iterator.current == tail && iterator.endReached)) {
-            tail = newNode;
-        }
+        newNode->next = iterator.current;
+        newNode->previous = iterator.current->previous;
+        iterator.current->previous->next = newNode;
+        iterator.current->previous = newNode;
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::insert(ReverseIterator iterator, CoefficientType coefficient) {
-        insert(iterator.base(), coefficient);
+        insert(std::prev(iterator.base()), coefficient);
     }
 
     template<class C>
@@ -217,42 +208,22 @@ namespace BigNumbers {
     template<class C>
     void DoubleEndedPolynomial<C>::erase(DoubleEndedPolynomial<C>::Iterator it) {
         if (size == 0) {
-            throw std::logic_error("Cannot pop back - already empty polynomial.");
-        }
-
-        if (it.beginReached || it.endReached) {
-            throw std::logic_error("Cannot delete element - iterator points to the end of list.");
+            throw std::logic_error("Cannot erase element - already empty polynomial.");
         }
 
         --size;
-
-        if (it.current->previous != nullptr) {
-            it.current->previous->next = it.current->next;
-        }
-
-        if (it.current->next != nullptr) {
-            it.current->next->previous = it.current->previous;
-        }
-
-        if (it.current == head) {
-            head = it.current->next;
-        }
-
-        if (it.current == tail) {
-            tail = it.current->previous;
-        }
 
         delete it.current;
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::erase(DoubleEndedPolynomial<C>::ReverseIterator it) {
-        erase(it.base());
+        erase(std::prev(it.base()));
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::popBack() {
-        erase(--end());
+        erase(std::prev(end()));
     }
 
     template<class C>
@@ -262,43 +233,36 @@ namespace BigNumbers {
 
     template<class C>
     typename DoubleEndedPolynomial<C>::CoefficientType &DoubleEndedPolynomial<C>::front() {
-        return head->coefficient;
+        return *begin();
     }
 
     template<class C>
     typename DoubleEndedPolynomial<C>::CoefficientType &DoubleEndedPolynomial<C>::back() {
-        return tail->coefficient;
+        return *(std::prev(end()));
     }
 
     template<class C>
     typename DoubleEndedPolynomial<C>::CoefficientType DoubleEndedPolynomial<C>::front() const {
-        return head->coefficient;
+        return *begin();
     }
 
     template<class C>
     typename DoubleEndedPolynomial<C>::CoefficientType DoubleEndedPolynomial<C>::back() const {
-        return tail->coefficient;
-    }
-
-    template<class C, class ForwardIterator>
-    void trimDirection(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value,
-                       ForwardIterator begin, ForwardIterator end) {
-        auto it = begin;
-        while (it != end && *it == value) {
-            auto iteratorCopy = it;
-            ++it;
-            polynomial.erase(iteratorCopy);
-        }
+        return *std::prev(end());
     }
 
     template<class C>
     void trimFront(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value) {
-        trimDirection(polynomial, value, polynomial.begin(), polynomial.end());
+        while (!polynomial.empty() && polynomial.front() == value) {
+            polynomial.popFront();
+        }
     }
 
     template<class C>
     void trimBack(DoubleEndedPolynomial<C> &polynomial, typename DoubleEndedPolynomial<C>::CoefficientType value) {
-        trimDirection(polynomial, value, polynomial.rbegin(), polynomial.rend());
+        while (!polynomial.empty() && polynomial.back() == value) {
+            polynomial.popBack();
+        }
     }
 
     template<class C, class ForwardIterator>

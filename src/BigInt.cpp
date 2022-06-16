@@ -187,14 +187,15 @@ namespace BigNumbers {
 
     template<class V>
     std::pair<BigInt<V>, BigInt<V>> longDivision(const BigInt<V> &inDividend, const BigInt<V> &inDivisor) {
-        BigInt<V> dividend = IsomorphicMath::abs(inDividend);
-        BigInt<V> divisor = IsomorphicMath::abs(inDivisor);
+        const BigInt<V> dividend = IsomorphicMath::abs(inDividend);
+        const BigInt<V> divisor = IsomorphicMath::abs(inDivisor);
 
         if (divisor == BigInt<V>(0)) {
             throw std::logic_error("Cannot divide by zero.");
         }
 
         BigInt<V> remainder;
+        remainder.pieces.pushFront(0);
         BigInt<V> quotient;
 
         constexpr std::size_t BIT_COUNT = sizeof(V) * 8;

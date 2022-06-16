@@ -61,20 +61,15 @@ namespace BigNumbers {
     }
 
     template<class V>
-    uint32_t fractionalSourceToBinary(const std::string &source, std::size_t width, bool shift,
-                                      DoubleEndedPolynomial<V> &output) {
+    uint32_t fractionalSourceToBinary(const std::string &source, std::size_t width, DoubleEndedPolynomial<V> &output) {
         constexpr std::size_t BIT_COUNT = 8 * sizeof(V);
-
-        auto beginIt = output.rbegin();
-
-        std::size_t currentWidth = 0;
 
         std::vector<uint8_t> transformedSource = decimalStringToNumbers(source);
         uint8_t bufferIndex = 0;
         std::bitset<BIT_COUNT> buffer;
         int32_t exponent = 0;
 
-        while (!transformedSource.empty() && currentWidth <= width) {
+        while (!transformedSource.empty() && output.getSize() <= width) {
             bool carry = false;
 
             for (auto member = transformedSource.rbegin(); member < transformedSource.rend(); ++member) {
@@ -93,12 +88,10 @@ namespace BigNumbers {
             if (bufferIndex == BIT_COUNT) {
                 bufferIndex = 0;
 
-                if (currentWidth <= 1 && !carry && shift) {
-                    currentWidth = 0;
+                if (output.empty() && buffer.none()) {
                     --exponent;
                 } else {
-                    ++currentWidth;
-                    output.insert(beginIt, buffer.to_ulong());
+                    output.pushFront(buffer.to_ulong());
                 }
 
                 buffer.reset();
@@ -106,18 +99,16 @@ namespace BigNumbers {
         }
 
         if (buffer.any()) {
-            output.insert(beginIt, buffer.to_ulong());
-            ++currentWidth;
+            output.pushFront(buffer.to_ulong());
         }
 
-        if (currentWidth > width) {
-            buffer = output.back();
-            output.popBack();
-            --currentWidth;
+        if (output.getSize() > width) {
+            buffer = std::bitset<BIT_COUNT>(output.front());
+            output.popFront();
 
             if (buffer[BIT_COUNT - 1]) {
                 bool carry = true;
-                for (auto it = output.rbegin(); it != output.rend(); ++it) {
+                for (auto it = output.begin(); it != output.end(); ++it) {
                     V oldValue = *it;
                     *it += 1;
                     if (*it > oldValue) {
@@ -184,15 +175,13 @@ namespace BigNumbers {
                     "Too small precision: unsafe integer bound exceeded, precision is less than 1 unit.");
         }
 
-        if (mantissa.pieces.getSize() < mantissaWidth) {
+        int32_t exponentCorrection = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
+                                                                 mantissaWidth,
+                                                                 mantissa.pieces);
 
-            int32_t exponentCorrection = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
-                                                                     mantissaWidth - mantissa.pieces.getSize(),
-                                                                     mantissa.pieces.empty(),
-                                                                     mantissa.pieces);
+        exponent += exponentCorrection;
 
-            exponent += exponentCorrection;
-        }
+        trimFront(mantissa.pieces, 0b0);
 
         return BigFloat<T>(sign ? -mantissa : mantissa, exponent);
     }
