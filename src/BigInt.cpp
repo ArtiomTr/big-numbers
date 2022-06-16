@@ -112,6 +112,7 @@ namespace BigNumbers {
     BigInt<T> BigInt<T>::operator<<(const SizeType &shiftBy) const {
         BigInt<T> output;
         output.sign = sign;
+        output.pieces.resize(pieces.getSize());
 
         SizeType pieceShift = shiftBy % BigInt<T>::PIECE_SIZE;
         SizeType pieceShiftComplement = BigInt<T>::PIECE_SIZE - pieceShift;
@@ -130,15 +131,18 @@ namespace BigNumbers {
         T mask = ~maskBuilder;
 
         if (!pieces.empty()) {
-            output.pieces.pushBack(pieces.front() << pieceShift);
+            output.pieces.front() = pieces.front() << pieceShift;
         }
 
-        for (auto it = ++pieces.begin(); it != pieces.end(); ++it) {
-            auto previous = it;
-            --previous;
-            T newPiece = (*it << pieceShift) | (*previous >> pieceShiftComplement);
+        typename DoubleEndedPolynomial<T>::ConstIterator sourceIt;
+        typename DoubleEndedPolynomial<T>::Iterator outIt;
+        for (sourceIt = ++pieces.begin(), outIt = ++output.pieces.begin();
+             sourceIt != pieces.end() && outIt != output.pieces.end();
+             ++sourceIt, ++outIt) {
+            auto previous = std::prev(sourceIt);
+            T newPiece = (*sourceIt << pieceShift) | (*previous >> pieceShiftComplement);
 
-            output.pieces.pushBack(newPiece);
+            *outIt = newPiece;
         }
 
         T fillValue = output.getFillValue();

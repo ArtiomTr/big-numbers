@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include <iterator>
-#include <list>
+#include <vector>
 
 namespace BigNumbers {
 
@@ -13,19 +13,13 @@ namespace BigNumbers {
     public:
         using CoefficientType = C;
         using SizeType = std::size_t;
-        using Iterator = typename std::list<C>::iterator;
-        using ConstIterator = typename std::list<C>::const_iterator;
-        using ReverseIterator = typename std::list<C>::reverse_iterator;
-        using ConstReverseIterator = typename std::list<C>::const_reverse_iterator;
+        using Iterator = typename std::vector<C>::iterator;
+        using ConstIterator = typename std::vector<C>::const_iterator;
+        using ReverseIterator = typename std::vector<C>::reverse_iterator;
+        using ConstReverseIterator = typename std::vector<C>::const_reverse_iterator;
     private:
-        SizeType size;
-
-        std::list<C> values;
+        std::vector<C> values;
     public:
-        DoubleEndedPolynomial();
-
-        DoubleEndedPolynomial(const DoubleEndedPolynomial<C> &copySource);
-
         Iterator begin();
 
         Iterator end();
@@ -44,7 +38,7 @@ namespace BigNumbers {
 
         [[nodiscard]] SizeType getSize() const;
 
-        DoubleEndedPolynomial<C> &operator=(const DoubleEndedPolynomial<C> &copySource);
+        void resize(std::size_t newSize);
 
         void clear();
 

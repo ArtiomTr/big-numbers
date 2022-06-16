@@ -3,33 +3,13 @@
 namespace BigNumbers {
 
     template<class C>
-    DoubleEndedPolynomial<C>::DoubleEndedPolynomial(): size(0) {
-    }
-
-    template<class C>
     bool DoubleEndedPolynomial<C>::empty() const {
-        return size == 0;
-    }
-
-    template<class C>
-    DoubleEndedPolynomial<C>::DoubleEndedPolynomial(const DoubleEndedPolynomial<C> &copySource)
-            : size(copySource.size), values(copySource.values) {
-    }
-
-    template<class C>
-    DoubleEndedPolynomial<C> &DoubleEndedPolynomial<C>::operator=(const DoubleEndedPolynomial<C> &copySource) {
-        if (&copySource != this) {
-            size = copySource.size;
-            values = copySource.values;
-        }
-
-        return *this;
+        return values.empty();
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::clear() {
         values.clear();
-        size = 0;
     }
 
     template<class C>
@@ -74,13 +54,12 @@ namespace BigNumbers {
 
     template<class C>
     typename DoubleEndedPolynomial<C>::SizeType DoubleEndedPolynomial<C>::getSize() const {
-        return size;
+        return values.size();
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::insert(Iterator iterator, CoefficientType coefficient) {
         values.insert(iterator, coefficient);
-        ++size;
     }
 
     template<class C>
@@ -91,23 +70,16 @@ namespace BigNumbers {
     template<class C>
     void DoubleEndedPolynomial<C>::pushBack(CoefficientType coefficient) {
         values.push_back(coefficient);
-        ++size;
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::pushFront(CoefficientType coefficient) {
-        values.push_front(coefficient);
-        ++size;
+        values.insert(values.begin(), coefficient);
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::erase(DoubleEndedPolynomial<C>::Iterator it) {
-        if (size == 0) {
-            throw std::logic_error("Cannot erase element - already empty polynomial.");
-        }
-
         values.erase(it);
-        --size;
     }
 
     template<class C>
@@ -118,13 +90,16 @@ namespace BigNumbers {
     template<class C>
     void DoubleEndedPolynomial<C>::popBack() {
         values.pop_back();
-        --size;
     }
 
     template<class C>
     void DoubleEndedPolynomial<C>::popFront() {
-        values.pop_front();
-        --size;
+        values.erase(values.begin());
+    }
+
+    template<class C>
+    void DoubleEndedPolynomial<C>::resize(std::size_t newSize) {
+        values.resize(newSize);
     }
 
     template<class C>
