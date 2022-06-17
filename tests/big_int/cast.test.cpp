@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "BigIntBackend.hpp"
+#include "BigIntBackend.h"
 #include "BigIntDebugger.h"
 
 using namespace BigNumbers;

@@ -1,7 +1,7 @@
 #ifndef BIG_NUMBERS_BIG_FLOAT_HPP
 #define BIG_NUMBERS_BIG_FLOAT_HPP
 
-#include "BigIntBackend.hpp"
+#include "BigIntBackend.h"
 
 namespace BigNumbers {
     template<class T>

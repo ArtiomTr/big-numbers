@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "BigIntBackend.hpp"
+#include "BigIntBackend.h"
 
 namespace BigNumbers {
     template<class T>

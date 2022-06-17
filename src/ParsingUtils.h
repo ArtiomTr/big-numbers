@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "BigIntBackend.hpp"
-#include "BigFloatBackend.hpp"
+#include "BigIntBackend.h"
+#include "BigFloatBackend.h"
 
 namespace BigNumbers {
     template<class T>

@@ -1,10 +1,10 @@
-#include "BigIntBackend.hpp"
+#include "BigIntBackend.h"
 
 #include <limits>
 #include <regex>
 #include <bitset>
 
-#include "IsomorphicMath.hpp"
+#include "IsomorphicMath.h"
 #include "VectorUtils.h"
 
 namespace BigNumbers {

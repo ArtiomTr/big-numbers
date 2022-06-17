@@ -1,10 +1,10 @@
-#include "BigFloatBackend.hpp"
+#include "BigFloatBackend.h"
 
 #include <regex>
 #include <string>
 #include <sstream>
 
-#include "IsomorphicMath.hpp"
+#include "IsomorphicMath.h"
 #include "VectorUtils.h"
 
 namespace BigNumbers {

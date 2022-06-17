@@ -1,5 +1,5 @@
-#ifndef BIG_NUMBERS_ISOMORPHICMATH_HPP
-#define BIG_NUMBERS_ISOMORPHICMATH_HPP
+#ifndef BIG_NUMBERS_ISOMORPHICMATH_H
+#define BIG_NUMBERS_ISOMORPHICMATH_H
 
 namespace IsomorphicMath {
     template<class T>
@@ -17,4 +17,4 @@ namespace IsomorphicMath {
     }
 }
 
-#endif //BIG_NUMBERS_ISOMORPHICMATH_HPP
+#endif //BIG_NUMBERS_ISOMORPHICMATH_H
