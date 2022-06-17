@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include <bitset>
+#include <iostream>
 
 namespace BigNumbers {
     template<class T>
@@ -118,6 +119,9 @@ namespace BigNumbers {
         }
 
         std::string toString() const;
+
+        template<class V>
+        friend std::ostream &operator<<(std::ostream &, BigInt<V>);
 
     private:
         void normalize();
