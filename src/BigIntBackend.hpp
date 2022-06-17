@@ -12,20 +12,20 @@ namespace BigNumbers {
     class BigIntDebugger;
 
     template<class T>
-    class BigFloat;
+    class BigFloatBackend;
 
     template<class T = uint8_t>
     class BigIntBackend {
         // Wait, is that spaghetti code? Nah, it's just very friendly class :p
         friend class BigIntDebugger<T>;
 
-        friend class BigFloat<T>;
+        friend class BigFloatBackend<T>;
 
         template<class V>
         friend BigIntBackend<V> parseBigInt(std::string);
 
         template<class V>
-        friend BigFloat<V> parseBigFloat(std::string, std::size_t);
+        friend BigFloatBackend<V> parseBigFloat(std::string, std::size_t);
 
     private:
         uint8_t sign;

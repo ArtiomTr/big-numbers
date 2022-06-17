@@ -151,11 +151,11 @@ namespace BigNumbers {
     }
 
     template<typename T>
-    BigFloat<T> parseBigFloat(std::string source, std::size_t mantissaWidth) {
+    BigFloatBackend<T> parseBigFloat(std::string source, std::size_t mantissaWidth) {
         std::regex bigFloatRegex(R"(^-?\d+\.\d+$)");
 
         if (!std::regex_match(source, bigFloatRegex)) {
-            throw std::invalid_argument("Invalid BigFloat format");
+            throw std::invalid_argument("Invalid BigFloatBackend format");
         }
 
         uint8_t sign = source[0] == '-';
@@ -185,10 +185,10 @@ namespace BigNumbers {
 
         trimFront(mantissa.pieces, (T) 0);
 
-        return BigFloat<T>(sign ? -mantissa : mantissa, mantissaWidth, exponent);
+        return BigFloatBackend<T>(sign ? -mantissa : mantissa, mantissaWidth, exponent);
     }
 
     template BigIntBackend<uint8_t> parseBigInt(std::string source);
 
-    template BigFloat<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
+    template BigFloatBackend<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
 }

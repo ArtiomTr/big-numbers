@@ -1,4 +1,4 @@
-#include "BigFloat.hpp"
+#include "BigFloatBackend.hpp"
 
 #include <iostream>
 
@@ -7,15 +7,15 @@
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b00000001}, 0), 4, 0); // 1
-    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b00000010}, 0), 4, 0); // 2
+    BigFloatBackend<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b00000001}, 0), 4, 0); // 1
+    BigFloatBackend<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b00000010}, 0), 4, 0); // 2
 
-    BigFloat<uint8_t> out = first / second;
+    BigFloatBackend<uint8_t> out = first / second;
 
     BigIntBackend<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b10000000}, 0); // 0.5
     int32_t exponent = -1;
 
-    return testBigFloat(out, BigFloat<uint8_t>(mantissa, 4, exponent));
+    return testBigFloat(out, BigFloatBackend<uint8_t>(mantissa, 4, exponent));
 }
 
 int main() {

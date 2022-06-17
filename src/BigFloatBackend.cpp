@@ -1,4 +1,4 @@
-#include "BigFloat.hpp"
+#include "BigFloatBackend.hpp"
 
 #include <regex>
 #include <string>
@@ -10,13 +10,13 @@
 namespace BigNumbers {
 
     template<class T>
-    BigFloat<T>::BigFloat(std::size_t maxMantissaWidth):
+    BigFloatBackend<T>::BigFloatBackend(std::size_t maxMantissaWidth):
             exponent(0), maxMantissaWidth(maxMantissaWidth), mantissa(BigIntBackend<T>{}) {
 
     }
 
     template<class T>
-    BigFloat<T>::BigFloat(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent):
+    BigFloatBackend<T>::BigFloatBackend(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent):
             exponent(exponent), maxMantissaWidth(maxMantissaWidth), mantissa(mantissa) {
         if (mantissa.pieces.empty()) {
             this->exponent = 0;
@@ -24,7 +24,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    std::string BigFloat<T>::toString() const {
+    std::string BigFloatBackend<T>::toString() const {
         std::stringstream out{};
         out << mantissa.toString() << "E" << exponent;
 
@@ -32,8 +32,8 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigFloat<T> BigFloat<T>::operator+(BigFloat<T> addend) const {
-        BigFloat<T> augend = *this;
+    BigFloatBackend<T> BigFloatBackend<T>::operator+(BigFloatBackend<T> addend) const {
+        BigFloatBackend<T> augend = *this;
         int32_t outputExponent = std::max(augend.exponent, addend.exponent);
 
         augend.mantissa.pieces.insert(augend.mantissa.pieces.end(),
@@ -67,13 +67,13 @@ namespace BigNumbers {
     }
 
     template<class V>
-    BigFloat<V> operator-(const BigFloat<V> &minuend, const BigFloat<V> &subtrahend) {
+    BigFloatBackend<V> operator-(const BigFloatBackend<V> &minuend, const BigFloatBackend<V> &subtrahend) {
         return minuend + (-subtrahend);
     }
 
     template<class V>
-    BigFloat<V> operator-(const BigFloat<V> &value) {
-        return BigFloat<V>(-value.mantissa, value.maxMantissaWidth, value.exponent);
+    BigFloatBackend<V> operator-(const BigFloatBackend<V> &value) {
+        return BigFloatBackend<V>(-value.mantissa, value.maxMantissaWidth, value.exponent);
     }
 
     inline std::size_t getFractionWidth(std::size_t totalCount) {
@@ -81,9 +81,9 @@ namespace BigNumbers {
     }
 
     template<class V>
-    BigFloat<V> BigFloat<V>::operator*(const BigFloat<V> &multiplicand) {
-        const BigFloat<V> &multiplier = *this;
-        BigFloat<V> output(maxMantissaWidth);
+    BigFloatBackend<V> BigFloatBackend<V>::operator*(const BigFloatBackend<V> &multiplicand) {
+        const BigFloatBackend<V> &multiplier = *this;
+        BigFloatBackend<V> output(maxMantissaWidth);
         output.mantissa = multiplier.mantissa * multiplicand.mantissa;
         output.exponent = multiplier.exponent + multiplicand.exponent;
 
@@ -106,12 +106,12 @@ namespace BigNumbers {
     }
 
     template<class V>
-    BigFloat<V> operator/(BigFloat<V> dividend, BigFloat<V> divisor) {
+    BigFloatBackend<V> operator/(BigFloatBackend<V> dividend, BigFloatBackend<V> divisor) {
         auto exponentCorrection = divisor.exponent + 1;
         divisor.exponent = -1;
         dividend.exponent -= exponentCorrection;
 
-        BigFloat<V> two((BigIntBackend<V>) 2, dividend.maxMantissaWidth, 0);
+        BigFloatBackend<V> two((BigIntBackend<V>) 2, dividend.maxMantissaWidth, 0);
 
         auto factor = two - divisor;
         for (int i = 0; i < 20; ++i) {
@@ -125,11 +125,12 @@ namespace BigNumbers {
     }
 
     template
-    class BigFloat<uint8_t>;
+    class BigFloatBackend<uint8_t>;
 
-    template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &minuend, const BigFloat<uint8_t> &subtrahend);
+    template BigFloatBackend<uint8_t>
+    operator-(const BigFloatBackend<uint8_t> &minuend, const BigFloatBackend<uint8_t> &subtrahend);
 
-    template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &value);
+    template BigFloatBackend<uint8_t> operator-(const BigFloatBackend<uint8_t> &value);
 
-    template BigFloat<uint8_t> operator/(BigFloat<uint8_t> dividend, BigFloat<uint8_t> divisor);
+    template BigFloatBackend<uint8_t> operator/(BigFloatBackend<uint8_t> dividend, BigFloatBackend<uint8_t> divisor);
 }

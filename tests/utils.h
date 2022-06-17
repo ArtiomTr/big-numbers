@@ -59,7 +59,7 @@ bool testBigInt(const BigNumbers::BigIntBackend<T> &received, const BigNumbers::
 }
 
 template<class T>
-bool testBigFloat(const BigNumbers::BigFloat<T> &received, const BigNumbers::BigFloat<T> &expected) {
+bool testBigFloat(const BigNumbers::BigFloatBackend<T> &received, const BigNumbers::BigFloatBackend<T> &expected) {
     BigNumbers::BigFloatDebugger<T> receivedDebugger(received);
     BigNumbers::BigFloatDebugger<T> expectedDebugger(expected);
 

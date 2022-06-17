@@ -1,4 +1,4 @@
-#include "BigFloat.hpp"
+#include "BigFloatBackend.hpp"
 
 #include <iostream>
 
@@ -7,39 +7,39 @@
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1); // 0.90625
-    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1); // 0.90625
+    BigFloatBackend<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1); // 0.90625
+    BigFloatBackend<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1); // 0.90625
 
-    BigFloat<uint8_t> out = first * second;
+    BigFloatBackend<uint8_t> out = first * second;
 
     BigIntBackend<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b01000000, 0b11010010},
                                                                                 0); // 0.8212890625
     int32_t exponent = -1;
 
-    return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));
+    return testBigFloat(out, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
 }
 
 bool testZero() {
-    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1);
-    BigFloat<uint8_t> second(BigIntBackend<uint8_t>(), 2, 0);
+    BigFloatBackend<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1);
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(), 2, 0);
 
-    BigFloat<uint8_t> out = first * second;
+    BigFloatBackend<uint8_t> out = first * second;
     BigIntBackend<uint8_t> mantissa;
     int32_t exponent = 0;
 
-    return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));
+    return testBigFloat(out, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
 }
 
 bool shouldNormalizeOutput() {
-    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, 0);
-    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, 0);
+    BigFloatBackend<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, 0);
+    BigFloatBackend<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, 0);
 
-    BigFloat<uint8_t> out = first * second;
+    BigFloatBackend<uint8_t> out = first * second;
 
     BigIntBackend<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b01000000, 0b11010010}, 0);
     int32_t exponent = 1;
 
-    return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));
+    return testBigFloat(out, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
 }
 
 int main() {

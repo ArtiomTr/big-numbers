@@ -2,7 +2,7 @@
 
 namespace BigNumbers {
     template<class T>
-    BigFloatDebugger<T>::BigFloatDebugger(const BigFloat<T> &target)
+    BigFloatDebugger<T>::BigFloatDebugger(const BigFloatBackend<T> &target)
             : debugTarget(target) {
     }
 
