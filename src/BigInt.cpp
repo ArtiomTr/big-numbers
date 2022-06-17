@@ -280,6 +280,36 @@ namespace BigNumbers {
         trimBack(pieces, getFillValue());
     }
 
+    template<class V>
+    std::ostream &operator<<(std::ostream &out, BigInt<V> value) {
+        BigInt<V> zero(0);
+
+        if (value == zero) {
+            out << '0';
+
+            return out;
+        }
+
+        if (value < zero) {
+            value = -value;
+            out << '-';
+        }
+
+        BigInt<V> ten(10);
+        std::string valueAsString;
+
+        while (value > zero) {
+            char digit = static_cast<char>(value % ten);
+            value = value / ten;
+            valueAsString += static_cast<char>(digit + '0');
+        }
+
+        std::reverse(valueAsString.begin(), valueAsString.end());
+        out << valueAsString;
+
+        return out;
+    }
+
     template
     class BigInt<uint8_t>;
 
@@ -292,4 +322,6 @@ namespace BigNumbers {
     template BigInt<uint8_t> operator/(const BigInt<uint8_t> &dividend, const BigInt<uint8_t> &divisor);
 
     template BigInt<uint8_t> operator%(const BigInt<uint8_t> &dividend, const BigInt<uint8_t> &divisor);
+
+    template std::ostream &operator<<(std::ostream &out, BigInt<uint8_t> value);
 }
