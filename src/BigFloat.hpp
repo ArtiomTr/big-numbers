@@ -13,11 +13,12 @@ namespace BigNumbers {
         friend BigFloatDebugger<T>;
     private:
         int32_t exponent;
+        std::size_t maxMantissaWidth;
         BigInt<T> mantissa;
     public:
-        explicit BigFloat();
+        explicit BigFloat(std::size_t maxMantissaWidth);
 
-        explicit BigFloat(BigInt<T> mantissa, int32_t exponent);
+        explicit BigFloat(BigInt<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent);
 
         BigFloat<T> operator+(BigFloat<T> addend) const;
 
@@ -28,6 +29,9 @@ namespace BigNumbers {
         friend BigFloat<V> operator-(const BigFloat<V> &value);
 
         BigFloat<T> operator*(const BigFloat<T> &multiplicand);
+
+        template<class V>
+        friend BigFloat<V> operator/(BigFloat<V> dividend, BigFloat<V> divisor);
 
         std::string toString() const;
     };

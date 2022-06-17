@@ -64,8 +64,8 @@ bool testBigFloat(const BigNumbers::BigFloat<T> &received, const BigNumbers::Big
 
     if (receivedDebugger.getExponent() != expectedDebugger.getExponent()) {
         std::cout << "Exponents do not match:\n"
-                  << "Expected: " << expectedDebugger.getExponent() << '\n'
-                  << "Received: " << receivedDebugger.getExponent() << std::endl;
+                  << "Expected: " << expected.toString() << '\n'
+                  << "Received: " << received.toString() << std::endl;
 
         return false;
     }

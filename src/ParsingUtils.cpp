@@ -185,7 +185,7 @@ namespace BigNumbers {
 
         trimFront(mantissa.pieces, (T) 0);
 
-        return BigFloat<T>(sign ? -mantissa : mantissa, exponent);
+        return BigFloat<T>(sign ? -mantissa : mantissa, mantissaWidth, exponent);
     }
 
     template BigInt<uint8_t> parseBigInt(std::string source);

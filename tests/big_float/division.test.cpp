@@ -1,27 +1,28 @@
 #include "BigFloat.hpp"
-#include "../utils.h"
 
 #include <iostream>
 
+#include "../utils.h"
+
 using namespace BigNumbers;
 
-bool testInvert() {
-    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1); // 0.90625
-    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1); // 0.90625
+bool testSimple() {
+    BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b00000001}, 0), 4, 0); // 1
+    BigFloat<uint8_t> second(BigIntDebugger<uint8_t>::createFromSource({0b00000010}, 0), 4, 0); // 2
 
-    BigFloat<uint8_t> out = first - second;
+    BigFloat<uint8_t> out = first / second;
 
-    BigInt<uint8_t> mantissa; // 0
-    int32_t exponent = 0;
+    BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b10000000}, 0); // 0.5
+    int32_t exponent = -1;
 
-    return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));
+    return testBigFloat(out, BigFloat<uint8_t>(mantissa, 4, exponent));
 }
 
 int main() {
     using test = bool (*)();
 
     std::vector<std::pair<std::string, test>> tests{
-            {"Should invert number and add", testInvert},
+            {"Simple division", testSimple},
     };
 
     try {

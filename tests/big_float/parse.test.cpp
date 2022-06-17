@@ -13,7 +13,7 @@ bool testNoFractional() {
             {0b10000110, 0b00001000, 0b11101000, 0b00000011}, 0);
     int32_t exponent = 1;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 4, exponent));
 }
 
 bool testZero() {
@@ -22,7 +22,7 @@ bool testZero() {
     BigInt<uint8_t> mantissa;
     int32_t exponent = 0;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 10, exponent));
 }
 
 bool testOne() {
@@ -31,7 +31,7 @@ bool testOne() {
     BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b00000001}, 0);
     int32_t exponent = 0;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 10, exponent));
 }
 
 bool testFraction() {
@@ -42,7 +42,7 @@ bool testFraction() {
              0b11111101, 0b11111111, 0b00111111}, 0);
     int32_t exponent = -1;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 10, exponent));
 }
 
 bool testRounding() {
@@ -51,7 +51,7 @@ bool testRounding() {
     BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b00000001}, 0);
     int32_t exponent = 0;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 2, exponent));
 }
 
 bool testRounding2() {
@@ -60,7 +60,7 @@ bool testRounding2() {
     BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b00000001}, 0);
     int32_t exponent = -1;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 2, exponent));
 }
 
 bool testRounding3() {
@@ -69,7 +69,7 @@ bool testRounding3() {
     BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b00000001}, 0);
     int32_t exponent = 0;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 2, exponent));
 }
 
 bool testStripZeros() {
@@ -78,7 +78,7 @@ bool testStripZeros() {
     BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b11010111, 0b11101101}, 0);
     int32_t exponent = -2;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 2, exponent));
 }
 
 bool testNegative() {
@@ -87,7 +87,7 @@ bool testNegative() {
     BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b11111111}, 1);
     int32_t exponent = 0;
 
-    return testBigFloat(num, BigFloat<uint8_t>(mantissa, exponent));
+    return testBigFloat(num, BigFloat<uint8_t>(mantissa, 2, exponent));
 }
 
 int main() {

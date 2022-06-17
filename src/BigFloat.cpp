@@ -10,12 +10,14 @@
 namespace BigNumbers {
 
     template<class T>
-    BigFloat<T>::BigFloat(): exponent(0), mantissa(BigInt<T>{}) {
+    BigFloat<T>::BigFloat(std::size_t maxMantissaWidth):
+            exponent(0), maxMantissaWidth(maxMantissaWidth), mantissa(BigInt<T>{}) {
 
     }
 
     template<class T>
-    BigFloat<T>::BigFloat(BigInt<T> mantissa, int32_t exponent): exponent(exponent), mantissa(mantissa) {
+    BigFloat<T>::BigFloat(BigInt<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent):
+            exponent(exponent), maxMantissaWidth(maxMantissaWidth), mantissa(mantissa) {
         if (mantissa.pieces.empty()) {
             this->exponent = 0;
         }
@@ -71,7 +73,7 @@ namespace BigNumbers {
 
     template<class V>
     BigFloat<V> operator-(const BigFloat<V> &value) {
-        return BigFloat<V>(-value.mantissa, value.exponent);
+        return BigFloat<V>(-value.mantissa, value.maxMantissaWidth, value.exponent);
     }
 
     inline std::size_t getFractionWidth(std::size_t totalCount) {
@@ -81,7 +83,7 @@ namespace BigNumbers {
     template<class V>
     BigFloat<V> BigFloat<V>::operator*(const BigFloat<V> &multiplicand) {
         const BigFloat<V> &multiplier = *this;
-        BigFloat<V> output{};
+        BigFloat<V> output(maxMantissaWidth);
         output.mantissa = multiplier.mantissa * multiplicand.mantissa;
         output.exponent = multiplier.exponent + multiplicand.exponent;
 
@@ -95,7 +97,31 @@ namespace BigNumbers {
             output.exponent = 0;
         }
 
+        if (output.mantissa.pieces.size() > maxMantissaWidth) {
+            output.mantissa.pieces.erase(output.mantissa.pieces.begin() + maxMantissaWidth,
+                                         output.mantissa.pieces.end());
+        }
+
         return output;
+    }
+
+    template<class V>
+    BigFloat<V> operator/(BigFloat<V> dividend, BigFloat<V> divisor) {
+        auto exponentCorrection = divisor.exponent + 1;
+        divisor.exponent = -1;
+        dividend.exponent -= exponentCorrection;
+
+        BigFloat<V> two((BigInt<V>) 2, dividend.maxMantissaWidth, 0);
+
+        auto factor = two - divisor;
+        for (int i = 0; i < 20; ++i) {
+            dividend = dividend * factor;
+            divisor = divisor * factor;
+
+            factor = two - divisor;
+        }
+
+        return dividend;
     }
 
     template
@@ -104,4 +130,6 @@ namespace BigNumbers {
     template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &minuend, const BigFloat<uint8_t> &subtrahend);
 
     template BigFloat<uint8_t> operator-(const BigFloat<uint8_t> &value);
+
+    template BigFloat<uint8_t> operator/(BigFloat<uint8_t> dividend, BigFloat<uint8_t> divisor);
 }
