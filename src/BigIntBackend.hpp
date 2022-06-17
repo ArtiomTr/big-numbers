@@ -15,14 +15,14 @@ namespace BigNumbers {
     class BigFloat;
 
     template<class T = uint8_t>
-    class BigInt {
+    class BigIntBackend {
         // Wait, is that spaghetti code? Nah, it's just very friendly class :p
         friend class BigIntDebugger<T>;
 
         friend class BigFloat<T>;
 
         template<class V>
-        friend BigInt<V> parseBigInt(std::string);
+        friend BigIntBackend<V> parseBigInt(std::string);
 
         template<class V>
         friend BigFloat<V> parseBigFloat(std::string, std::size_t);
@@ -35,10 +35,10 @@ namespace BigNumbers {
     public:
         using SizeType = typename std::vector<T>::size_type;
 
-        explicit BigInt();
+        explicit BigIntBackend();
 
         template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
-        BigInt(Value value): sign(value < 0) {
+        BigIntBackend(Value value): sign(value < 0) {
             constexpr std::size_t BIT_COUNT = sizeof(Value) * 8;
             std::bitset<BIT_COUNT> input(value);
             std::bitset<PIECE_SIZE> buffer;
@@ -71,39 +71,39 @@ namespace BigNumbers {
         }
 
         template<class V>
-        friend BigInt<V> operator+(const BigInt<V> &augend, const BigInt<V> &addend);
+        friend BigIntBackend<V> operator+(const BigIntBackend<V> &augend, const BigIntBackend<V> &addend);
 
         template<class V>
-        friend BigInt<V> operator-(const BigInt<V> &minuend, const BigInt<V> &subtrahend);
+        friend BigIntBackend<V> operator-(const BigIntBackend<V> &minuend, const BigIntBackend<V> &subtrahend);
 
         template<class V>
-        friend BigInt<V> operator*(const BigInt<V> &multiplier, const BigInt<V> &multiplicand);
+        friend BigIntBackend<V> operator*(const BigIntBackend<V> &multiplier, const BigIntBackend<V> &multiplicand);
 
         template<class V>
-        friend BigInt<V> operator/(const BigInt<V> &dividend, const BigInt<V> &divisor);
+        friend BigIntBackend<V> operator/(const BigIntBackend<V> &dividend, const BigIntBackend<V> &divisor);
 
         template<class V>
-        friend BigInt<V> operator%(const BigInt<V> &dividend, const BigInt<V> &divisor);
+        friend BigIntBackend<V> operator%(const BigIntBackend<V> &dividend, const BigIntBackend<V> &divisor);
 
-        BigInt<T> operator<<(const SizeType &shiftBy) const;
+        BigIntBackend<T> operator<<(const SizeType &shiftBy) const;
 
-        BigInt<T> operator~() const;
+        BigIntBackend<T> operator~() const;
 
-        BigInt<T> operator-() const;
+        BigIntBackend<T> operator-() const;
 
-        bool operator==(const BigInt<T> &secondOperand) const;
+        bool operator==(const BigIntBackend<T> &secondOperand) const;
 
-        std::strong_ordering operator<=>(const BigInt<T> &secondOperand) const;
+        std::strong_ordering operator<=>(const BigIntBackend<T> &secondOperand) const;
 
         template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
         explicit operator Value() const {
             const std::size_t outputSize = sizeof(Value);
             const std::size_t requiredPieceCount = outputSize / sizeof(T);
 
-            const BigInt<T> &current = *this;
+            const BigIntBackend <T> &current = *this;
 
             if (current.pieces.size() > requiredPieceCount) {
-                throw std::logic_error("Cannot cast BigInt to given type - value is too big.");
+                throw std::logic_error("Cannot cast BigIntBackend to given type - value is too big.");
             }
 
             Value castedValue = 0b0;
@@ -121,7 +121,7 @@ namespace BigNumbers {
         std::string toString() const;
 
         template<class V>
-        friend std::ostream &operator<<(std::ostream &, BigInt<V>);
+        friend std::ostream &operator<<(std::ostream &, BigIntBackend<V>);
 
     private:
         void normalize();
@@ -129,10 +129,11 @@ namespace BigNumbers {
         T getFillValue() const;
 
         template<class V>
-        friend std::pair<BigInt<V>, BigInt<V>> longDivision(const BigInt<V> &inDividend, const BigInt<V> &inDivisor);
+        friend std::pair<BigIntBackend<V>, BigIntBackend<V>>
+        longDivision(const BigIntBackend<V> &inDividend, const BigIntBackend<V> &inDivisor);
 
-        static std::pair<const BigInt<T> &, const BigInt<T> &>
-        sortBySize(const BigInt<T> &first, const BigInt<T> &second);
+        static std::pair<const BigIntBackend<T> &, const BigIntBackend<T> &>
+        sortBySize(const BigIntBackend<T> &first, const BigIntBackend<T> &second);
     };
 }
 

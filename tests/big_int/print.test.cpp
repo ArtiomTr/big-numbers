@@ -1,4 +1,4 @@
-#include "BigInt.hpp"
+#include "BigIntBackend.hpp"
 
 #include <sstream>
 
@@ -7,7 +7,7 @@
 using namespace BigNumbers;
 
 bool testSingleCell() {
-    BigInt<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource({0b00000110}, 0);
+    BigIntBackend<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource({0b00000110}, 0);
 
     std::stringstream builder;
     builder << value;
@@ -16,7 +16,7 @@ bool testSingleCell() {
 }
 
 bool testMultipleCells() {
-    BigInt<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource({0b00000000, 0b00001100}, 0);
+    BigIntBackend<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource({0b00000000, 0b00001100}, 0);
 
     std::stringstream builder;
     builder << value;
@@ -25,9 +25,10 @@ bool testMultipleCells() {
 }
 
 bool testLargeValue() {
-    BigInt<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource({0b00100100, 0b00001100, 0b11011000, 0b00110011,
-                                                                       0b11001100, 0b00010001, 0b11100011, 0b00100100,
-                                                                       0b10101010, 0b00000001}, 0);
+    BigIntBackend<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource(
+            {0b00100100, 0b00001100, 0b11011000, 0b00110011,
+             0b11001100, 0b00010001, 0b11100011, 0b00100100,
+             0b10101010, 0b00000001}, 0);
 
     std::stringstream builder;
     builder << value;
@@ -36,7 +37,7 @@ bool testLargeValue() {
 }
 
 bool testZero() {
-    BigInt<uint8_t> value;
+    BigIntBackend<uint8_t> value;
 
     std::stringstream builder;
     builder << value;
@@ -45,7 +46,7 @@ bool testZero() {
 }
 
 bool testNegative() {
-    BigInt<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource({0b11111010}, 1);
+    BigIntBackend<uint8_t> value = BigIntDebugger<uint8_t>::createFromSource({0b11111010}, 1);
 
     std::stringstream builder;
     builder << value;

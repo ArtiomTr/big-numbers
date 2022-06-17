@@ -2,7 +2,7 @@
 
 namespace BigNumbers {
     template<class T>
-    BigIntDebugger<T>::BigIntDebugger(const BigInt<T> &debug):
+    BigIntDebugger<T>::BigIntDebugger(const BigIntBackend<T> &debug):
             debugTarget(debug) {
     }
 
@@ -17,8 +17,8 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> BigIntDebugger<T>::createFromSource(const std::vector<T> &source, uint8_t sign) {
-        BigInt<T> output;
+    BigIntBackend<T> BigIntDebugger<T>::createFromSource(const std::vector<T> &source, uint8_t sign) {
+        BigIntBackend<T> output;
 
         output.sign = sign;
         for (T value: source) {

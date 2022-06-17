@@ -1,4 +1,4 @@
-#include "BigInt.hpp"
+#include "BigIntBackend.hpp"
 
 #include <limits>
 #include <regex>
@@ -9,8 +9,8 @@
 
 namespace BigNumbers {
     template<class T>
-    std::pair<const BigInt<T> &, const BigInt<T> &>
-    BigInt<T>::sortBySize(const BigInt<T> &first, const BigInt<T> &second) {
+    std::pair<const BigIntBackend<T> &, const BigIntBackend<T> &>
+    BigIntBackend<T>::sortBySize(const BigIntBackend<T> &first, const BigIntBackend<T> &second) {
         if (first.pieces.size() > second.pieces.size()) {
             return {second, first};
         } else {
@@ -19,17 +19,17 @@ namespace BigNumbers {
     }
 
     template<class T>
-    T BigInt<T>::getFillValue() const {
+    T BigIntBackend<T>::getFillValue() const {
         return sign ? std::numeric_limits<T>::max() : 0b0;
     }
 
     template<class T>
-    std::string BigInt<T>::toString() const {
+    std::string BigIntBackend<T>::toString() const {
         std::stringstream output;
         output << (sign ? '-' : '+');
 
         for (auto it = pieces.rbegin(); it != pieces.rend(); ++it) {
-            std::bitset<BigInt<T>::PIECE_SIZE> buff(*it);
+            std::bitset<BigIntBackend<T>::PIECE_SIZE> buff(*it);
             output << buff.to_string();
 
         }
@@ -39,15 +39,15 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T>::BigInt() : pieces(std::vector<T>()), sign(0) {
+    BigIntBackend<T>::BigIntBackend() : pieces(std::vector<T>()), sign(0) {
 
     }
 
     template<class T>
-    BigInt<T> operator+(const BigInt<T> &augend, const BigInt<T> &addend) {
-        BigInt<T> sum{};
+    BigIntBackend<T> operator+(const BigIntBackend<T> &augend, const BigIntBackend<T> &addend) {
+        BigIntBackend<T> sum{};
 
-        const auto &[_, longestSummand] = BigInt<T>::sortBySize(augend, addend);
+        const auto &[_, longestSummand] = BigIntBackend<T>::sortBySize(augend, addend);
 
         auto firstIt = augend.pieces.begin(), secondIt = addend.pieces.begin();
 
@@ -71,9 +71,9 @@ namespace BigNumbers {
                 ++secondIt;
         }
 
-        std::bitset<BigInt<T>::PIECE_SIZE> additional(augend.getFillValue() + addend.getFillValue() + carry);
+        std::bitset<BigIntBackend<T>::PIECE_SIZE> additional(augend.getFillValue() + addend.getFillValue() + carry);
 
-        sum.sign = additional[BigInt<T>::PIECE_SIZE - 1];
+        sum.sign = additional[BigIntBackend<T>::PIECE_SIZE - 1];
 
         if (additional != sum.getFillValue()) {
             sum.pieces.push_back(additional.to_ulong());
@@ -83,13 +83,13 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> operator-(const BigInt<T> &minuend, const BigInt<T> &subtrahend) {
+    BigIntBackend<T> operator-(const BigIntBackend<T> &minuend, const BigIntBackend<T> &subtrahend) {
         return minuend + (-subtrahend);
     }
 
     template<class T>
-    BigInt<T> BigInt<T>::operator~() const {
-        BigInt<T> out = *this;
+    BigIntBackend<T> BigIntBackend<T>::operator~() const {
+        BigIntBackend<T> out = *this;
 
         for (T &piece: out.pieces) {
             piece = ~piece;
@@ -99,24 +99,24 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> BigInt<T>::operator-() const {
+    BigIntBackend<T> BigIntBackend<T>::operator-() const {
         if (pieces.empty()) {
             return *this;
         }
 
-        BigInt<T> output = ~(*this) + BigInt<T>((T) 1);
+        BigIntBackend<T> output = ~(*this) + BigIntBackend<T>((T) 1);
         output.sign = !sign;
         return output;
     }
 
     template<class T>
-    BigInt<T> BigInt<T>::operator<<(const SizeType &shiftBy) const {
-        BigInt<T> output;
+    BigIntBackend<T> BigIntBackend<T>::operator<<(const SizeType &shiftBy) const {
+        BigIntBackend<T> output;
         output.sign = sign;
         output.pieces.resize(pieces.size());
 
-        SizeType pieceShift = shiftBy % BigInt<T>::PIECE_SIZE;
-        SizeType pieceShiftComplement = BigInt<T>::PIECE_SIZE - pieceShift;
+        SizeType pieceShift = shiftBy % BigIntBackend<T>::PIECE_SIZE;
+        SizeType pieceShiftComplement = BigIntBackend<T>::PIECE_SIZE - pieceShift;
 
         T maskBuilder = 0b0;
 
@@ -149,7 +149,7 @@ namespace BigNumbers {
             output.pieces.push_back(additionalPiece);
         }
 
-        SizeType emptyPieceCount = shiftBy / BigInt<T>::PIECE_SIZE;
+        SizeType emptyPieceCount = shiftBy / BigIntBackend<T>::PIECE_SIZE;
         if (emptyPieceCount > 0) {
             output.pieces.insert(output.pieces.begin(), emptyPieceCount, 0);
         }
@@ -158,23 +158,25 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> operator*(const BigInt<T> &multiplier, const BigInt<T> &multiplicand) {
-        using SizeType = typename BigInt<T>::SizeType;
+    BigIntBackend<T> operator*(const BigIntBackend<T> &multiplier, const BigIntBackend<T> &multiplicand) {
+        using SizeType = typename BigIntBackend<T>::SizeType;
 
-        const auto &[shortestMultiplicand, longestMultiplicand] = BigInt<T>::sortBySize(multiplier, multiplicand);
+        const auto &[shortestMultiplicand, longestMultiplicand] = BigIntBackend<T>::sortBySize(multiplier,
+                                                                                               multiplicand);
 
-        BigInt<T> product;
+        BigIntBackend<T> product;
         product.sign = multiplier.sign ^ multiplicand.sign;
 
         T mask = 0b1;
 
         std::size_t i = 0;
         for (T currentPiece: shortestMultiplicand.pieces) {
-            for (SizeType j = 0; j < BigInt<T>::PIECE_SIZE; ++j) {
+            for (SizeType j = 0; j < BigIntBackend<T>::PIECE_SIZE; ++j) {
                 T currentMask = mask << j;
 
                 if (currentPiece & currentMask) {
-                    BigInt<T> summand = (longestMultiplicand << (SizeType) (j + i * BigInt<T>::PIECE_SIZE));
+                    BigIntBackend<T> summand = (longestMultiplicand
+                            << (SizeType) (j + i * BigIntBackend<T>::PIECE_SIZE));
                     product = product + summand;
                 }
             }
@@ -185,17 +187,18 @@ namespace BigNumbers {
     }
 
     template<class V>
-    std::pair<BigInt<V>, BigInt<V>> longDivision(const BigInt<V> &inDividend, const BigInt<V> &inDivisor) {
-        const BigInt<V> dividend = IsomorphicMath::abs(inDividend);
-        const BigInt<V> divisor = IsomorphicMath::abs(inDivisor);
+    std::pair<BigIntBackend<V>, BigIntBackend<V>>
+    longDivision(const BigIntBackend<V> &inDividend, const BigIntBackend<V> &inDivisor) {
+        const BigIntBackend<V> dividend = IsomorphicMath::abs(inDividend);
+        const BigIntBackend<V> divisor = IsomorphicMath::abs(inDivisor);
 
-        if (divisor == BigInt<V>(0)) {
+        if (divisor == BigIntBackend<V>(0)) {
             throw std::logic_error("Cannot divide by zero.");
         }
 
-        BigInt<V> remainder;
+        BigIntBackend<V> remainder;
         remainder.pieces.insert(remainder.pieces.begin(), 0);
-        BigInt<V> quotient;
+        BigIntBackend<V> quotient;
 
         constexpr std::size_t BIT_COUNT = sizeof(V) * 8;
 
@@ -229,22 +232,22 @@ namespace BigNumbers {
     }
 
     template<class V>
-    BigInt<V> operator%(const BigInt<V> &dividend, const BigInt<V> &divisor) {
+    BigIntBackend<V> operator%(const BigIntBackend<V> &dividend, const BigIntBackend<V> &divisor) {
         auto output = longDivision(dividend, divisor);
 
         return output.second;
     }
 
     template<class V>
-    BigInt<V> operator/(const BigInt<V> &dividend, const BigInt<V> &divisor) {
+    BigIntBackend<V> operator/(const BigIntBackend<V> &dividend, const BigIntBackend<V> &divisor) {
         auto output = longDivision(dividend, divisor);
 
         return output.first;
     }
 
     template<class T>
-    std::strong_ordering BigInt<T>::operator<=>(const BigInt<T> &secondOperand) const {
-        const BigInt<T> &firstOperand = *this;
+    std::strong_ordering BigIntBackend<T>::operator<=>(const BigIntBackend<T> &secondOperand) const {
+        const BigIntBackend<T> &firstOperand = *this;
 
         if (firstOperand.sign != secondOperand.sign) {
             return secondOperand.sign <=> firstOperand.sign;
@@ -271,18 +274,18 @@ namespace BigNumbers {
     }
 
     template<class T>
-    bool BigInt<T>::operator==(const BigInt<T> &secondOperand) const {
+    bool BigIntBackend<T>::operator==(const BigIntBackend<T> &secondOperand) const {
         return (*this <=> secondOperand) == std::strong_ordering::equal;
     }
 
     template<class T>
-    void BigInt<T>::normalize() {
+    void BigIntBackend<T>::normalize() {
         trimBack(pieces, getFillValue());
     }
 
     template<class V>
-    std::ostream &operator<<(std::ostream &out, BigInt<V> value) {
-        BigInt<V> zero(0);
+    std::ostream &operator<<(std::ostream &out, BigIntBackend<V> value) {
+        BigIntBackend<V> zero(0);
 
         if (value == zero) {
             out << '0';
@@ -295,7 +298,7 @@ namespace BigNumbers {
             out << '-';
         }
 
-        BigInt<V> ten(10);
+        BigIntBackend<V> ten(10);
         std::string valueAsString;
 
         while (value > zero) {
@@ -311,17 +314,22 @@ namespace BigNumbers {
     }
 
     template
-    class BigInt<uint8_t>;
+    class BigIntBackend<uint8_t>;
 
-    template BigInt<uint8_t> operator+(const BigInt<uint8_t> &augend, const BigInt<uint8_t> &addend);
+    template BigIntBackend<uint8_t>
+    operator+(const BigIntBackend<uint8_t> &augend, const BigIntBackend<uint8_t> &addend);
 
-    template BigInt<uint8_t> operator-(const BigInt<uint8_t> &minuend, const BigInt<uint8_t> &subtrahend);
+    template BigIntBackend<uint8_t>
+    operator-(const BigIntBackend<uint8_t> &minuend, const BigIntBackend<uint8_t> &subtrahend);
 
-    template BigInt<uint8_t> operator*(const BigInt<uint8_t> &multiplier, const BigInt<uint8_t> &multiplicand);
+    template BigIntBackend<uint8_t>
+    operator*(const BigIntBackend<uint8_t> &multiplier, const BigIntBackend<uint8_t> &multiplicand);
 
-    template BigInt<uint8_t> operator/(const BigInt<uint8_t> &dividend, const BigInt<uint8_t> &divisor);
+    template BigIntBackend<uint8_t>
+    operator/(const BigIntBackend<uint8_t> &dividend, const BigIntBackend<uint8_t> &divisor);
 
-    template BigInt<uint8_t> operator%(const BigInt<uint8_t> &dividend, const BigInt<uint8_t> &divisor);
+    template BigIntBackend<uint8_t>
+    operator%(const BigIntBackend<uint8_t> &dividend, const BigIntBackend<uint8_t> &divisor);
 
-    template std::ostream &operator<<(std::ostream &out, BigInt<uint8_t> value);
+    template std::ostream &operator<<(std::ostream &out, BigIntBackend<uint8_t> value);
 }

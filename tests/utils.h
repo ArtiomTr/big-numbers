@@ -14,7 +14,7 @@ enum class BigIntComparisonResult : uint8_t {
     EQUAL,
 };
 
-// Strictly compares two BigInt's.
+// Strictly compares two BigIntBackend's.
 template<class T>
 BigIntComparisonResult compareBigInt(const BigNumbers::BigInt<T> &first, const BigNumbers::BigInt<T> &second) {
     BigNumbers::BigIntDebugger<T> firstDebugger(first);

@@ -13,7 +13,7 @@ namespace BigNumbers {
 
         int32_t getExponent();
 
-        BigInt<T> getMantissa();
+        BigIntBackend<T> getMantissa();
     };
 }
 #endif //BIG_NUMBERS_BIG_FLOAT_DEBUGGER_H

@@ -1,4 +1,4 @@
-#include "BigInt.hpp"
+#include "BigIntBackend.hpp"
 
 #include "../utils.h"
 
@@ -6,32 +6,32 @@ using namespace BigNumbers;
 
 // Testing sum of numbers which require only single cell.
 bool testSingleNumber() {
-    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({2}, 0);
-    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({1}, 0);
+    BigIntBackend<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({2}, 0);
+    BigIntBackend<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({1}, 0);
 
-    BigInt<uint8_t> result = one - two;
+    BigIntBackend<uint8_t> result = one - two;
 
     return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({1}, 0));
 }
 
 // Testing sum of numbers which require 2 cells.
 bool testShortNumbers() {
-    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b00001001, 0b00000001}, 0); // 265
-    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b00010000, 0b10000000}, 0); // 32784
+    BigIntBackend<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b00001001, 0b00000001}, 0); // 265
+    BigIntBackend<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b00010000, 0b10000000}, 0); // 32784
 
-    BigInt<uint8_t> result = one - two;
+    BigIntBackend<uint8_t> result = one - two;
 
     return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0b11111001, 0b10000000}, 1)); // -32519
 }
 
 // Testing sum of numbers which require 5 cells.
 bool testLongerNumbers() {
-    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource(
+    BigIntBackend<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource(
             {0b11001101, 0b11101001, 0b00001001, 0b11001001, 0b00110001}, 0); // 213826267597
-    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource(
+    BigIntBackend<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource(
             {0b00110000, 0b00010000, 0b01010010, 0b00010000, 0b10001000}, 0); // 584389365808
 
-    BigInt<uint8_t> result = one - two;
+    BigIntBackend<uint8_t> result = one - two;
 
     // -370563098211
     return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource(
@@ -40,19 +40,19 @@ bool testLongerNumbers() {
 
 // Testing sum of big numbers of different size.
 bool testDiffSizedNumbers() {
-    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b00110001}, 0); // 49
-    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b10001000, 0b10001000}, 0); // 34952
+    BigIntBackend<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b00110001}, 0); // 49
+    BigIntBackend<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b10001000, 0b10001000}, 0); // 34952
 
-    BigInt<uint8_t> result = one - two;
+    BigIntBackend<uint8_t> result = one - two;
 
     return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0b10101001, 0b01110111}, 1)); // -34903
 }
 
 bool testEmptySubtraction() {
-    BigInt<uint8_t> one;
-    BigInt<uint8_t> two;
+    BigIntBackend<uint8_t> one;
+    BigIntBackend<uint8_t> two;
 
-    BigInt<uint8_t> result = one - two;
+    BigIntBackend<uint8_t> result = one - two;
 
     return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({}, 0));
 }

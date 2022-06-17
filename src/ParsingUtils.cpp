@@ -131,11 +131,11 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> parseBigInt(std::string source) {
+    BigIntBackend<T> parseBigInt(std::string source) {
         std::regex bigIntRegex("^-?\\d+$");
 
         if (!std::regex_match(source, bigIntRegex)) {
-            throw std::invalid_argument("Invalid BigInt format");
+            throw std::invalid_argument("Invalid BigIntBackend format");
         }
 
         uint8_t sign = source[0] == '-';
@@ -144,7 +144,7 @@ namespace BigNumbers {
             source.erase(source.begin());
         }
 
-        BigInt<T> out;
+        BigIntBackend<T> out;
         integralSourceToBinary<T>(source, out.pieces);
 
         return sign ? -out : out;
@@ -165,7 +165,7 @@ namespace BigNumbers {
         }
 
         std::string::size_type dotPosition = source.find('.');
-        BigInt<T> mantissa;
+        BigIntBackend<T> mantissa;
         integralSourceToBinary<T>(source.substr(0, dotPosition), mantissa.pieces);
 
         trimBack(mantissa.pieces, (T) 0);
@@ -188,7 +188,7 @@ namespace BigNumbers {
         return BigFloat<T>(sign ? -mantissa : mantissa, mantissaWidth, exponent);
     }
 
-    template BigInt<uint8_t> parseBigInt(std::string source);
+    template BigIntBackend<uint8_t> parseBigInt(std::string source);
 
     template BigFloat<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
 }

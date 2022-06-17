@@ -1,7 +1,7 @@
 #ifndef BIG_NUMBERS_BIG_FLOAT_HPP
 #define BIG_NUMBERS_BIG_FLOAT_HPP
 
-#include "BigInt.hpp"
+#include "BigIntBackend.hpp"
 
 namespace BigNumbers {
     template<class T>
@@ -14,11 +14,11 @@ namespace BigNumbers {
     private:
         int32_t exponent;
         std::size_t maxMantissaWidth;
-        BigInt<T> mantissa;
+        BigIntBackend<T> mantissa;
     public:
         explicit BigFloat(std::size_t maxMantissaWidth);
 
-        explicit BigFloat(BigInt<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent);
+        explicit BigFloat(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent);
 
         BigFloat<T> operator+(BigFloat<T> addend) const;
 

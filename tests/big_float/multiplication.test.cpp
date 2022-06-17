@@ -12,7 +12,8 @@ bool testSimple() {
 
     BigFloat<uint8_t> out = first * second;
 
-    BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b01000000, 0b11010010}, 0); // 0.8212890625
+    BigIntBackend<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b01000000, 0b11010010},
+                                                                                0); // 0.8212890625
     int32_t exponent = -1;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));
@@ -20,10 +21,10 @@ bool testSimple() {
 
 bool testZero() {
     BigFloat<uint8_t> first(BigIntDebugger<uint8_t>::createFromSource({0b11101000}, 0), 2, -1);
-    BigFloat<uint8_t> second(BigInt<uint8_t>(), 2, 0);
+    BigFloat<uint8_t> second(BigIntBackend<uint8_t>(), 2, 0);
 
     BigFloat<uint8_t> out = first * second;
-    BigInt<uint8_t> mantissa;
+    BigIntBackend<uint8_t> mantissa;
     int32_t exponent = 0;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));
@@ -35,7 +36,7 @@ bool shouldNormalizeOutput() {
 
     BigFloat<uint8_t> out = first * second;
 
-    BigInt<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b01000000, 0b11010010}, 0);
+    BigIntBackend<uint8_t> mantissa = BigIntDebugger<uint8_t>::createFromSource({0b01000000, 0b11010010}, 0);
     int32_t exponent = 1;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));

@@ -12,7 +12,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> BigFloatDebugger<T>::getMantissa() {
+    BigIntBackend<T> BigFloatDebugger<T>::getMantissa() {
         return debugTarget.mantissa;
     }
 

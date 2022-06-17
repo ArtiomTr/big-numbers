@@ -11,12 +11,12 @@ namespace BigNumbers {
 
     template<class T>
     BigFloat<T>::BigFloat(std::size_t maxMantissaWidth):
-            exponent(0), maxMantissaWidth(maxMantissaWidth), mantissa(BigInt<T>{}) {
+            exponent(0), maxMantissaWidth(maxMantissaWidth), mantissa(BigIntBackend<T>{}) {
 
     }
 
     template<class T>
-    BigFloat<T>::BigFloat(BigInt<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent):
+    BigFloat<T>::BigFloat(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent):
             exponent(exponent), maxMantissaWidth(maxMantissaWidth), mantissa(mantissa) {
         if (mantissa.pieces.empty()) {
             this->exponent = 0;
@@ -111,7 +111,7 @@ namespace BigNumbers {
         divisor.exponent = -1;
         dividend.exponent -= exponentCorrection;
 
-        BigFloat<V> two((BigInt<V>) 2, dividend.maxMantissaWidth, 0);
+        BigFloat<V> two((BigIntBackend<V>) 2, dividend.maxMantissaWidth, 0);
 
         auto factor = two - divisor;
         for (int i = 0; i < 20; ++i) {

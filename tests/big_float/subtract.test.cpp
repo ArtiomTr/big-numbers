@@ -11,7 +11,7 @@ bool testInvert() {
 
     BigFloat<uint8_t> out = first - second;
 
-    BigInt<uint8_t> mantissa; // 0
+    BigIntBackend<uint8_t> mantissa; // 0
     int32_t exponent = 0;
 
     return testBigFloat(out, BigFloat<uint8_t>(mantissa, 2, exponent));
