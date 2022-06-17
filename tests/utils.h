@@ -16,7 +16,8 @@ enum class BigIntComparisonResult : uint8_t {
 
 // Strictly compares two BigIntBackend's.
 template<class T>
-BigIntComparisonResult compareBigInt(const BigNumbers::BigInt<T> &first, const BigNumbers::BigInt<T> &second) {
+BigIntComparisonResult compareBigInt(const BigNumbers::BigIntBackend<T> &first,
+                                     const BigNumbers::BigIntBackend<T> &second) {
     BigNumbers::BigIntDebugger<T> firstDebugger(first);
     BigNumbers::BigIntDebugger<T> secondDebugger(second);
 
@@ -41,7 +42,7 @@ BigIntComparisonResult compareBigInt(const BigNumbers::BigInt<T> &first, const B
 }
 
 template<class T>
-bool testBigInt(const BigNumbers::BigInt<T> &received, const BigNumbers::BigInt<T> &expected) {
+bool testBigInt(const BigNumbers::BigIntBackend<T> &received, const BigNumbers::BigIntBackend<T> &expected) {
     BigIntComparisonResult comparisonResult = compareBigInt(received, expected);
 
     if (comparisonResult == BigIntComparisonResult::EQUAL) {
