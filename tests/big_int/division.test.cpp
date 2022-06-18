@@ -5,26 +5,26 @@
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigIntBackend<uint8_t> one({0b00000110}, 0);
-    BigIntBackend<uint8_t> two({0b00000011}, 0);
+    BigIntBackend<uint8_t> one({0b00000110}, false);
+    BigIntBackend<uint8_t> two({0b00000011}, false);
 
     one.divide(two);
 
-    return testBigInt(one, BigIntBackend<uint8_t>({0b00000010}, 0));
+    return testBigInt(one, BigIntBackend<uint8_t>({0b00000010}, false));
 }
 
 bool testMultiplePieces() {
-    BigIntBackend<uint8_t> one({0b10010001, 0b00000110}, 0);
-    BigIntBackend<uint8_t> two({0b00000011}, 0);
+    BigIntBackend<uint8_t> one({0b10010001, 0b00000110}, false);
+    BigIntBackend<uint8_t> two({0b00000011}, false);
 
     one.divide(two);
 
-    return testBigInt(one, BigIntBackend<uint8_t>({0b00110000, 0b00000010}, 0));
+    return testBigInt(one, BigIntBackend<uint8_t>({0b00110000, 0b00000010}, false));
 }
 
 bool testFlooring() {
-    BigIntBackend<uint8_t> one({0b10010001, 0b00000110}, 0);
-    BigIntBackend<uint8_t> two({0b00000011}, 0);
+    BigIntBackend<uint8_t> one({0b10010001, 0b00000110}, false);
+    BigIntBackend<uint8_t> two({0b00000011}, false);
 
     two.divide(one);
 
@@ -32,12 +32,12 @@ bool testFlooring() {
 }
 
 bool testNegative() {
-    BigIntBackend<uint8_t> one({0b11111010}, 1);
-    BigIntBackend<uint8_t> two({0b00000011}, 0);
+    BigIntBackend<uint8_t> one({0b11111010}, true);
+    BigIntBackend<uint8_t> two({0b00000011}, false);
 
     one.divide(two);
 
-    return testBigInt(one, BigIntBackend<uint8_t>({0b11111110}, 1));
+    return testBigInt(one, BigIntBackend<uint8_t>({0b11111110}, true));
 }
 
 int main() {

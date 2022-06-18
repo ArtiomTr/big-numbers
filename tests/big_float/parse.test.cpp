@@ -9,7 +9,7 @@ using namespace BigNumbers;
 bool testNoFractional() {
     BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("1000.0333", 4);
 
-    BigIntBackend<uint8_t> mantissa({0b10000110, 0b00001000, 0b11101000, 0b00000011}, 0);
+    BigIntBackend<uint8_t> mantissa({0b10000110, 0b00001000, 0b11101000, 0b00000011}, false);
     int32_t exponent = 1;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 4, exponent));
@@ -27,7 +27,7 @@ bool testZero() {
 bool testOne() {
     BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("1.0", 10);
 
-    BigIntBackend<uint8_t> mantissa({0b00000001}, 0);
+    BigIntBackend<uint8_t> mantissa({0b00000001}, false);
     int32_t exponent = 0;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 10, exponent));
@@ -38,7 +38,7 @@ bool testFraction() {
 
     BigIntBackend<uint8_t> mantissa(
             {0b01101010, 0b00101101, 0b00100101, 0b11111011, 0b10000010, 0b00111110, 0b11011010,
-             0b11111101, 0b11111111, 0b00111111}, 0);
+             0b11111101, 0b11111111, 0b00111111}, false);
     int32_t exponent = -1;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 10, exponent));
@@ -47,7 +47,7 @@ bool testFraction() {
 bool testRounding() {
     BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("0.999999940395355224609375", 2);
 
-    BigIntBackend<uint8_t> mantissa({0b00000001}, 0);
+    BigIntBackend<uint8_t> mantissa({0b00000001}, false);
     int32_t exponent = 0;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
@@ -56,7 +56,7 @@ bool testRounding() {
 bool testRounding2() {
     BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("0.00390624976716935634613037109375", 2);
 
-    BigIntBackend<uint8_t> mantissa({0b00000001}, 0);
+    BigIntBackend<uint8_t> mantissa({0b00000001}, false);
     int32_t exponent = -1;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
@@ -65,7 +65,7 @@ bool testRounding2() {
 bool testRounding3() {
     BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("1.0", 2);
 
-    BigIntBackend<uint8_t> mantissa({0b00000001}, 0);
+    BigIntBackend<uint8_t> mantissa({0b00000001}, false);
     int32_t exponent = 0;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
@@ -74,7 +74,7 @@ bool testRounding3() {
 bool testStripZeros() {
     BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("0.00001417635940015316009521484375", 2);
 
-    BigIntBackend<uint8_t> mantissa({0b11010111, 0b11101101}, 0);
+    BigIntBackend<uint8_t> mantissa({0b11010111, 0b11101101}, false);
     int32_t exponent = -2;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
@@ -83,7 +83,7 @@ bool testStripZeros() {
 bool testNegative() {
     BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("-1.0", 2);
 
-    BigIntBackend<uint8_t> mantissa({0b11111111}, 1);
+    BigIntBackend<uint8_t> mantissa({0b11111111}, true);
     int32_t exponent = 0;
 
     return testBigFloat(num, BigFloatBackend<uint8_t>(mantissa, 2, exponent));

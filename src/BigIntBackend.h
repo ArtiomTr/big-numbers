@@ -11,7 +11,7 @@ namespace BigNumbers {
     template<class T>
     class BigIntBackend {
     private:
-        uint8_t sign;
+        bool isNegative;
         std::vector<T> pieces;
 
         static constexpr std::size_t PIECE_SIZE = sizeof(T) * 8;
@@ -23,7 +23,7 @@ namespace BigNumbers {
         template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
         explicit BigIntBackend(Value value);
 
-        BigIntBackend(std::vector<T> pieces, uint8_t sign);
+        BigIntBackend(std::vector<T> pieces, bool sign);
 
         // Perform addition operation on this object and argument. Result is written to this object.
         void add(const BigIntBackend<T> &addend);
@@ -74,7 +74,7 @@ namespace BigNumbers {
 
     template<class T>
     template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool>>
-    BigIntBackend<T>::BigIntBackend(Value value): sign(value < 0) {
+    BigIntBackend<T>::BigIntBackend(Value value): isNegative(value < 0) {
         constexpr std::size_t BIT_COUNT = sizeof(Value) * 8;
         std::bitset<BIT_COUNT> input(value);
         std::bitset<PIECE_SIZE> buffer;

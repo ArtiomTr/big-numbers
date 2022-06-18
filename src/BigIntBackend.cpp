@@ -8,12 +8,12 @@
 
 namespace BigNumbers {
     template<class T>
-    BigIntBackend<T>::BigIntBackend() : pieces(std::vector<T>()), sign(0) {
+    BigIntBackend<T>::BigIntBackend() : pieces(std::vector<T>()), isNegative(false) {
 
     }
 
     template<class T>
-    BigIntBackend<T>::BigIntBackend(std::vector<T> pieces, uint8_t sign): pieces(pieces), sign(sign) {
+    BigIntBackend<T>::BigIntBackend(std::vector<T> pieces, bool sign): pieces(pieces), isNegative(sign) {
 
     }
 
@@ -29,13 +29,13 @@ namespace BigNumbers {
 
     template<class T>
     T BigIntBackend<T>::getFillValue() const {
-        return sign ? std::numeric_limits<T>::max() : 0b0;
+        return isNegative ? std::numeric_limits<T>::max() : 0b0;
     }
 
     template<class T>
     std::string BigIntBackend<T>::toString() const {
         std::stringstream output;
-        output << (sign ? '-' : '+');
+        output << (isNegative ? '-' : '+');
 
         for (auto it = pieces.rbegin(); it != pieces.rend(); ++it) {
             std::bitset<BigIntBackend<T>::PIECE_SIZE> buff(*it);
@@ -77,7 +77,7 @@ namespace BigNumbers {
 
         std::bitset<BigIntBackend<T>::PIECE_SIZE> additional(getFillValue() + addend.getFillValue() + carry);
 
-        sign = additional[BigIntBackend<T>::PIECE_SIZE - 1];
+        isNegative = additional[BigIntBackend<T>::PIECE_SIZE - 1];
 
         if (additional != getFillValue()) {
             pieces.push_back(additional.to_ulong());
@@ -105,7 +105,7 @@ namespace BigNumbers {
 
         invert();
         add(BigIntBackend<T>((T) 1));
-        sign = !sign;
+        isNegative = !isNegative;
     }
 
     template<class T>
@@ -159,7 +159,7 @@ namespace BigNumbers {
                                                                                                multiplicand);
 
         BigIntBackend<T> product;
-        product.sign = sign ^ multiplicand.sign;
+        product.isNegative = isNegative ^ multiplicand.isNegative;
 
         T mask = 0b1;
 
@@ -190,13 +190,13 @@ namespace BigNumbers {
             throw std::logic_error("Cannot divide by zero.");
         }
 
-        uint8_t outputSign = sign ^ divisor.sign;
+        uint8_t outputSign = isNegative ^ divisor.isNegative;
 
-        if (sign) {
+        if (isNegative) {
             negate();
         }
 
-        if (divisor.sign) {
+        if (divisor.isNegative) {
             divisor.negate();
         }
 
@@ -236,8 +236,8 @@ namespace BigNumbers {
     int8_t BigIntBackend<T>::compare(const BigIntBackend<T> &secondOperand) const {
         const BigIntBackend<T> &firstOperand = *this;
 
-        if (firstOperand.sign != secondOperand.sign) {
-            if (firstOperand.sign > secondOperand.sign) {
+        if (firstOperand.isNegative != secondOperand.isNegative) {
+            if (firstOperand.isNegative > secondOperand.isNegative) {
                 return -1;
             }
 
@@ -313,7 +313,7 @@ namespace BigNumbers {
 
     template<class T>
     int32_t BigIntBackend<T>::getSign() const {
-        return sign;
+        return isNegative;
     }
 
     template

@@ -6,8 +6,8 @@
 using namespace BigNumbers;
 
 bool testInvert() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, 0), 2, -1); // 0.90625
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b11101000}, 0), 2, -1); // 0.90625
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, false), 2, -1); // 0.90625
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b11101000}, false), 2, -1); // 0.90625
 
     first.subtract(second);
 
