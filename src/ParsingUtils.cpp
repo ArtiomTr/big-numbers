@@ -145,9 +145,13 @@ namespace BigNumbers {
         }
 
         BigIntBackend<T> out;
-        integralSourceToBinary<T>(source, out.pieces);
+        integralSourceToBinary<T>(source, out.accessPieces());
 
-        return sign ? -out : out;
+        if (sign) {
+            out.twosComplement();
+        }
+
+        return out;
     }
 
     template<typename T>
@@ -166,26 +170,30 @@ namespace BigNumbers {
 
         std::string::size_type dotPosition = source.find('.');
         BigIntBackend<T> mantissa;
-        integralSourceToBinary<T>(source.substr(0, dotPosition), mantissa.pieces);
+        integralSourceToBinary<T>(source.substr(0, dotPosition), mantissa.accessPieces());
 
-        trimBack(mantissa.pieces, (T) 0);
+        trimBack(mantissa.accessPieces(), (T) 0);
 
-        int32_t exponent = std::max(mantissa.pieces.size(), static_cast<std::size_t>(1)) - 1;
+        int32_t exponent = std::max(mantissa.accessPieces().size(), static_cast<std::size_t>(1)) - 1;
 
-        if (mantissa.pieces.size() > mantissaWidth) {
+        if (mantissa.accessPieces().size() > mantissaWidth) {
             throw std::logic_error(
                     "Too small precision: unsafe integer bound exceeded, precision is less than 1 unit.");
         }
 
         int32_t exponentCorrection = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
                                                                  mantissaWidth,
-                                                                 mantissa.pieces);
+                                                                 mantissa.accessPieces());
 
         exponent += exponentCorrection;
 
-        trimFront(mantissa.pieces, (T) 0);
+        trimFront(mantissa.accessPieces(), (T) 0);
 
-        return BigFloatBackend<T>(sign ? -mantissa : mantissa, mantissaWidth, exponent);
+        if (sign) {
+            mantissa.twosComplement();
+        }
+
+        return BigFloatBackend<T>(mantissa, mantissaWidth, exponent);
     }
 
     template BigIntBackend<uint8_t> parseBigInt(std::string source);

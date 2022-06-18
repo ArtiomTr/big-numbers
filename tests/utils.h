@@ -4,8 +4,8 @@
 #include <iostream>
 #include <fstream>
 
-#include "BigIntDebugger.h"
-#include "BigFloatDebugger.h"
+#include "BigIntBackend.h"
+#include "BigFloatBackend.h"
 
 enum class BigIntComparisonResult : uint8_t {
     SIGNS_NOT_MATCH = 0,
@@ -18,19 +18,16 @@ enum class BigIntComparisonResult : uint8_t {
 template<class T>
 BigIntComparisonResult compareBigInt(const BigNumbers::BigIntBackend<T> &first,
                                      const BigNumbers::BigIntBackend<T> &second) {
-    BigNumbers::BigIntDebugger<T> firstDebugger(first);
-    BigNumbers::BigIntDebugger<T> secondDebugger(second);
-
-    if (firstDebugger.getSign() != secondDebugger.getSign()) {
+    if (first.getSign() != second.getSign()) {
         return BigIntComparisonResult::SIGNS_NOT_MATCH;
     }
 
-    if (firstDebugger.getPieces().size() != secondDebugger.getPieces().size()) {
+    if (first.accessPieces().size() != second.accessPieces().size()) {
         return BigIntComparisonResult::LENGTHS_NOT_MATCH;
     }
 
-    std::vector<T> firstPieces = firstDebugger.getPieces();
-    std::vector<T> secondPieces = secondDebugger.getPieces();
+    std::vector<T> firstPieces = first.accessPieces();
+    std::vector<T> secondPieces = second.accessPieces();
 
     for (std::size_t i = 0; i < firstPieces.size(); ++i) {
         if (firstPieces[i] != secondPieces[i]) {
@@ -60,10 +57,7 @@ bool testBigInt(const BigNumbers::BigIntBackend<T> &received, const BigNumbers::
 
 template<class T>
 bool testBigFloat(const BigNumbers::BigFloatBackend<T> &received, const BigNumbers::BigFloatBackend<T> &expected) {
-    BigNumbers::BigFloatDebugger<T> receivedDebugger(received);
-    BigNumbers::BigFloatDebugger<T> expectedDebugger(expected);
-
-    if (receivedDebugger.getExponent() != expectedDebugger.getExponent()) {
+    if (received.getExponent() != expected.getExponent()) {
         std::cout << "Exponents do not match:\n"
                   << "Expected: " << expected.toString() << '\n'
                   << "Received: " << received.toString() << std::endl;
@@ -72,8 +66,8 @@ bool testBigFloat(const BigNumbers::BigFloatBackend<T> &received, const BigNumbe
     }
 
     std::string errorMessages[] = {"Signs do not match", "Lengths do not match", "Numbers do not match"};
-    BigIntComparisonResult comparisonResult = compareBigInt(receivedDebugger.getMantissa(),
-                                                            expectedDebugger.getMantissa());
+    BigIntComparisonResult comparisonResult = compareBigInt(received.getMantissa(),
+                                                            expected.getMantissa());
 
     if (comparisonResult != BigIntComparisonResult::EQUAL) {
         std::cout << "Mantissa do not match:\n"

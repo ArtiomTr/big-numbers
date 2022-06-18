@@ -18,7 +18,7 @@ namespace BigNumbers {
     template<class T>
     BigFloatBackend<T>::BigFloatBackend(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent):
             exponent(exponent), maxMantissaWidth(maxMantissaWidth), mantissa(mantissa) {
-        if (mantissa.pieces.empty()) {
+        if (mantissa.accessPieces().empty()) {
             this->exponent = 0;
         }
     }
@@ -32,105 +32,102 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigFloatBackend<T> BigFloatBackend<T>::operator+(BigFloatBackend<T> addend) const {
-        BigFloatBackend<T> augend = *this;
-        int32_t outputExponent = std::max(augend.exponent, addend.exponent);
+    void BigFloatBackend<T>::add(BigFloatBackend<T> addend) {
+        int32_t outputExponent = std::max(exponent, addend.exponent);
 
-        augend.mantissa.pieces.insert(augend.mantissa.pieces.end(),
-                                      IsomorphicMath::delta(augend.exponent, outputExponent),
-                                      augend.mantissa.getFillValue());
-        addend.mantissa.pieces.insert(addend.mantissa.pieces.end(),
-                                      IsomorphicMath::delta(addend.exponent, outputExponent),
-                                      addend.mantissa.getFillValue());
+        mantissa.accessPieces().insert(mantissa.accessPieces().end(),
+                                       IsomorphicMath::delta(exponent, outputExponent),
+                                       mantissa.getFillValue());
+        addend.mantissa.accessPieces().insert(addend.mantissa.accessPieces().end(),
+                                              IsomorphicMath::delta(addend.exponent, outputExponent),
+                                              addend.mantissa.getFillValue());
 
-        std::size_t width = std::max(augend.mantissa.pieces.size(), addend.mantissa.pieces.size());
+        std::size_t width = std::max(mantissa.accessPieces().size(), addend.mantissa.accessPieces().size());
 
-        augend.mantissa.pieces.insert(augend.mantissa.pieces.begin(),
-                                      IsomorphicMath::delta(width, augend.mantissa.pieces.size()),
-                                      augend.mantissa.getFillValue());
-        addend.mantissa.pieces.insert(addend.mantissa.pieces.begin(),
-                                      IsomorphicMath::delta(width, addend.mantissa.pieces.size()),
-                                      addend.mantissa.getFillValue());
+        mantissa.accessPieces().insert(mantissa.accessPieces().begin(),
+                                       IsomorphicMath::delta(width, mantissa.accessPieces().size()),
+                                       mantissa.getFillValue());
+        addend.mantissa.accessPieces().insert(addend.mantissa.accessPieces().begin(),
+                                              IsomorphicMath::delta(width, addend.mantissa.accessPieces().size()),
+                                              addend.mantissa.getFillValue());
 
-        augend.mantissa = augend.mantissa + addend.mantissa;
+        mantissa.add(addend.mantissa);
 
-        outputExponent += augend.mantissa.pieces.size() - width;
+        outputExponent += mantissa.accessPieces().size() - width;
 
-        width = augend.mantissa.pieces.size();
-        augend.mantissa.normalize();
-        outputExponent += width - augend.mantissa.pieces.size();
-        trimFront(augend.mantissa.pieces, augend.mantissa.getFillValue());
+        width = mantissa.accessPieces().size();
+        mantissa.normalize();
+        outputExponent += width - mantissa.accessPieces().size();
+        trimFront(mantissa.accessPieces(), mantissa.getFillValue());
 
-        augend.exponent = outputExponent;
-
-        return augend;
+        exponent = outputExponent;
     }
 
-    template<class V>
-    BigFloatBackend<V> operator-(const BigFloatBackend<V> &minuend, const BigFloatBackend<V> &subtrahend) {
-        return minuend + (-subtrahend);
+    template<class T>
+    void BigFloatBackend<T>::subtract(BigFloatBackend<T> subtrahend) {
+        subtrahend.negate();
+        add(subtrahend);
     }
 
-    template<class V>
-    BigFloatBackend<V> operator-(const BigFloatBackend<V> &value) {
-        return BigFloatBackend<V>(-value.mantissa, value.maxMantissaWidth, value.exponent);
+    template<class T>
+    void BigFloatBackend<T>::negate() {
+        mantissa.twosComplement();
     }
 
     inline std::size_t getFractionWidth(std::size_t totalCount) {
         return totalCount > 0 ? totalCount - 1 : 0;
     }
 
-    template<class V>
-    BigFloatBackend<V> BigFloatBackend<V>::operator*(const BigFloatBackend<V> &multiplicand) {
-        const BigFloatBackend<V> &multiplier = *this;
-        BigFloatBackend<V> output(maxMantissaWidth);
-        output.mantissa = multiplier.mantissa * multiplicand.mantissa;
-        output.exponent = multiplier.exponent + multiplicand.exponent;
+    template<class T>
+    void BigFloatBackend<T>::multiply(BigFloatBackend<T> multiplicand) {
+        std::size_t inputFractionWidth = getFractionWidth(mantissa.accessPieces().size())
+                                         + getFractionWidth(multiplicand.mantissa.accessPieces().size());
 
-        std::size_t inputFractionWidth = getFractionWidth(multiplier.mantissa.pieces.size())
-                                         + getFractionWidth(multiplicand.mantissa.pieces.size());
+        mantissa.multiply(multiplicand.mantissa);
+        exponent += multiplicand.exponent;
 
-        std::size_t resultFractionWidth = getFractionWidth(output.mantissa.pieces.size());
-        output.exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
+        std::size_t resultFractionWidth = getFractionWidth(mantissa.accessPieces().size());
+        exponent += static_cast<int32_t>(resultFractionWidth - inputFractionWidth);
 
-        if (output.mantissa.pieces.empty()) {
-            output.exponent = 0;
+        if (mantissa.accessPieces().empty()) {
+            exponent = 0;
         }
 
-        if (output.mantissa.pieces.size() > maxMantissaWidth) {
-            output.mantissa.pieces.erase(output.mantissa.pieces.begin() + maxMantissaWidth,
-                                         output.mantissa.pieces.end());
+        if (mantissa.accessPieces().size() > maxMantissaWidth) {
+            mantissa.accessPieces().erase(mantissa.accessPieces().begin() + maxMantissaWidth,
+                                          mantissa.accessPieces().end());
         }
-
-        return output;
     }
 
-    template<class V>
-    BigFloatBackend<V> operator/(BigFloatBackend<V> dividend, BigFloatBackend<V> divisor) {
+    template<class T>
+    void BigFloatBackend<T>::divide(BigFloatBackend<T> divisor) {
         auto exponentCorrection = divisor.exponent + 1;
         divisor.exponent = -1;
-        dividend.exponent -= exponentCorrection;
+        exponent -= exponentCorrection;
 
-        BigFloatBackend<V> two((BigIntBackend<V>) 2, dividend.maxMantissaWidth, 0);
+        BigFloatBackend<T> two((BigIntBackend<T>) 2, maxMantissaWidth, 0);
 
-        auto factor = two - divisor;
+        auto factor = two;
+        factor.subtract(divisor);
         for (int i = 0; i < 20; ++i) {
-            dividend = dividend * factor;
-            divisor = divisor * factor;
+            multiply(factor);
+            divisor.multiply(factor);
 
-            factor = two - divisor;
+            factor = two;
+            factor.subtract(divisor);
         }
+    }
 
-        return dividend;
+    template<class T>
+    BigIntBackend<T> BigFloatBackend<T>::getMantissa() const {
+        return mantissa;
+    }
+
+    template<class T>
+    int32_t BigFloatBackend<T>::getExponent() const {
+        return exponent;
     }
 
     template
     class BigFloatBackend<uint8_t>;
-
-    template BigFloatBackend<uint8_t>
-    operator-(const BigFloatBackend<uint8_t> &minuend, const BigFloatBackend<uint8_t> &subtrahend);
-
-    template BigFloatBackend<uint8_t> operator-(const BigFloatBackend<uint8_t> &value);
-
-    template BigFloatBackend<uint8_t> operator/(BigFloatBackend<uint8_t> dividend, BigFloatBackend<uint8_t> divisor);
 }

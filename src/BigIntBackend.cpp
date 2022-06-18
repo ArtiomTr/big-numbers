@@ -4,10 +4,19 @@
 #include <regex>
 #include <bitset>
 
-#include "IsomorphicMath.h"
 #include "VectorUtils.h"
 
 namespace BigNumbers {
+    template<class T>
+    BigIntBackend<T>::BigIntBackend() : pieces(std::vector<T>()), sign(0) {
+
+    }
+
+    template<class T>
+    BigIntBackend<T>::BigIntBackend(std::vector<T> pieces, uint8_t sign): pieces(pieces), sign(sign) {
+
+    }
+
     template<class T>
     std::pair<const BigIntBackend<T> &, const BigIntBackend<T> &>
     BigIntBackend<T>::sortBySize(const BigIntBackend<T> &first, const BigIntBackend<T> &second) {
@@ -39,22 +48,14 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigIntBackend<T>::BigIntBackend() : pieces(std::vector<T>()), sign(0) {
-
-    }
-
-    template<class T>
-    BigIntBackend<T> operator+(const BigIntBackend<T> &augend, const BigIntBackend<T> &addend) {
-        BigIntBackend<T> sum{};
-
-        const auto &[_, longestSummand] = BigIntBackend<T>::sortBySize(augend, addend);
-
-        auto firstIt = augend.pieces.begin(), secondIt = addend.pieces.begin();
+    void BigIntBackend<T>::add(const BigIntBackend<T> &addend) {
+        auto firstIt = pieces.begin();
+        auto secondIt = addend.pieces.begin();
 
         T carry = 0;
 
-        while (firstIt != augend.pieces.end() || secondIt != addend.pieces.end()) {
-            T augendPiece = firstIt != augend.pieces.end() ? *firstIt : augend.getFillValue();
+        while (firstIt != pieces.end() || secondIt != addend.pieces.end()) {
+            T augendPiece = firstIt != pieces.end() ? *firstIt : getFillValue();
             T addendPiece = secondIt != addend.pieces.end() ? *secondIt : addend.getFillValue();
 
             T value = augendPiece + addendPiece + carry;
@@ -62,59 +63,53 @@ namespace BigNumbers {
             carry = (augendPiece > value) || (addendPiece > value) ||
                     (carry && (augendPiece == value || addendPiece == value));
 
-            sum.pieces.push_back(value);
-
-            if (firstIt != augend.pieces.end())
+            if (firstIt != pieces.end()) {
+                *firstIt = value;
                 ++firstIt;
+            } else {
+                pieces.push_back(value);
+                firstIt = pieces.end();
+            }
 
             if (secondIt != addend.pieces.end())
                 ++secondIt;
         }
 
-        std::bitset<BigIntBackend<T>::PIECE_SIZE> additional(augend.getFillValue() + addend.getFillValue() + carry);
+        std::bitset<BigIntBackend<T>::PIECE_SIZE> additional(getFillValue() + addend.getFillValue() + carry);
 
-        sum.sign = additional[BigIntBackend<T>::PIECE_SIZE - 1];
+        sign = additional[BigIntBackend<T>::PIECE_SIZE - 1];
 
-        if (additional != sum.getFillValue()) {
-            sum.pieces.push_back(additional.to_ulong());
+        if (additional != getFillValue()) {
+            pieces.push_back(additional.to_ulong());
         }
-
-        return sum;
     }
 
     template<class T>
-    BigIntBackend<T> operator-(const BigIntBackend<T> &minuend, const BigIntBackend<T> &subtrahend) {
-        return minuend + (-subtrahend);
+    void BigIntBackend<T>::subtract(BigIntBackend<T> subtrahend) {
+        subtrahend.twosComplement();
+        add(subtrahend);
     }
 
     template<class T>
-    BigIntBackend<T> BigIntBackend<T>::operator~() const {
-        BigIntBackend<T> out = *this;
-
-        for (T &piece: out.pieces) {
+    void BigIntBackend<T>::invert() {
+        for (T &piece: pieces) {
             piece = ~piece;
         }
-
-        return out;
     }
 
     template<class T>
-    BigIntBackend<T> BigIntBackend<T>::operator-() const {
+    void BigIntBackend<T>::twosComplement() {
         if (pieces.empty()) {
-            return *this;
+            return;
         }
 
-        BigIntBackend<T> output = ~(*this) + BigIntBackend<T>((T) 1);
-        output.sign = !sign;
-        return output;
+        invert();
+        add(BigIntBackend<T>((T) 1));
+        sign = !sign;
     }
 
     template<class T>
-    BigIntBackend<T> BigIntBackend<T>::operator<<(const SizeType &shiftBy) const {
-        BigIntBackend<T> output;
-        output.sign = sign;
-        output.pieces.resize(pieces.size());
-
+    void BigIntBackend<T>::shiftLeft(const SizeType &shiftBy) {
         SizeType pieceShift = shiftBy % BigIntBackend<T>::PIECE_SIZE;
         SizeType pieceShiftComplement = BigIntBackend<T>::PIECE_SIZE - pieceShift;
 
@@ -131,151 +126,146 @@ namespace BigNumbers {
 
         T mask = ~maskBuilder;
 
+        T previous = pieces.front();
         if (!pieces.empty()) {
-            output.pieces.front() = pieces.front() << pieceShift;
+            pieces.front() <<= pieceShift;
         }
 
         for (std::size_t i = 1; i < pieces.size(); ++i) {
-            output.pieces[i] = (pieces[i] << pieceShift) |
-                               (pieces[i - 1] >> pieceShiftComplement);
+            T current = pieces[i];
+            pieces[i] <<= pieceShift;
+            pieces[i] |= (previous >> pieceShiftComplement);
+            previous = current;
         }
 
-        T fillValue = output.getFillValue();
+        T fillValue = getFillValue();
 
-        T additionalPiece = (pieces.back() >> pieceShiftComplement) |
+        T additionalPiece = (previous >> pieceShiftComplement) |
                             (fillValue << pieceShift);
 
         if (additionalPiece != fillValue) {
-            output.pieces.push_back(additionalPiece);
+            pieces.push_back(additionalPiece);
         }
 
         SizeType emptyPieceCount = shiftBy / BigIntBackend<T>::PIECE_SIZE;
         if (emptyPieceCount > 0) {
-            output.pieces.insert(output.pieces.begin(), emptyPieceCount, 0);
+            pieces.insert(pieces.begin(), emptyPieceCount, 0);
         }
-
-        return output;
     }
 
     template<class T>
-    BigIntBackend<T> operator*(const BigIntBackend<T> &multiplier, const BigIntBackend<T> &multiplicand) {
-        using SizeType = typename BigIntBackend<T>::SizeType;
-
-        const auto &[shortestMultiplicand, longestMultiplicand] = BigIntBackend<T>::sortBySize(multiplier,
+    void BigIntBackend<T>::multiply(const BigIntBackend<T> &multiplicand) {
+        const auto &[shortestMultiplicand, longestMultiplicand] = BigIntBackend<T>::sortBySize(*this,
                                                                                                multiplicand);
 
         BigIntBackend<T> product;
-        product.sign = multiplier.sign ^ multiplicand.sign;
+        product.sign = sign ^ multiplicand.sign;
 
         T mask = 0b1;
 
         std::size_t i = 0;
+        SizeType prevShift = 0;
+
+        BigIntBackend<T> shiftMultiplicand = longestMultiplicand;
         for (T currentPiece: shortestMultiplicand.pieces) {
             for (SizeType j = 0; j < BigIntBackend<T>::PIECE_SIZE; ++j) {
                 T currentMask = mask << j;
 
                 if (currentPiece & currentMask) {
-                    BigIntBackend<T> summand = (longestMultiplicand
-                            << (SizeType) (j + i * BigIntBackend<T>::PIECE_SIZE));
-                    product = product + summand;
+                    SizeType currShift = j + i * BigIntBackend<T>::PIECE_SIZE;
+                    shiftMultiplicand.shiftLeft(currShift - prevShift);
+                    prevShift = currShift;
+                    product.add(shiftMultiplicand);
                 }
             }
             ++i;
         }
 
-        return product;
-    }
-
-    template<class V>
-    std::pair<BigIntBackend<V>, BigIntBackend<V>>
-    longDivision(const BigIntBackend<V> &inDividend, const BigIntBackend<V> &inDivisor) {
-        const BigIntBackend<V> dividend = IsomorphicMath::abs(inDividend);
-        const BigIntBackend<V> divisor = IsomorphicMath::abs(inDivisor);
-
-        if (divisor == BigIntBackend<V>(0)) {
-            throw std::logic_error("Cannot divide by zero.");
-        }
-
-        BigIntBackend<V> remainder;
-        remainder.pieces.insert(remainder.pieces.begin(), 0);
-        BigIntBackend<V> quotient;
-
-        constexpr std::size_t BIT_COUNT = sizeof(V) * 8;
-
-        for (auto piece = dividend.pieces.rbegin(); piece != dividend.pieces.rend(); ++piece) {
-            std::bitset<BIT_COUNT> pieceBits(*piece);
-            std::bitset<BIT_COUNT> quotientBits(0b0);
-
-            for (std::size_t j = BIT_COUNT; j > 0; --j) {
-                std::size_t bitIndex = j - 1;
-                remainder = remainder << 1;
-
-                std::bitset<BIT_COUNT> remainderBits(remainder.pieces.front());
-                remainderBits.set(0, pieceBits[bitIndex]);
-                remainder.pieces.front() = static_cast<V>(remainderBits.to_ulong());
-
-                if (remainder >= divisor) {
-                    remainder = remainder - divisor;
-                    quotientBits.set(bitIndex, true);
-                }
-            }
-
-            quotient.pieces.insert(quotient.pieces.begin(), static_cast<V>(quotientBits.to_ulong()));
-        }
-
-        quotient.normalize();
-        uint8_t sign = inDividend.sign ^ inDivisor.sign;
-
-        remainder.normalize();
-
-        return {(sign ? -quotient : quotient), remainder};
-    }
-
-    template<class V>
-    BigIntBackend<V> operator%(const BigIntBackend<V> &dividend, const BigIntBackend<V> &divisor) {
-        auto output = longDivision(dividend, divisor);
-
-        return output.second;
-    }
-
-    template<class V>
-    BigIntBackend<V> operator/(const BigIntBackend<V> &dividend, const BigIntBackend<V> &divisor) {
-        auto output = longDivision(dividend, divisor);
-
-        return output.first;
+        *this = product;
     }
 
     template<class T>
-    std::strong_ordering BigIntBackend<T>::operator<=>(const BigIntBackend<T> &secondOperand) const {
+    BigIntBackend<T> BigIntBackend<T>::divide(BigIntBackend<T> divisor) {
+        if (divisor.compare(BigIntBackend<T>(0)) == 0) {
+            throw std::logic_error("Cannot divide by zero.");
+        }
+
+        uint8_t outputSign = sign ^ divisor.sign;
+
+        if (sign) {
+            twosComplement();
+        }
+
+        if (divisor.sign) {
+            divisor.twosComplement();
+        }
+
+        BigIntBackend<T> remainder;
+        remainder.pieces.insert(remainder.pieces.begin(), 0);
+
+        for (auto piece = pieces.rbegin(); piece != pieces.rend(); ++piece) {
+            std::bitset<BigIntBackend<T>::PIECE_SIZE> pieceBits(*piece);
+            std::bitset<BigIntBackend<T>::PIECE_SIZE> quotientBits(0b0);
+
+            for (std::size_t j = BigIntBackend<T>::PIECE_SIZE; j > 0; --j) {
+                std::size_t bitIndex = j - 1;
+                remainder.shiftLeft(1);
+
+                std::bitset<BigIntBackend<T>::PIECE_SIZE> remainderBits(remainder.pieces.front());
+                remainderBits.set(0, pieceBits[bitIndex]);
+                remainder.pieces.front() = static_cast<T>(remainderBits.to_ulong());
+
+                if (remainder.compare(divisor) >= 0) {
+                    remainder.subtract(divisor);
+                    quotientBits.set(bitIndex, true);
+                }
+            }
+            *piece = static_cast<T>(quotientBits.to_ulong());
+        }
+
+        normalize();
+        if (outputSign) {
+            twosComplement();
+        }
+        remainder.normalize();
+
+        return remainder;
+    }
+
+    template<class T>
+    int8_t BigIntBackend<T>::compare(const BigIntBackend<T> &secondOperand) const {
         const BigIntBackend<T> &firstOperand = *this;
 
         if (firstOperand.sign != secondOperand.sign) {
-            return secondOperand.sign <=> firstOperand.sign;
+            if (firstOperand.sign > secondOperand.sign) {
+                return -1;
+            }
+
+            return 1;
         }
 
         if (firstOperand.pieces.size() != secondOperand.pieces.size()) {
-            return firstOperand.pieces.size() <=> secondOperand.pieces.size();
+            if (firstOperand.pieces.size() > secondOperand.pieces.size()) {
+                return 1;
+            }
+
+            return -1;
         }
 
         auto firstIt = firstOperand.pieces.rbegin(), secondIt = secondOperand.pieces.rbegin();
 
         while (firstIt != firstOperand.pieces.rend() && secondIt != secondOperand.pieces.rend()) {
-            auto result = (*firstIt) <=> (*secondIt);
-
-            if (result != std::strong_ordering::equal) {
-                return result;
+            if (*firstIt > *secondIt) {
+                return 1;
+            } else if (*firstIt < *secondIt) {
+                return -1;
             }
 
             ++firstIt;
             ++secondIt;
         }
 
-        return std::strong_ordering::equal;
-    }
-
-    template<class T>
-    bool BigIntBackend<T>::operator==(const BigIntBackend<T> &secondOperand) const {
-        return (*this <=> secondOperand) == std::strong_ordering::equal;
+        return 0;
     }
 
     template<class T>
@@ -287,24 +277,22 @@ namespace BigNumbers {
     std::ostream &operator<<(std::ostream &out, BigIntBackend<V> value) {
         BigIntBackend<V> zero(0);
 
-        if (value == zero) {
+        if (value.compare(zero) == 0) {
             out << '0';
 
             return out;
         }
 
-        if (value < zero) {
-            value = -value;
+        if (value.compare(zero) < 0) {
+            value.twosComplement();
             out << '-';
         }
 
         BigIntBackend<V> ten(10);
         std::string valueAsString;
 
-        while (value > zero) {
-            char digit = static_cast<char>(value % ten);
-            value = value / ten;
-            valueAsString += static_cast<char>(digit + '0');
+        while (value.compare(zero) > 0) {
+            valueAsString += static_cast<char>(value.divide(ten)) + '0';
         }
 
         std::reverse(valueAsString.begin(), valueAsString.end());
@@ -313,23 +301,23 @@ namespace BigNumbers {
         return out;
     }
 
+    template<class T>
+    std::vector<T> &BigIntBackend<T>::accessPieces() {
+        return pieces;
+    }
+
+    template<class T>
+    std::vector<T> BigIntBackend<T>::accessPieces() const {
+        return pieces;
+    }
+
+    template<class T>
+    int32_t BigIntBackend<T>::getSign() const {
+        return sign;
+    }
+
     template
     class BigIntBackend<uint8_t>;
-
-    template BigIntBackend<uint8_t>
-    operator+(const BigIntBackend<uint8_t> &augend, const BigIntBackend<uint8_t> &addend);
-
-    template BigIntBackend<uint8_t>
-    operator-(const BigIntBackend<uint8_t> &minuend, const BigIntBackend<uint8_t> &subtrahend);
-
-    template BigIntBackend<uint8_t>
-    operator*(const BigIntBackend<uint8_t> &multiplier, const BigIntBackend<uint8_t> &multiplicand);
-
-    template BigIntBackend<uint8_t>
-    operator/(const BigIntBackend<uint8_t> &dividend, const BigIntBackend<uint8_t> &divisor);
-
-    template BigIntBackend<uint8_t>
-    operator%(const BigIntBackend<uint8_t> &dividend, const BigIntBackend<uint8_t> &divisor);
 
     template std::ostream &operator<<(std::ostream &out, BigIntBackend<uint8_t> value);
 }

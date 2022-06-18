@@ -5,12 +5,7 @@
 
 namespace BigNumbers {
     template<class T>
-    class BigFloatDebugger;
-
-    template<class T>
     class BigFloatBackend {
-    private:
-        friend BigFloatDebugger<T>;
     private:
         int32_t exponent;
         std::size_t maxMantissaWidth;
@@ -20,20 +15,21 @@ namespace BigNumbers {
 
         explicit BigFloatBackend(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent);
 
-        BigFloatBackend<T> operator+(BigFloatBackend<T> addend) const;
+        void add(BigFloatBackend<T> addend);
 
-        template<class V>
-        friend BigFloatBackend<V> operator-(const BigFloatBackend<V> &minuend, const BigFloatBackend<V> &subtrahend);
+        void subtract(BigFloatBackend<T> subtrahend);
 
-        template<class V>
-        friend BigFloatBackend<V> operator-(const BigFloatBackend<V> &value);
+        void negate();
 
-        BigFloatBackend<T> operator*(const BigFloatBackend<T> &multiplicand);
+        void multiply(BigFloatBackend<T> multiplicand);
 
-        template<class V>
-        friend BigFloatBackend<V> operator/(BigFloatBackend<V> dividend, BigFloatBackend<V> divisor);
+        void divide(BigFloatBackend<T> divisor);
 
-        std::string toString() const;
+        [[nodiscard]] std::string toString() const;
+
+        BigIntBackend<T> getMantissa() const;
+
+        int32_t getExponent() const;
     };
 }
 
