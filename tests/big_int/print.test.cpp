@@ -9,19 +9,13 @@ using namespace BigNumbers;
 bool testSingleCell() {
     BigIntBackend<uint8_t> value({0b00000110}, false);
 
-    std::stringstream builder;
-    builder << value;
-
-    return builder.str() == "6";
+    return value.toString() == "6";
 }
 
 bool testMultipleCells() {
     BigIntBackend<uint8_t> value({0b00000000, 0b00001100}, false);
 
-    std::stringstream builder;
-    builder << value;
-
-    return builder.str() == "3072";
+    return value.toString() == "3072";
 }
 
 bool testLargeValue() {
@@ -30,29 +24,19 @@ bool testLargeValue() {
              0b11001100, 0b00010001, 0b11100011, 0b00100100,
              0b10101010, 0b00000001}, false);
 
-    std::stringstream builder;
-    builder << value;
-
-    return builder.str() == "7860970963174088510500";
+    return value.toString() == "7860970963174088510500";
 }
 
 bool testZero() {
     BigIntBackend<uint8_t> value;
 
-    std::stringstream builder;
-    builder << value;
-
-    return builder.str() == "0";
+    return value.toString() == "0";
 }
 
 bool testNegative() {
     BigIntBackend<uint8_t> value({0b11111010}, true);
 
-    std::stringstream builder;
-    builder << value;
-
-    return builder.str() == "-6";
-
+    return value.toString() == "-6";
 }
 
 int main() {

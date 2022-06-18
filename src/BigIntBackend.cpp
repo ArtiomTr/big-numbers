@@ -33,7 +33,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    std::string BigIntBackend<T>::toString() const {
+    std::string BigIntBackend<T>::toBinaryString() const {
         std::stringstream output;
         output << (isNegative ? '-' : '+');
 
@@ -273,32 +273,34 @@ namespace BigNumbers {
         trimBack(pieces, getFillValue());
     }
 
-    template<class V>
-    std::ostream &operator<<(std::ostream &out, BigIntBackend<V> value) {
-        BigIntBackend<V> zero(0);
+    template<class T>
+    std::string BigIntBackend<T>::toString() const {
+        BigIntBackend<T> zero(0);
 
-        if (value.compare(zero) == 0) {
-            out << '0';
-
-            return out;
+        if (compare(zero) == 0) {
+            return "0";
         }
 
-        if (value.compare(zero) < 0) {
-            value.negate();
-            out << '-';
-        }
-
-        BigIntBackend<V> ten(10);
         std::string valueAsString;
+
+        auto value = *this;
+        if (value.isNegative) {
+            value.negate();
+        }
+
+        BigIntBackend<T> ten(10);
 
         while (value.compare(zero) > 0) {
             valueAsString += static_cast<char>(value.divide(ten)) + '0';
         }
 
         std::reverse(valueAsString.begin(), valueAsString.end());
-        out << valueAsString;
 
-        return out;
+        if (isNegative) {
+            valueAsString = "-" + valueAsString;
+        }
+
+        return valueAsString;
     }
 
     template<class T>
@@ -318,6 +320,4 @@ namespace BigNumbers {
 
     template
     class BigIntBackend<uint8_t>;
-
-    template std::ostream &operator<<(std::ostream &out, BigIntBackend<uint8_t> value);
 }

@@ -24,9 +24,9 @@ namespace BigNumbers {
     }
 
     template<class T>
-    std::string BigFloatBackend<T>::toString() const {
+    std::string BigFloatBackend<T>::toBinaryString() const {
         std::stringstream out{};
-        out << mantissa.toString() << "E" << exponent;
+        out << mantissa.toBinaryString() << "E" << exponent;
 
         return out.str();
     }

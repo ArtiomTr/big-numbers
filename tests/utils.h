@@ -49,8 +49,8 @@ bool testBigInt(const BigNumbers::BigIntBackend<T> &received, const BigNumbers::
     std::string errorMessages[] = {"Signs do not match", "Lengths do not match", "Numbers do not match"};
 
     std::cout << errorMessages[static_cast<int>(comparisonResult)] << ": \n"
-              << "Expected: " << expected.toString() << '\n'
-              << "Received: " << received.toString() << std::endl;
+              << "Expected: " << expected.toBinaryString() << '\n'
+              << "Received: " << received.toBinaryString() << std::endl;
 
     return false;
 }
@@ -59,8 +59,8 @@ template<class T>
 bool testBigFloat(const BigNumbers::BigFloatBackend<T> &received, const BigNumbers::BigFloatBackend<T> &expected) {
     if (received.getExponent() != expected.getExponent()) {
         std::cout << "Exponents do not match:\n"
-                  << "Expected: " << expected.toString() << '\n'
-                  << "Received: " << received.toString() << std::endl;
+                  << "Expected: " << expected.toBinaryString() << '\n'
+                  << "Received: " << received.toBinaryString() << std::endl;
 
         return false;
     }
@@ -72,8 +72,8 @@ bool testBigFloat(const BigNumbers::BigFloatBackend<T> &received, const BigNumbe
     if (comparisonResult != BigIntComparisonResult::EQUAL) {
         std::cout << "Mantissa do not match:\n"
                   << errorMessages[static_cast<int>(comparisonResult)] << ":\n"
-                  << "Expected: " << expected.toString() << '\n'
-                  << "Received: " << received.toString() << std::endl;
+                  << "Expected: " << expected.toBinaryString() << '\n'
+                  << "Received: " << received.toBinaryString() << std::endl;
 
         return false;
     }

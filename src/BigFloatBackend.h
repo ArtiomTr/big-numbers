@@ -25,7 +25,7 @@ namespace BigNumbers {
 
         void divide(BigFloatBackend<T> divisor);
 
-        [[nodiscard]] std::string toString() const;
+        [[nodiscard]] std::string toBinaryString() const;
 
         BigIntBackend<T> getMantissa() const;
 
