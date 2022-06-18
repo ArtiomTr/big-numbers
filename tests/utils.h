@@ -4,8 +4,8 @@
 #include <iostream>
 #include <fstream>
 
-#include "BigIntDebugger.h"
-#include "BigFloatDebugger.h"
+#include "BigIntBackend.h"
+#include "BigFloatBackend.h"
 
 enum class BigIntComparisonResult : uint8_t {
     SIGNS_NOT_MATCH = 0,
@@ -14,22 +14,20 @@ enum class BigIntComparisonResult : uint8_t {
     EQUAL,
 };
 
-// Strictly compares two BigInt's.
+// Strictly compares two BigIntBackend's.
 template<class T>
-BigIntComparisonResult compareBigInt(const BigNumbers::BigInt<T> &first, const BigNumbers::BigInt<T> &second) {
-    BigNumbers::BigIntDebugger<T> firstDebugger(first);
-    BigNumbers::BigIntDebugger<T> secondDebugger(second);
-
-    if (firstDebugger.getSign() != secondDebugger.getSign()) {
+BigIntComparisonResult compareBigInt(const BigNumbers::BigIntBackend<T> &first,
+                                     const BigNumbers::BigIntBackend<T> &second) {
+    if (first.getSign() != second.getSign()) {
         return BigIntComparisonResult::SIGNS_NOT_MATCH;
     }
 
-    if (firstDebugger.getPieces().size() != secondDebugger.getPieces().size()) {
+    if (first.accessPieces().size() != second.accessPieces().size()) {
         return BigIntComparisonResult::LENGTHS_NOT_MATCH;
     }
 
-    std::vector<T> firstPieces = firstDebugger.getPieces();
-    std::vector<T> secondPieces = secondDebugger.getPieces();
+    std::vector<T> firstPieces = first.accessPieces();
+    std::vector<T> secondPieces = second.accessPieces();
 
     for (std::size_t i = 0; i < firstPieces.size(); ++i) {
         if (firstPieces[i] != secondPieces[i]) {
@@ -41,7 +39,7 @@ BigIntComparisonResult compareBigInt(const BigNumbers::BigInt<T> &first, const B
 }
 
 template<class T>
-bool testBigInt(const BigNumbers::BigInt<T> &received, const BigNumbers::BigInt<T> &expected) {
+bool testBigInt(const BigNumbers::BigIntBackend<T> &received, const BigNumbers::BigIntBackend<T> &expected) {
     BigIntComparisonResult comparisonResult = compareBigInt(received, expected);
 
     if (comparisonResult == BigIntComparisonResult::EQUAL) {
@@ -51,34 +49,31 @@ bool testBigInt(const BigNumbers::BigInt<T> &received, const BigNumbers::BigInt<
     std::string errorMessages[] = {"Signs do not match", "Lengths do not match", "Numbers do not match"};
 
     std::cout << errorMessages[static_cast<int>(comparisonResult)] << ": \n"
-              << "Expected: " << expected.toString() << '\n'
-              << "Received: " << received.toString() << std::endl;
+              << "Expected: " << expected.toBinaryString() << '\n'
+              << "Received: " << received.toBinaryString() << std::endl;
 
     return false;
 }
 
 template<class T>
-bool testBigFloat(const BigNumbers::BigFloat<T> &received, const BigNumbers::BigFloat<T> &expected) {
-    BigNumbers::BigFloatDebugger<T> receivedDebugger(received);
-    BigNumbers::BigFloatDebugger<T> expectedDebugger(expected);
-
-    if (receivedDebugger.getExponent() != expectedDebugger.getExponent()) {
+bool testBigFloat(const BigNumbers::BigFloatBackend<T> &received, const BigNumbers::BigFloatBackend<T> &expected) {
+    if (received.getExponent() != expected.getExponent()) {
         std::cout << "Exponents do not match:\n"
-                  << "Expected: " << expected.toString() << '\n'
-                  << "Received: " << received.toString() << std::endl;
+                  << "Expected: " << expected.toBinaryString() << '\n'
+                  << "Received: " << received.toBinaryString() << std::endl;
 
         return false;
     }
 
     std::string errorMessages[] = {"Signs do not match", "Lengths do not match", "Numbers do not match"};
-    BigIntComparisonResult comparisonResult = compareBigInt(receivedDebugger.getMantissa(),
-                                                            expectedDebugger.getMantissa());
+    BigIntComparisonResult comparisonResult = compareBigInt(received.getMantissa(),
+                                                            expected.getMantissa());
 
     if (comparisonResult != BigIntComparisonResult::EQUAL) {
         std::cout << "Mantissa do not match:\n"
                   << errorMessages[static_cast<int>(comparisonResult)] << ":\n"
-                  << "Expected: " << expected.toString() << '\n'
-                  << "Received: " << received.toString() << std::endl;
+                  << "Expected: " << expected.toBinaryString() << '\n'
+                  << "Received: " << received.toBinaryString() << std::endl;
 
         return false;
     }

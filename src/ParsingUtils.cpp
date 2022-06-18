@@ -131,11 +131,11 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigInt<T> parseBigInt(std::string source) {
+    BigIntBackend<T> parseBigInt(std::string source) {
         std::regex bigIntRegex("^-?\\d+$");
 
         if (!std::regex_match(source, bigIntRegex)) {
-            throw std::invalid_argument("Invalid BigInt format");
+            throw std::invalid_argument("Invalid BigIntBackend format");
         }
 
         uint8_t sign = source[0] == '-';
@@ -144,18 +144,22 @@ namespace BigNumbers {
             source.erase(source.begin());
         }
 
-        BigInt<T> out;
-        integralSourceToBinary<T>(source, out.pieces);
+        BigIntBackend<T> out;
+        integralSourceToBinary<T>(source, out.accessPieces());
 
-        return sign ? -out : out;
+        if (sign) {
+            out.negate();
+        }
+
+        return out;
     }
 
     template<typename T>
-    BigFloat<T> parseBigFloat(std::string source, std::size_t mantissaWidth) {
+    BigFloatBackend<T> parseBigFloat(std::string source, std::size_t mantissaWidth) {
         std::regex bigFloatRegex(R"(^-?\d+\.\d+$)");
 
         if (!std::regex_match(source, bigFloatRegex)) {
-            throw std::invalid_argument("Invalid BigFloat format");
+            throw std::invalid_argument("Invalid BigFloatBackend format");
         }
 
         uint8_t sign = source[0] == '-';
@@ -165,30 +169,34 @@ namespace BigNumbers {
         }
 
         std::string::size_type dotPosition = source.find('.');
-        BigInt<T> mantissa;
-        integralSourceToBinary<T>(source.substr(0, dotPosition), mantissa.pieces);
+        BigIntBackend<T> mantissa;
+        integralSourceToBinary<T>(source.substr(0, dotPosition), mantissa.accessPieces());
 
-        trimBack(mantissa.pieces, (T) 0);
+        trimBack(mantissa.accessPieces(), (T) 0);
 
-        int32_t exponent = std::max(mantissa.pieces.size(), static_cast<std::size_t>(1)) - 1;
+        int32_t exponent = std::max(mantissa.accessPieces().size(), static_cast<std::size_t>(1)) - 1;
 
-        if (mantissa.pieces.size() > mantissaWidth) {
+        if (mantissa.accessPieces().size() > mantissaWidth) {
             throw std::logic_error(
                     "Too small precision: unsafe integer bound exceeded, precision is less than 1 unit.");
         }
 
         int32_t exponentCorrection = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
                                                                  mantissaWidth,
-                                                                 mantissa.pieces);
+                                                                 mantissa.accessPieces());
 
         exponent += exponentCorrection;
 
-        trimFront(mantissa.pieces, (T) 0);
+        trimFront(mantissa.accessPieces(), (T) 0);
 
-        return BigFloat<T>(sign ? -mantissa : mantissa, mantissaWidth, exponent);
+        if (sign) {
+            mantissa.negate();
+        }
+
+        return BigFloatBackend<T>(mantissa, mantissaWidth, exponent);
     }
 
-    template BigInt<uint8_t> parseBigInt(std::string source);
+    template BigIntBackend<uint8_t> parseBigInt(std::string source);
 
-    template BigFloat<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
+    template BigFloatBackend<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
 }

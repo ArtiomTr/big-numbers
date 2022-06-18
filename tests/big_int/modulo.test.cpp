@@ -1,25 +1,25 @@
-#include "BigInt.hpp"
+#include "BigIntBackend.h"
 
 #include "../utils.h"
 
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b00000110}, 0);
-    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b00000011}, 0);
+    BigIntBackend<uint8_t> one({0b00000110}, false);
+    BigIntBackend<uint8_t> two({0b00000011}, false);
 
-    BigInt<uint8_t> result = one % two;
+    BigIntBackend<uint8_t> result = one.divide(two);
 
-    return testBigInt(result, BigInt());
+    return testBigInt(result, BigIntBackend<uint8_t>());
 }
 
 bool testMultiplePieces() {
-    BigInt<uint8_t> one = BigIntDebugger<uint8_t>::createFromSource({0b11101000, 0b00000011}, 0);
-    BigInt<uint8_t> two = BigIntDebugger<uint8_t>::createFromSource({0b11010011, 0b00000010}, 0);
+    BigIntBackend<uint8_t> one({0b11101000, 0b00000011}, false);
+    BigIntBackend<uint8_t> two({0b11010011, 0b00000010}, false);
 
-    BigInt<uint8_t> result = one % two;
+    BigIntBackend<uint8_t> result = one.divide(two);
 
-    return testBigInt(result, BigIntDebugger<uint8_t>::createFromSource({0b00010101, 0b00000001}, 0));
+    return testBigInt(result, BigIntBackend<uint8_t>({0b00010101, 0b00000001}, false));
 }
 
 int main() {

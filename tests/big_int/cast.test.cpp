@@ -1,20 +1,19 @@
 #include <iostream>
 #include <vector>
 
-#include "BigInt.hpp"
-#include "BigIntDebugger.h"
+#include "BigIntBackend.h"
 
 using namespace BigNumbers;
 
 bool testOnePiece() {
-    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b00001111}, 0);
+    BigIntBackend<uint8_t> in({0b00001111}, false);
     auto casted = (uint8_t) in;
 
     return casted == 15;
 }
 
 bool testMultiplePieces() {
-    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b01010000, 0b00001111}, 0);
+    BigIntBackend<uint8_t> in({0b01010000, 0b00001111}, false);
 
     auto casted = (uint16_t) in;
 
@@ -22,7 +21,7 @@ bool testMultiplePieces() {
 }
 
 bool testZero() {
-    BigInt<uint8_t> in;
+    BigIntBackend<uint8_t> in;
 
     auto casted = (uint8_t) in;
 
@@ -30,7 +29,7 @@ bool testZero() {
 }
 
 bool testValidation() {
-    BigInt<uint8_t> in = BigIntDebugger<uint8_t>::createFromSource({0b01010000, 0b00001111, 0b00000000, 0b00000000}, 0);
+    BigIntBackend<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, false);
 
     try {
         auto casted = (uint8_t) in;
