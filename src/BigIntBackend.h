@@ -43,8 +43,8 @@ namespace BigNumbers {
         // Invert all bits in this object.
         void invert();
 
-        // Perform 2's complement operation on this object.
-        void twosComplement();
+        // Get negated representation of the same value. For instance, 2 becomes -2.
+        void negate();
 
         // Compare current object to specified argument.
         int8_t compare(const BigIntBackend<T> &secondOperand) const;

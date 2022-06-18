@@ -86,7 +86,7 @@ namespace BigNumbers {
 
     template<class T>
     void BigIntBackend<T>::subtract(BigIntBackend<T> subtrahend) {
-        subtrahend.twosComplement();
+        subtrahend.negate();
         add(subtrahend);
     }
 
@@ -98,7 +98,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    void BigIntBackend<T>::twosComplement() {
+    void BigIntBackend<T>::negate() {
         if (pieces.empty()) {
             return;
         }
@@ -193,11 +193,11 @@ namespace BigNumbers {
         uint8_t outputSign = sign ^ divisor.sign;
 
         if (sign) {
-            twosComplement();
+            negate();
         }
 
         if (divisor.sign) {
-            divisor.twosComplement();
+            divisor.negate();
         }
 
         BigIntBackend<T> remainder;
@@ -225,7 +225,7 @@ namespace BigNumbers {
 
         normalize();
         if (outputSign) {
-            twosComplement();
+            negate();
         }
         remainder.normalize();
 
@@ -284,7 +284,7 @@ namespace BigNumbers {
         }
 
         if (value.compare(zero) < 0) {
-            value.twosComplement();
+            value.negate();
             out << '-';
         }
 

@@ -33,7 +33,7 @@ bool testExponent() {
 bool testNegative() {
     BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, 0), 2, -1); // 0.90625
     BigIntBackend<uint8_t> secondMantissa({0b11101000}, 0);
-    secondMantissa.twosComplement();
+    secondMantissa.negate();
     BigFloatBackend<uint8_t> second(secondMantissa, 2, -1); // 0.90625
 
     first.add(second);
@@ -47,7 +47,7 @@ bool testNegative() {
 bool testMemoryOptimization() {
     BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b0100000, 0b11001100}, 0), 2, 0); // 0.90625
     BigIntBackend<uint8_t> secondMantissa({0b0100000}, 0);
-    secondMantissa.twosComplement();
+    secondMantissa.negate();
     BigFloatBackend<uint8_t> second(secondMantissa, 2, -1); // 0.90625
 
     first.add(second);

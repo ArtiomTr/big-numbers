@@ -71,7 +71,7 @@ namespace BigNumbers {
 
     template<class T>
     void BigFloatBackend<T>::negate() {
-        mantissa.twosComplement();
+        mantissa.negate();
     }
 
     inline std::size_t getFractionWidth(std::size_t totalCount) {

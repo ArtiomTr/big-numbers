@@ -148,7 +148,7 @@ namespace BigNumbers {
         integralSourceToBinary<T>(source, out.accessPieces());
 
         if (sign) {
-            out.twosComplement();
+            out.negate();
         }
 
         return out;
@@ -190,7 +190,7 @@ namespace BigNumbers {
         trimFront(mantissa.accessPieces(), (T) 0);
 
         if (sign) {
-            mantissa.twosComplement();
+            mantissa.negate();
         }
 
         return BigFloatBackend<T>(mantissa, mantissaWidth, exponent);
