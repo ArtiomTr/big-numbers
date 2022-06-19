@@ -30,7 +30,11 @@ namespace BigNumbers {
     }
 
     template<class Container>
-    void extendFront(Container &in, typename Container::value_type value, std::size_t count) {
+    void extendFront(Container &in, typename Container::value_type value, int64_t count) {
+        if (count < 0) {
+            throw std::logic_error("Cannot extend container with negative amount of items.");
+        }
+
         if (count == 0) {
             return;
         }
@@ -39,7 +43,11 @@ namespace BigNumbers {
     }
 
     template<class V>
-    void extendBack(std::vector<V> &in, V value, std::size_t count) {
+    void extendBack(std::vector<V> &in, V value, int64_t count) {
+        if (count < 0) {
+            throw std::logic_error("Cannot extend container with negative amount of items.");
+        }
+
         if (count == 0) {
             return;
         }

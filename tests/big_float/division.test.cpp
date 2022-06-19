@@ -4,13 +4,20 @@
 
 #include "../utils.h"
 
+#include <limits>
+
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b00000001}, false), 4, 0); // 1
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b00000010}, false), 4, 0); // 2
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b00000001}, false), 10, 0); // 1
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b00000010}, false), 15, 0); // 2
+
+    std::cout << first.toString(5) << " / " << second.toString(5) << std::endl;
 
     first.divide(second);
+    std::cout.precision(50);
+    std::cout << "native: " << std::fixed << std::numeric_limits<double>::epsilon() << std::endl;
+    std::cout << first.toString(100) << std::endl;
 
     BigIntBackend<uint8_t> mantissa({0b10000000}, false); // 0.5
     int32_t exponent = -1;
@@ -32,7 +39,6 @@ int main() {
                 return 1;
             }
         }
-
     } catch (...) {
         std::cout << "Unexpected exception" << std::endl;
         return 1;

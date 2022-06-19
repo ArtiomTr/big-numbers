@@ -79,7 +79,7 @@ int main() {
             {"Test exponent computation", testExponent},
             {"Test negative",             testNegative},
             {"Test negative 2",           testNegative2},
-            {"Test memory optimization",  testMemoryOptimization},
+            {"Test memory optimization", testMemoryOptimization}
     };
 
     try {
