@@ -231,6 +231,41 @@ namespace BigNumbers {
     }
 
     template<class T>
+    int BigFloatBackend<T>::compare(const BigFloatBackend<T> &other) {
+        if (mantissa.getSign() != other.mantissa.getSign()) {
+            if (mantissa.getSign() > other.mantissa.getSign()) {
+                return -1;
+            }
+
+            return 1;
+        }
+
+        if (exponent != other.exponent) {
+            if (exponent > other.exponent) {
+                return 1;
+            }
+
+            return -1;
+        }
+
+        BigIntBackend<T> firstMantissa = mantissa;
+        BigIntBackend<T> secondMantissa = other.mantissa;
+
+        if (firstMantissa.getSign()) {
+            firstMantissa.negate();
+            secondMantissa.negate();
+        }
+
+        std::size_t maxWidth = std::max(firstMantissa.accessPieces().size(), secondMantissa.accessPieces().size());
+        extendFront(firstMantissa.accessPieces(), 0,
+                    IsomorphicMath::delta(maxWidth, firstMantissa.accessPieces().size()));
+        extendFront(secondMantissa.accessPieces(), 0,
+                    IsomorphicMath::delta(maxWidth, secondMantissa.accessPieces().size()));
+
+        return firstMantissa.compare(secondMantissa);
+    }
+
+    template<class T>
     BigIntBackend<T> BigFloatBackend<T>::getMantissa() const {
         return mantissa;
     }

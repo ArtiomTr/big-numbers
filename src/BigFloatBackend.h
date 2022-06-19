@@ -29,6 +29,8 @@ namespace BigNumbers {
 
         void divide(BigFloatBackend<T> divisor);
 
+        int compare(const BigFloatBackend<T> &other);
+
         std::string toBinaryString() const;
 
         std::string toString(std::size_t maxFractionWidth) const;
