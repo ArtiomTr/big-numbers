@@ -20,7 +20,7 @@ namespace BigNumbers {
 
         explicit BigIntBackend();
 
-        template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
         explicit BigIntBackend(Value value);
 
         BigIntBackend(std::vector<T> pieces, bool sign);
@@ -49,7 +49,7 @@ namespace BigNumbers {
         // Compare current object to specified argument.
         int8_t compare(const BigIntBackend<T> &secondOperand) const;
 
-        template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
         explicit operator Value() const;
 
         std::string toBinaryString() const;
@@ -72,8 +72,8 @@ namespace BigNumbers {
     };
 
     template<class T>
-    template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool>>
-    BigIntBackend<T>::BigIntBackend(Value value): isNegative(value < 0) {
+    template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
+    BigIntBackend<T>::BigIntBackend(Value value): isNegative(value < (Value) 0) {
         constexpr std::size_t BIT_COUNT = sizeof(Value) * 8;
         std::bitset<BIT_COUNT> input(value);
         std::bitset<PIECE_SIZE> buffer;
@@ -106,7 +106,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool>>
+    template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
     BigIntBackend<T>::operator Value() const {
         const std::size_t outputSize = sizeof(Value);
         const std::size_t requiredPieceCount = outputSize / sizeof(T);

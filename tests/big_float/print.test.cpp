@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "BigFloatBackend.h"
+#include "../utils.h"
 
 using namespace BigNumbers;
 
@@ -54,18 +55,5 @@ int main() {
             {"Rounding test 2",     testRounding2}
     };
 
-    try {
-        for (auto[testName, runTest]: tests) {
-            std::cout << "Test case: \"" << testName << '"' << std::endl;
-            if (!runTest()) {
-                return 1;
-            }
-        }
-
-    } catch (...) {
-        std::cout << "Unexpected exception" << std::endl;
-        return 1;
-    }
-
-    return 0;
+    return runTests(tests);
 }

@@ -151,8 +151,10 @@ namespace BigNumbers {
 
     template<class T>
     void BigIntBackend<T>::multiply(const BigIntBackend<T> &multiplicand) {
-        const auto &[shortestMultiplicand, longestMultiplicand] = BigIntBackend<T>::sortBySize(*this,
-                                                                                               multiplicand);
+        auto sortedValues = BigIntBackend<T>::sortBySize(*this, multiplicand);
+
+        const auto &shortestMultiplicand = sortedValues.first;
+        const auto &longestMultiplicand = sortedValues.second;
 
         BigIntBackend<T> product;
         product.isNegative = isNegative ^ multiplicand.isNegative;

@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "BigIntBackend.h"
+#include "../utils.h"
 
 using namespace BigNumbers;
 
@@ -50,12 +51,5 @@ int main() {
             {"Test validation",      testValidation}
     };
 
-    for (auto[testName, runTest]: tests) {
-        std::cout << "Test case: \"" << testName << '"' << std::endl;
-        if (!runTest()) {
-            return 1;
-        }
-    }
-
-    return 0;
+    return runTests(tests);
 }
