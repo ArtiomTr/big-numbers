@@ -29,7 +29,9 @@ namespace BigNumbers {
 
         void divide(BigFloatBackend<T> divisor);
 
-        int compare(const BigFloatBackend<T> &other);
+        int compare(const BigFloatBackend<T> &other) const;
+
+        static BigFloatBackend<T> epsilon(std::size_t mantissaWidth);
 
         std::string toBinaryString() const;
 
