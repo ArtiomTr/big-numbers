@@ -1,6 +1,8 @@
 #ifndef BIG_NUMBERS_ISOMORPHICMATH_H
 #define BIG_NUMBERS_ISOMORPHICMATH_H
 
+#include <cstddef>
+
 namespace IsomorphicMath {
     template<class T>
     T abs(const T &value) {
@@ -14,6 +16,16 @@ namespace IsomorphicMath {
         } else {
             return second - first;
         }
+    }
+
+    template<class T>
+    T factorial(std::size_t n) {
+        T value = (T) 1;
+        for (std::size_t i = 1; i <= n; ++i) {
+            value *= (T) i;
+        }
+
+        return value;
     }
 }
 

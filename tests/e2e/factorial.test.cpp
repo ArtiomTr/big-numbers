@@ -1,41 +1,33 @@
-#include <iostream>
+#include <fstream>
 
-#include "BigIntBackend.h"
 #include "ParsingUtils.h"
+#include "IsomorphicMath.h"
+#include "BigInt.h"
 #include "../utils.h"
 
 using namespace BigNumbers;
-
-BigIntBackend<uint8_t> computeFactorial(int in) {
-    BigIntBackend<uint8_t> result(1);
-
-    for (int i = 1; i <= in; ++i) {
-        result.multiply(BigIntBackend<uint8_t>(i));
-    }
-
-    return result;
-}
 
 int main() {
     std::ifstream input = safeRelativeOpen("factorial.txt");
 
     bool failure = false;
-
     while (!input.eof() && !failure) {
         int in;
         std::string resultSource;
 
         input >> in >> resultSource;
 
-        BigIntBackend<uint8_t> result = parseBigInt<uint8_t>(resultSource);
+        BigInt result = parseBigInt(resultSource);
 
-        if (computeFactorial(in).compare(result) != 0) {
+        if (IsomorphicMath::factorial<BigInt>(in) != result) {
             std::cout << "Failed to compute " << in << "!" << std::endl;
             failure = true;
         }
     }
 
     input.close();
+
+    std::cout << "All factorials computed successfully!" << std::endl;
 
     return failure ? 1 : 0;
 }
