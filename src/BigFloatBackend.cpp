@@ -109,19 +109,38 @@ namespace BigNumbers {
     }
 
     template<class T>
-    void BigFloatBackend<T>::divide(BigFloatBackend<T> divisor) {
-        constexpr std::size_t MAX_ITER_COUNT = 30;
+    BigFloatBackend<T> BigFloatBackend<T>::epsilon(std::size_t mantissaWidth) {
+        BigFloatBackend<T> epsilonValue(BigIntBackend<T>({0b000000001}, false), mantissaWidth, -mantissaWidth);
 
-        auto exponentCorrection = divisor.exponent + 1;
+        return epsilonValue;
+    }
+
+    template<class T>
+    bool isSufficientlyCloseToOne(BigFloatBackend<T> value, std::size_t mantissaWidth) {
+        value.subtract(BigFloatBackend<T>(BigIntBackend<T>(1), mantissaWidth, 0));
+
+        if (value.getMantissa().getSign()) {
+            value.negate();
+        }
+
+        return value.compare(BigFloatBackend<T>::epsilon(mantissaWidth)) <= 0;
+    }
+
+    template<class T>
+    void BigFloatBackend<T>::divide(BigFloatBackend<T> divisor) {
+        constexpr std::size_t MAX_ITER_COUNT = 100;
+
+        exponent -= divisor.exponent + 1;
         divisor.exponent = -1;
-        exponent -= exponentCorrection;
 
         BigFloatBackend<T> two((BigIntBackend<T>) 2, divisor.maxMantissaWidth, 0);
 
         auto factor = two;
         factor.subtract(divisor);
 
-        for (std::size_t iter = 0; iter < MAX_ITER_COUNT; ++iter) {
+        for (std::size_t iter = 0;
+             !isSufficientlyCloseToOne(factor, factor.maxMantissaWidth) && iter < MAX_ITER_COUNT;
+             ++iter) {
 
             multiply(factor);
             if (mantissa.accessPieces().size() > maxMantissaWidth) {
@@ -231,7 +250,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    int BigFloatBackend<T>::compare(const BigFloatBackend<T> &other) {
+    int BigFloatBackend<T>::compare(const BigFloatBackend<T> &other) const {
         if (mantissa.getSign() != other.mantissa.getSign()) {
             if (mantissa.getSign() > other.mantissa.getSign()) {
                 return -1;
