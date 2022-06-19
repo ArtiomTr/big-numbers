@@ -57,6 +57,20 @@ bool testMemoryOptimization() {
     return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
 }
 
+bool testNegative2() {
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b01010101, 0b10010010}, false), 5, 0);
+    BigIntBackend<uint8_t> secondMantissa({0b10010010}, false);
+    secondMantissa.negate();
+    BigFloatBackend<uint8_t> second(secondMantissa, 2, 0);
+
+    first.add(second);
+
+    BigIntBackend<uint8_t> mantissa({0b01010101}, false);
+    int32_t exponent = -1;
+
+    return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
+}
+
 int main() {
     using test = bool (*)();
 
@@ -64,6 +78,7 @@ int main() {
             {"Fraction alignment",        testFractionAlignment},
             {"Test exponent computation", testExponent},
             {"Test negative",             testNegative},
+            {"Test negative 2",           testNegative2},
             {"Test memory optimization",  testMemoryOptimization},
     };
 

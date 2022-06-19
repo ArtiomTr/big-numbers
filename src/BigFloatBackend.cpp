@@ -35,21 +35,33 @@ namespace BigNumbers {
     void BigFloatBackend<T>::add(BigFloatBackend<T> addend) {
         int32_t outputExponent = std::max(exponent, addend.exponent);
 
-        mantissa.accessPieces().insert(mantissa.accessPieces().end(),
-                                       IsomorphicMath::delta(exponent, outputExponent),
-                                       mantissa.getFillValue());
-        addend.mantissa.accessPieces().insert(addend.mantissa.accessPieces().end(),
-                                              IsomorphicMath::delta(addend.exponent, outputExponent),
-                                              addend.mantissa.getFillValue());
+        bool isMantissaNegative = mantissa.getSign();
+        bool isAddendNegative = addend.mantissa.getSign();
+
+        if (isMantissaNegative) {
+            mantissa.negate();
+        }
+
+        if (isAddendNegative) {
+            addend.mantissa.negate();
+        }
+
+        extendBack(mantissa.accessPieces(), (T) 0, IsomorphicMath::delta(exponent, outputExponent));
+        extendBack(addend.mantissa.accessPieces(), (T) 0, IsomorphicMath::delta(addend.exponent, outputExponent));
 
         std::size_t width = std::max(mantissa.accessPieces().size(), addend.mantissa.accessPieces().size());
 
-        mantissa.accessPieces().insert(mantissa.accessPieces().begin(),
-                                       IsomorphicMath::delta(width, mantissa.accessPieces().size()),
-                                       mantissa.getFillValue());
-        addend.mantissa.accessPieces().insert(addend.mantissa.accessPieces().begin(),
-                                              IsomorphicMath::delta(width, addend.mantissa.accessPieces().size()),
-                                              addend.mantissa.getFillValue());
+        extendFront(mantissa.accessPieces(), (T) 0, IsomorphicMath::delta(width, mantissa.accessPieces().size()));
+        extendFront(addend.mantissa.accessPieces(), (T) 0,
+                    IsomorphicMath::delta(width, addend.mantissa.accessPieces().size()));
+
+        if (isMantissaNegative) {
+            mantissa.negate();
+        }
+
+        if (isAddendNegative) {
+            addend.mantissa.negate();
+        }
 
         mantissa.add(addend.mantissa);
 
@@ -57,10 +69,14 @@ namespace BigNumbers {
 
         width = mantissa.accessPieces().size();
         mantissa.normalize();
-        outputExponent += width - mantissa.accessPieces().size();
+        outputExponent -= width - mantissa.accessPieces().size();
         trimFront(mantissa.accessPieces(), mantissa.getFillValue());
 
-        exponent = outputExponent;
+        if (mantissa.accessPieces().empty()) {
+            exponent = 0;
+        } else {
+            exponent = outputExponent;
+        }
     }
 
     template<class T>
@@ -116,6 +132,96 @@ namespace BigNumbers {
             factor = two;
             factor.subtract(divisor);
         }
+    }
+
+    template<class T>
+    BigFloatBackend<T>::BigFloatBackend(const BigIntBackend<T> &value, std::size_t maxMantissaWidth):
+            mantissa(value), maxMantissaWidth(maxMantissaWidth), exponent(value.accessPieces().size()) {
+        if (exponent > 0) {
+            --exponent;
+        }
+    }
+
+    template<class T>
+    BigFloatBackend<T>::operator BigIntBackend<T>() const {
+        BigIntBackend<T> integralPart;
+
+        if (exponent >= 0) {
+            integralPart = mantissa;
+            std::size_t desiredWidth = exponent + 1;
+            if (integralPart.accessPieces().size() >= desiredWidth) {
+                integralPart.accessPieces().erase(integralPart.accessPieces().begin(),
+                                                  integralPart.accessPieces().end() - desiredWidth);
+            } else {
+                if (mantissa.getSign()) {
+                    integralPart.negate();
+                }
+
+                integralPart.accessPieces().insert(integralPart.accessPieces().begin(),
+                                                   desiredWidth - integralPart.accessPieces().size(),
+                                                   0);
+
+                if (mantissa.getSign()) {
+                    integralPart.negate();
+                }
+            }
+        }
+
+        return integralPart;
+    }
+
+    template<class T>
+    std::string BigFloatBackend<T>::toString(std::size_t maxFractionWidth) const {
+        std::string output;
+
+        auto integralPart = (BigIntBackend<T>) *this;
+
+        if (integralPart.getSign()) {
+            integralPart.negate();
+        }
+
+        BigFloatBackend<T> fractionalPart = *this;
+        if (fractionalPart.mantissa.getSign()) {
+            fractionalPart.mantissa.negate();
+        }
+
+        BigFloatBackend<T> integralAsFloat(integralPart, maxMantissaWidth);
+        fractionalPart.subtract(integralAsFloat);
+
+        BigFloatBackend<T> ten(BigIntBackend<T>(10), maxMantissaWidth);
+        for (std::size_t i = 0; i <= maxFractionWidth; ++i) {
+            fractionalPart.multiply(ten);
+        }
+
+        auto fractionalPartValue = (BigIntBackend<T>) fractionalPart;
+        auto remainder = fractionalPartValue.divide(BigIntBackend<T>(10));
+
+        std::string tempFractionString = fractionalPartValue.toString();
+        if (remainder.compare(BigIntBackend<T>(5)) >= 0) {
+            fractionalPartValue.add(BigIntBackend<T>(1));
+        }
+        std::string fractionString = fractionalPartValue.toString();
+
+        if (fractionString.length() > tempFractionString.length()) {
+            fractionString.erase(fractionString.begin());
+            integralPart.add(BigIntBackend<T>(1));
+        }
+
+        extendFront(fractionString, '0', maxFractionWidth - fractionString.length());
+
+        trimBack(fractionString, '0');
+
+        if (mantissa.getSign()) {
+            output += '-';
+        }
+
+        output += integralPart.toString();
+        if (!fractionString.empty()) {
+            output += '.';
+            output += fractionString;
+        }
+
+        return output;
     }
 
     template<class T>

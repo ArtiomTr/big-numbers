@@ -54,7 +54,7 @@ bool testEmptySubtraction() {
 
     one.subtract(two);
 
-    return testBigInt(one, BigIntBackend<uint8_t>({}, false));
+    return testBigInt(one, BigIntBackend<uint8_t>({0}, false));
 }
 
 int main() {

@@ -99,13 +99,9 @@ namespace BigNumbers {
 
     template<class T>
     void BigIntBackend<T>::negate() {
-        if (pieces.empty()) {
-            return;
-        }
-
         invert();
-        add(BigIntBackend<T>((T) 1));
         isNegative = !isNegative;
+        add(BigIntBackend<T>((T) 1));
     }
 
     template<class T>

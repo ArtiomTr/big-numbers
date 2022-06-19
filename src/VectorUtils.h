@@ -17,9 +17,9 @@ namespace BigNumbers {
         in.erase(in.begin(), newBeginning);
     }
 
-    template<class V>
-    void trimBack(std::vector<V> &in, V value) {
-        typename std::vector<V>::iterator newEnd;
+    template<class Container>
+    void trimBack(Container &in, typename Container::value_type value) {
+        typename Container::iterator newEnd;
         for (newEnd = in.end(); newEnd != in.begin(); --newEnd) {
             if (*std::prev(newEnd) != value) {
                 break;
@@ -27,6 +27,24 @@ namespace BigNumbers {
         }
 
         in.erase(newEnd, in.end());
+    }
+
+    template<class Container>
+    void extendFront(Container &in, typename Container::value_type value, std::size_t count) {
+        if (count == 0) {
+            return;
+        }
+
+        in.insert(in.begin(), count, value);
+    }
+
+    template<class V>
+    void extendBack(std::vector<V> &in, V value, std::size_t count) {
+        if (count == 0) {
+            return;
+        }
+
+        in.insert(in.end(), count, value);
     }
 }
 

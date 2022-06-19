@@ -13,7 +13,11 @@ namespace BigNumbers {
     public:
         explicit BigFloatBackend(std::size_t maxMantissaWidth);
 
-        explicit BigFloatBackend(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent);
+        BigFloatBackend(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent);
+
+        explicit BigFloatBackend(const BigIntBackend<T> &value, std::size_t maxMantissaWidth);
+
+        explicit operator BigIntBackend<T>() const;
 
         void add(BigFloatBackend<T> addend);
 
@@ -25,7 +29,9 @@ namespace BigNumbers {
 
         void divide(BigFloatBackend<T> divisor);
 
-        [[nodiscard]] std::string toBinaryString() const;
+        std::string toBinaryString() const;
+
+        std::string toString(std::size_t maxFractionWidth) const;
 
         BigIntBackend<T> getMantissa() const;
 
