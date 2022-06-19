@@ -97,4 +97,23 @@ std::ifstream safeRelativeOpenImpl(const std::string &current, const std::string
     return input;
 }
 
+int runTests(const std::vector<std::pair<std::string, bool (*)()>> &tests) {
+    try {
+        for (const auto &entry: tests) {
+            std::string testName = entry.first;
+            auto runTest = entry.second;
+
+            std::cout << "Test case: \"" << testName << '"' << std::endl;
+            if (!runTest()) {
+                return 1;
+            }
+        }
+    } catch (...) {
+        std::cout << "Unexpected exception occurred" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 #endif //BIG_NUMBERS_UTILS_H

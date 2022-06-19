@@ -1,6 +1,5 @@
 #include "BigFloatBackend.h"
 
-#include <regex>
 #include <string>
 #include <sstream>
 
@@ -181,7 +180,7 @@ namespace BigNumbers {
     std::string BigFloatBackend<T>::toString(std::size_t maxFractionWidth) const {
         std::string output;
 
-        auto integralPart = (BigIntBackend<T>) *this;
+        auto integralPart = static_cast<BigIntBackend<T>>(*this);
 
         if (integralPart.getSign()) {
             integralPart.negate();
