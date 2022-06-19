@@ -8,7 +8,6 @@
 #include "VectorUtils.h"
 
 namespace BigNumbers {
-
     template<class T>
     BigFloatBackend<T>::BigFloatBackend(std::size_t maxMantissaWidth):
             exponent(0), maxMantissaWidth(maxMantissaWidth), mantissa(BigIntBackend<T>{}) {
@@ -108,26 +107,34 @@ namespace BigNumbers {
         if (mantissa.accessPieces().empty()) {
             exponent = 0;
         }
-
-        if (mantissa.accessPieces().size() > maxMantissaWidth) {
-            mantissa.accessPieces().erase(mantissa.accessPieces().begin() + maxMantissaWidth,
-                                          mantissa.accessPieces().end());
-        }
     }
 
     template<class T>
     void BigFloatBackend<T>::divide(BigFloatBackend<T> divisor) {
+        constexpr std::size_t MAX_ITER_COUNT = 30;
+
         auto exponentCorrection = divisor.exponent + 1;
         divisor.exponent = -1;
         exponent -= exponentCorrection;
 
-        BigFloatBackend<T> two((BigIntBackend<T>) 2, maxMantissaWidth, 0);
+        BigFloatBackend<T> two((BigIntBackend<T>) 2, divisor.maxMantissaWidth, 0);
 
         auto factor = two;
         factor.subtract(divisor);
-        for (int i = 0; i < 20; ++i) {
+
+        for (std::size_t iter = 0; iter < MAX_ITER_COUNT; ++iter) {
+
             multiply(factor);
+            if (mantissa.accessPieces().size() > maxMantissaWidth) {
+                mantissa.accessPieces().erase(mantissa.accessPieces().begin(),
+                                              mantissa.accessPieces().end() - maxMantissaWidth);
+            }
+
             divisor.multiply(factor);
+            if (divisor.mantissa.accessPieces().size() > divisor.maxMantissaWidth) {
+                divisor.mantissa.accessPieces().erase(divisor.mantissa.accessPieces().begin(),
+                                                      divisor.mantissa.accessPieces().end() - divisor.maxMantissaWidth);
+            }
 
             factor = two;
             factor.subtract(divisor);
@@ -207,7 +214,7 @@ namespace BigNumbers {
             integralPart.add(BigIntBackend<T>(1));
         }
 
-        extendFront(fractionString, '0', maxFractionWidth - fractionString.length());
+        extendFront(fractionString, '0', (int) maxFractionWidth - (int) fractionString.length());
 
         trimBack(fractionString, '0');
 
