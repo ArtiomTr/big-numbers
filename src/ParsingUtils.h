@@ -3,12 +3,11 @@
 
 #include <string>
 
-#include "BigIntBackend.h"
+#include "BigInt.h"
 #include "BigFloatBackend.h"
 
 namespace BigNumbers {
-    template<class T>
-    BigIntBackend<T> parseBigInt(std::string source);
+    BigInt parseBigInt(std::string source);
 
     template<typename T>
     BigFloatBackend<T> parseBigFloat(std::string source, std::size_t mantissaWidth);
