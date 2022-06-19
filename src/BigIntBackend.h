@@ -52,9 +52,9 @@ namespace BigNumbers {
         template<class Value, std::enable_if_t<std::is_integral<Value>::value, bool> = true>
         explicit operator Value() const;
 
-        [[nodiscard]] std::string toBinaryString() const;
+        std::string toBinaryString() const;
 
-        [[nodiscard]] std::string toString() const;
+        std::string toString() const;
 
         T getFillValue() const;
 
