@@ -13,13 +13,13 @@ namespace BigNumbers {
     private:
         BigIntBackend<BIG_INT_PIECE_TYPE> backend;
     public:
-        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
         BigInt(Value value): backend(BigIntBackend<BIG_INT_PIECE_TYPE>(value)) {
         }
 
         BigInt() = default;
 
-        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
         explicit operator Value() const {
             return (Value) backend;
         }

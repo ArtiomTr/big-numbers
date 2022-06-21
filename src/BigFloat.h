@@ -3,6 +3,10 @@
 
 #include "BigFloatBackend.h"
 
+#include <sstream>
+#include <iomanip>
+#include <limits>
+
 #define BIG_FLOAT_PIECE_TYPE uint8_t
 
 namespace BigNumbers {
@@ -14,8 +18,15 @@ namespace BigNumbers {
     public:
         explicit BigFloat();
 
-        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
-        explicit BigFloat(Value value): backend(BigIntBackend<BIG_FLOAT_PIECE_TYPE>(value)), precision(8) {
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
+        BigFloat(Value value): backend(BigIntBackend<BIG_FLOAT_PIECE_TYPE>(value)), precision(8) {
+        }
+
+        template<class Value, typename std::enable_if<std::is_floating_point<Value>::value, bool>::type = false>
+        BigFloat(Value value) {
+            std::stringstream builder;
+            builder << std::fixed << std::setprecision(std::numeric_limits<Value>::max_digits10) << value;
+            builder >> *this;
         }
 
         BigFloat &operator+=(const BigFloat &addend);
