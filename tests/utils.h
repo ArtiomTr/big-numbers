@@ -108,8 +108,13 @@ int runTests(const std::vector<std::pair<std::string, bool (*)()>> &tests) {
                 return 1;
             }
         }
+    } catch (std::exception &exception) {
+        std::cout << "Standard exception occurred: " << exception.what() << std::endl;
+
+        return 1;
     } catch (...) {
         std::cout << "Unexpected exception occurred" << std::endl;
+
         return 1;
     }
 
