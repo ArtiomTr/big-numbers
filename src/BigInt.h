@@ -14,7 +14,7 @@ namespace BigNumbers {
         BigIntBackend<BIG_INT_PIECE_TYPE> backend;
     public:
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
-        explicit BigInt(Value value): backend(BigIntBackend<BIG_INT_PIECE_TYPE>(value)) {
+        BigInt(Value value): backend(BigIntBackend<BIG_INT_PIECE_TYPE>(value)) {
         }
 
         BigInt() = default;
