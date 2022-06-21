@@ -20,6 +20,34 @@ namespace IsomorphicMath {
     }
 
     template<class T>
+    bool isPrime(T value) {
+        if (value == 0 || value == 1) {
+            return false;
+        }
+
+        if (value == 2) {
+            return true;
+        }
+
+        T squareRoot = sqrt(value, (T) 0);
+        for (T i = 2; i <= squareRoot; ++i) {
+            if (value % i == 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    template<class T>
+    T findNextPrime(T value) {
+        ++value;
+        while (!isPrime(value))
+            ++value;
+        return value;
+    }
+
+    template<class T>
     T delta(const T &first, const T &second) {
         if (first > second) {
             return first - second;
