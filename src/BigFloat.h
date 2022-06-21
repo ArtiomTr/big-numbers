@@ -4,6 +4,8 @@
 #include "BigFloatBackend.h"
 
 #include <sstream>
+#include <iomanip>
+#include <limits>
 
 #define BIG_FLOAT_PIECE_TYPE uint8_t
 
@@ -23,7 +25,7 @@ namespace BigNumbers {
         template<class Value, typename std::enable_if<std::is_floating_point<Value>::value, bool>::type = false>
         BigFloat(Value value) {
             std::stringstream builder;
-            builder << value;
+            builder << std::fixed << std::setprecision(std::numeric_limits<Value>::max_digits10) << value;
             builder >> *this;
         }
 
