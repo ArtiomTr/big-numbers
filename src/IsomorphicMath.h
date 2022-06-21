@@ -8,13 +8,12 @@ namespace IsomorphicMath {
     T sqrt(T value, T epsilon) {
         T x = value;
         T y = 1;
+        T two = 2;
 
-        std::size_t i = 0;
         while ((x - y) > epsilon) {
             x += y;
-            x /= 2;
+            x /= two;
             y = value / x;
-            ++i;
         }
 
         return x;

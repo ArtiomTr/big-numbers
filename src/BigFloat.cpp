@@ -13,6 +13,12 @@ namespace BigNumbers {
 
     }
 
+    BigFloat BigFloat::epsilon(std::size_t precision) {
+        BigFloat epsilon;
+        epsilon.backend = BigFloatBackend<BIG_FLOAT_PIECE_TYPE>::epsilon(precision);
+        return epsilon;
+    }
+
     void BigFloat::setPrecision(std::size_t precision) {
         this->precision = precision;
     }
@@ -43,7 +49,7 @@ namespace BigNumbers {
 
     BigFloat BigFloat::operator-(const BigFloat &subtrahend) const {
         BigFloat copy = *this;
-        copy += subtrahend;
+        copy -= subtrahend;
         return copy;
     }
 

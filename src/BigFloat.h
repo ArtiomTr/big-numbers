@@ -72,6 +72,8 @@ namespace BigNumbers {
         friend std::istream &operator>>(std::istream &input, BigFloat &value);
 
         void setPrecision(std::size_t precision);
+
+        static BigFloat epsilon(std::size_t precision);
     };
 }
 #endif //BIG_NUMBERS_BIGFLOAT_H
