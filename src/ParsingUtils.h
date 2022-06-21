@@ -7,8 +7,8 @@
 #include "BigFloatBackend.h"
 
 namespace BigNumbers {
-    template<class T>
-    BigIntBackend<T> parseBigInt(std::string source);
+    template<class V>
+    BigIntBackend<V> parseBigInt(std::string source);
 
     template<typename T>
     BigFloatBackend<T> parseBigFloat(std::string source, std::size_t mantissaWidth);

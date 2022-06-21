@@ -8,14 +8,13 @@ namespace BigNumbers {
     class BigFloatBackend {
     private:
         int32_t exponent;
-        std::size_t maxMantissaWidth;
         BigIntBackend<T> mantissa;
     public:
-        explicit BigFloatBackend(std::size_t maxMantissaWidth);
+        explicit BigFloatBackend();
 
-        BigFloatBackend(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent);
+        BigFloatBackend(BigIntBackend<T> mantissa, int32_t exponent);
 
-        explicit BigFloatBackend(const BigIntBackend<T> &value, std::size_t maxMantissaWidth);
+        explicit BigFloatBackend(const BigIntBackend<T> &value);
 
         explicit operator BigIntBackend<T>() const;
 
@@ -27,7 +26,7 @@ namespace BigNumbers {
 
         void multiply(BigFloatBackend<T> multiplicand);
 
-        void divide(BigFloatBackend<T> divisor);
+        void divide(BigFloatBackend<T> divisor, std::size_t precision);
 
         int compare(const BigFloatBackend<T> &other) const;
 
@@ -40,6 +39,10 @@ namespace BigNumbers {
         BigIntBackend<T> getMantissa() const;
 
         int32_t getExponent() const;
+
+        static void setDefaultMantissaWidth(std::size_t mantissaWidth);
+
+        void setMantissaWidth(std::size_t mantissaWidth);
     };
 }
 

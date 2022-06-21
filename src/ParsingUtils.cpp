@@ -193,7 +193,7 @@ namespace BigNumbers {
             mantissa.negate();
         }
 
-        return BigFloatBackend<T>(mantissa, mantissaWidth, exponent);
+        return BigFloatBackend<T>(mantissa, exponent);
     }
 
     template BigIntBackend<uint8_t> parseBigInt(std::string source);

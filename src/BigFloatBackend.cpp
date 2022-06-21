@@ -8,14 +8,14 @@
 
 namespace BigNumbers {
     template<class T>
-    BigFloatBackend<T>::BigFloatBackend(std::size_t maxMantissaWidth):
-            exponent(0), maxMantissaWidth(maxMantissaWidth), mantissa(BigIntBackend<T>{}) {
+    BigFloatBackend<T>::BigFloatBackend():
+            exponent(0), mantissa(BigIntBackend<T>{}) {
 
     }
 
     template<class T>
-    BigFloatBackend<T>::BigFloatBackend(BigIntBackend<T> mantissa, std::size_t maxMantissaWidth, int32_t exponent):
-            exponent(exponent), maxMantissaWidth(maxMantissaWidth), mantissa(mantissa) {
+    BigFloatBackend<T>::BigFloatBackend(BigIntBackend<T> mantissa, int32_t exponent):
+            exponent(exponent), mantissa(mantissa) {
         if (mantissa.accessPieces().empty()) {
             this->exponent = 0;
         }
@@ -110,14 +110,14 @@ namespace BigNumbers {
 
     template<class T>
     BigFloatBackend<T> BigFloatBackend<T>::epsilon(std::size_t mantissaWidth) {
-        BigFloatBackend<T> epsilonValue(BigIntBackend<T>({0b000000001}, false), mantissaWidth, -mantissaWidth);
+        BigFloatBackend<T> epsilonValue(BigIntBackend<T>({0b000000001}, false), -mantissaWidth);
 
         return epsilonValue;
     }
 
     template<class T>
     bool isSufficientlyCloseToOne(BigFloatBackend<T> value, std::size_t mantissaWidth) {
-        value.subtract(BigFloatBackend<T>(BigIntBackend<T>(1), mantissaWidth, 0));
+        value.subtract(BigFloatBackend<T>(BigIntBackend<T>(1), 0));
 
         if (value.getMantissa().getSign()) {
             value.negate();
@@ -127,31 +127,31 @@ namespace BigNumbers {
     }
 
     template<class T>
-    void BigFloatBackend<T>::divide(BigFloatBackend<T> divisor) {
+    void BigFloatBackend<T>::divide(BigFloatBackend<T> divisor, std::size_t precision) {
         constexpr std::size_t MAX_ITER_COUNT = 100;
 
         exponent -= divisor.exponent + 1;
         divisor.exponent = -1;
 
-        BigFloatBackend<T> two((BigIntBackend<T>) 2, divisor.maxMantissaWidth, 0);
+        BigFloatBackend<T> two((BigIntBackend<T>) 2, 0);
 
         auto factor = two;
         factor.subtract(divisor);
 
         for (std::size_t iter = 0;
-             !isSufficientlyCloseToOne(factor, factor.maxMantissaWidth) && iter < MAX_ITER_COUNT;
+             !isSufficientlyCloseToOne(factor, precision) && iter < MAX_ITER_COUNT;
              ++iter) {
 
             multiply(factor);
-            if (mantissa.accessPieces().size() > maxMantissaWidth) {
+            if (mantissa.accessPieces().size() > precision) {
                 mantissa.accessPieces().erase(mantissa.accessPieces().begin(),
-                                              mantissa.accessPieces().end() - maxMantissaWidth);
+                                              mantissa.accessPieces().end() - precision);
             }
 
             divisor.multiply(factor);
-            if (divisor.mantissa.accessPieces().size() > divisor.maxMantissaWidth) {
+            if (divisor.mantissa.accessPieces().size() > precision) {
                 divisor.mantissa.accessPieces().erase(divisor.mantissa.accessPieces().begin(),
-                                                      divisor.mantissa.accessPieces().end() - divisor.maxMantissaWidth);
+                                                      divisor.mantissa.accessPieces().end() - precision);
             }
 
             factor = two;
@@ -160,8 +160,8 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigFloatBackend<T>::BigFloatBackend(const BigIntBackend<T> &value, std::size_t maxMantissaWidth):
-            mantissa(value), maxMantissaWidth(maxMantissaWidth), exponent(value.accessPieces().size()) {
+    BigFloatBackend<T>::BigFloatBackend(const BigIntBackend<T> &value):
+            mantissa(value), exponent(value.accessPieces().size()) {
         if (exponent > 0) {
             --exponent;
         }
@@ -210,10 +210,10 @@ namespace BigNumbers {
             fractionalPart.mantissa.negate();
         }
 
-        BigFloatBackend<T> integralAsFloat(integralPart, maxMantissaWidth);
+        BigFloatBackend<T> integralAsFloat(integralPart);
         fractionalPart.subtract(integralAsFloat);
 
-        BigFloatBackend<T> ten(BigIntBackend<T>(10), maxMantissaWidth);
+        BigFloatBackend<T> ten(BigIntBackend<T>(10));
         for (std::size_t i = 0; i <= maxFractionWidth; ++i) {
             fractionalPart.multiply(ten);
         }
