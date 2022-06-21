@@ -8,10 +8,11 @@ namespace IsomorphicMath {
     T sqrt(T value, T epsilon) {
         T x = value;
         T y = 1;
+        T two = 2;
 
         while ((x - y) > epsilon) {
             x += y;
-            x /= 2;
+            x /= two;
             y = value / x;
         }
 
