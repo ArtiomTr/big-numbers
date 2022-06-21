@@ -8,12 +8,14 @@
 namespace BigNumbers {
     class BigFloat {
     private:
-        BigFloatBackend <BIG_FLOAT_PIECE_TYPE> backend;
+        BigFloatBackend<BIG_FLOAT_PIECE_TYPE> backend;
+
+        std::size_t precision;
     public:
-        explicit BigFloat() = default;
+        explicit BigFloat();
 
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
-        explicit BigFloat(Value value): backend(BigIntBackend<BIG_FLOAT_PIECE_TYPE>(value)) {
+        explicit BigFloat(Value value): backend(BigIntBackend<BIG_FLOAT_PIECE_TYPE>(value)), precision(8) {
         }
 
         BigFloat &operator+=(const BigFloat &addend);
@@ -57,6 +59,8 @@ namespace BigNumbers {
         friend std::ostream &operator<<(std::ostream &output, const BigFloat &value);
 
         friend std::istream &operator>>(std::istream &input, BigFloat &value);
+
+        void setPrecision(std::size_t precision);
     };
 }
 #endif //BIG_NUMBERS_BIGFLOAT_H

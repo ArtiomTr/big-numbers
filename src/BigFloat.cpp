@@ -9,6 +9,14 @@ namespace BigNumbers {
         return *this;
     }
 
+    BigFloat::BigFloat() : precision(8) {
+
+    }
+
+    void BigFloat::setPrecision(std::size_t precision) {
+        this->precision = precision;
+    }
+
     BigFloat BigFloat::operator+(const BigFloat &addend) const {
         BigFloat copy = *this;
         copy += addend;
@@ -63,8 +71,7 @@ namespace BigNumbers {
     }
 
     BigFloat &BigFloat::operator/=(const BigFloat &divisor) {
-        // TODO: replace 8 with variable
-        backend.divide(divisor.backend, 8);
+        backend.divide(divisor.backend, precision);
         return *this;
     }
 
