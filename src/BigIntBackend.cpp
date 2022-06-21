@@ -231,8 +231,10 @@ namespace BigNumbers {
     }
 
     template<class T>
-    int8_t BigIntBackend<T>::compare(const BigIntBackend<T> &secondOperand) const {
-        const BigIntBackend<T> &firstOperand = *this;
+    int8_t BigIntBackend<T>::compare(BigIntBackend<T> secondOperand) const {
+        BigIntBackend<T> firstOperand = *this;
+        secondOperand.normalize();
+        firstOperand.normalize();
 
         if (firstOperand.isNegative != secondOperand.isNegative) {
             if (firstOperand.isNegative > secondOperand.isNegative) {

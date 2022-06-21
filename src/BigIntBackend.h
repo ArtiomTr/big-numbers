@@ -47,7 +47,7 @@ namespace BigNumbers {
         void negate();
 
         // Compare current object to specified argument.
-        int8_t compare(const BigIntBackend<T> &secondOperand) const;
+        int8_t compare(BigIntBackend<T> secondOperand) const;
 
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
         explicit operator Value() const;

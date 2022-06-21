@@ -5,8 +5,19 @@
 
 namespace IsomorphicMath {
     template<class T>
-    T abs(const T &value) {
-        return value < 0 ? -value : value;
+    T sqrt(T value, T epsilon) {
+        T x = value;
+        T y = 1;
+
+        std::size_t i = 0;
+        while ((x - y) > epsilon) {
+            x += y;
+            x /= 2;
+            y = value / x;
+            ++i;
+        }
+
+        return x;
     }
 
     template<class T>
