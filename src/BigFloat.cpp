@@ -105,7 +105,7 @@ namespace BigNumbers {
     }
 
     std::ostream &operator<<(std::ostream &out, const BigFloat &value) {
-        out << value.backend.toString(out.precision());
+        out << value.backend.toString(out.precision(), (out.flags() & std::ostream::fixed));
 
         return out;
     }

@@ -196,7 +196,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    std::string BigFloatBackend<T>::toString(std::size_t maxFractionWidth) const {
+    std::string BigFloatBackend<T>::toString(std::size_t precision, bool fixed) const {
         std::string output;
 
         auto integralPart = static_cast<BigIntBackend<T>>(*this);
@@ -214,7 +214,7 @@ namespace BigNumbers {
         fractionalPart.subtract(integralAsFloat);
 
         BigFloatBackend<T> ten(BigIntBackend<T>(10));
-        for (std::size_t i = 0; i <= maxFractionWidth; ++i) {
+        for (std::size_t i = 0; i <= precision; ++i) {
             fractionalPart.multiply(ten);
         }
 
@@ -232,9 +232,11 @@ namespace BigNumbers {
             integralPart.add(BigIntBackend<T>(1));
         }
 
-        extendFront(fractionString, '0', (int) maxFractionWidth - (int) fractionString.length());
+        extendFront(fractionString, '0', (int) precision - (int) fractionString.length());
 
-        trimBack(fractionString, '0');
+        if (!fixed) {
+            trimBack(fractionString, '0');
+        }
 
         if (mantissa.getSign()) {
             output += '-';

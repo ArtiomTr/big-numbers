@@ -34,15 +34,11 @@ namespace BigNumbers {
 
         std::string toBinaryString() const;
 
-        std::string toString(std::size_t maxFractionWidth) const;
+        std::string toString(std::size_t precision, bool fixed) const;
 
         BigIntBackend<T> getMantissa() const;
 
         int32_t getExponent() const;
-
-        static void setDefaultMantissaWidth(std::size_t mantissaWidth);
-
-        void setMantissaWidth(std::size_t mantissaWidth);
     };
 }
 
