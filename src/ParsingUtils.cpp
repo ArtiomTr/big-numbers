@@ -63,7 +63,8 @@ namespace BigNumbers {
     }
 
     template<class V>
-    uint32_t fractionalSourceToBinary(const std::string &source, std::size_t width, std::vector<V> &output) {
+    uint32_t fractionalSourceToBinary(const std::string &source, std::size_t precision, std::vector<V> &output) {
+        std::size_t inputWidth = output.size();
         constexpr std::size_t BIT_COUNT = 8 * sizeof(V);
 
         std::vector<uint8_t> transformedSource = decimalStringToNumbers(source);
@@ -71,7 +72,8 @@ namespace BigNumbers {
         std::bitset<BIT_COUNT> buffer;
         int32_t exponent = 0;
 
-        while (!transformedSource.empty() && output.size() <= width) {
+        std::size_t currentFractionDigit = 0;
+        while (!transformedSource.empty() && currentFractionDigit <= precision) {
             bool carry = false;
 
             for (auto member = transformedSource.rbegin(); member < transformedSource.rend(); ++member) {
@@ -93,6 +95,7 @@ namespace BigNumbers {
                 if (output.empty() && buffer.none()) {
                     --exponent;
                 } else {
+                    ++currentFractionDigit;
                     output.insert(output.begin(), buffer.to_ulong());
                 }
 
@@ -104,7 +107,7 @@ namespace BigNumbers {
             output.insert(output.begin(), buffer.to_ulong());
         }
 
-        if (output.size() > width) {
+        if (output.size() > inputWidth + precision) {
             buffer = std::bitset<BIT_COUNT>(output.front());
             output.erase(output.begin());
 
@@ -155,7 +158,7 @@ namespace BigNumbers {
     }
 
     template<typename T>
-    BigFloatBackend<T> parseBigFloat(std::string source, std::size_t mantissaWidth) {
+    BigFloatBackend<T> parseBigFloat(std::string source, std::size_t precision) {
         std::regex bigFloatRegex(R"(^-?\d+\.\d+$)");
 
         if (!std::regex_match(source, bigFloatRegex)) {
@@ -176,13 +179,8 @@ namespace BigNumbers {
 
         int32_t exponent = std::max(mantissa.accessPieces().size(), static_cast<std::size_t>(1)) - 1;
 
-        if (mantissa.accessPieces().size() > mantissaWidth) {
-            throw std::logic_error(
-                    "Too small precision: unsafe integer bound exceeded, precision is less than 1 unit.");
-        }
-
         int32_t exponentCorrection = fractionalSourceToBinary<T>(source.substr(dotPosition + 1),
-                                                                 mantissaWidth,
+                                                                 precision,
                                                                  mantissa.accessPieces());
 
         exponent += exponentCorrection;

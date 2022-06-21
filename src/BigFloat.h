@@ -8,8 +8,10 @@
 namespace BigNumbers {
     class BigFloat {
     private:
-        BigFloatBackend<BIG_FLOAT_PIECE_TYPE> backend;
+        BigFloatBackend <BIG_FLOAT_PIECE_TYPE> backend;
     public:
+        explicit BigFloat() = default;
+
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
         explicit BigFloat(Value value): backend(BigIntBackend<BIG_FLOAT_PIECE_TYPE>(value)) {
         }
@@ -52,7 +54,9 @@ namespace BigNumbers {
 
         bool operator>=(const BigFloat &other) const;
 
-        friend std::ostream &operator<<(std::ostream &, const BigFloat &value);
+        friend std::ostream &operator<<(std::ostream &output, const BigFloat &value);
+
+        friend std::istream &operator>>(std::istream &input, BigFloat &value);
     };
 }
 #endif //BIG_NUMBERS_BIGFLOAT_H

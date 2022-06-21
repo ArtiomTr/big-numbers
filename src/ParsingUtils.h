@@ -11,7 +11,7 @@ namespace BigNumbers {
     BigIntBackend<V> parseBigInt(std::string source);
 
     template<typename T>
-    BigFloatBackend<T> parseBigFloat(std::string source, std::size_t mantissaWidth);
+    BigFloatBackend<T> parseBigFloat(std::string source, std::size_t precision);
 }
 
 #endif //BIG_NUMBERS_PARSINGUTILS_H

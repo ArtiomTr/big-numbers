@@ -7,7 +7,7 @@
 using namespace BigNumbers;
 
 bool testNoFractional() {
-    BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("1000.0333", 4);
+    BigFloatBackend<uint8_t> num = parseBigFloat<uint8_t>("1000.0333", 2);
 
     BigIntBackend<uint8_t> mantissa({0b10000110, 0b00001000, 0b11101000, 0b00000011}, false);
     int32_t exponent = 1;
