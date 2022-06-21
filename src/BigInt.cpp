@@ -1,10 +1,8 @@
 #include "BigInt.h"
 
+#include "ParsingUtils.h"
+
 namespace BigNumbers {
-    BigInt::BigInt(const BigIntBackend<BIG_NUMBERS_PIECE_TYPE> &backend) : backend(backend) {
-
-    }
-
     BigInt &BigInt::operator+=(const BigInt &addend) {
         backend.add(addend.backend);
 
@@ -18,7 +16,7 @@ namespace BigNumbers {
     }
 
     BigInt &BigInt::operator++() {
-        backend.add(BigIntBackend<BIG_NUMBERS_PIECE_TYPE>(1));
+        backend.add(BigIntBackend<BIG_INT_PIECE_TYPE>(1));
 
         return *this;
     }
@@ -43,7 +41,7 @@ namespace BigNumbers {
     }
 
     BigInt &BigInt::operator--() {
-        backend.subtract(BigIntBackend<BIG_NUMBERS_PIECE_TYPE>(1));
+        backend.subtract(BigIntBackend<BIG_INT_PIECE_TYPE>(1));
 
         return *this;
     }
@@ -127,5 +125,14 @@ namespace BigNumbers {
     std::ostream &operator<<(std::ostream &out, const BigInt &value) {
         out << value.backend.toString();
         return out;
+    }
+
+    std::istream &operator>>(std::istream &input, BigInt &value) {
+        std::string source;
+        input >> source;
+        BigIntBackend<BIG_INT_PIECE_TYPE> backend = parseBigInt<BIG_INT_PIECE_TYPE>(source);
+        value.backend = backend;
+
+        return input;
     }
 }

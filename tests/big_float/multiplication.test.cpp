@@ -7,38 +7,38 @@
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, false), 2, -1); // 0.90625
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b11101000}, false), 2, -1); // 0.90625
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, false), -1); // 0.90625
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b11101000}, false), -1); // 0.90625
 
     first.multiply(second);
 
     BigIntBackend<uint8_t> mantissa({0b01000000, 0b11010010}, false); // 0.8212890625
     int32_t exponent = -1;
 
-    return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
+    return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, exponent));
 }
 
 bool testZero() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, false), 2, -1);
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(), 2, 0);
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, false), -1);
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(), 0);
 
     first.multiply(second);
     BigIntBackend<uint8_t> mantissa;
     int32_t exponent = 0;
 
-    return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
+    return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, exponent));
 }
 
 bool shouldNormalizeOutput() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, false), 2, 0);
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b11101000}, false), 2, 0);
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b11101000}, false), 0);
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b11101000}, false), 0);
 
     first.multiply(second);
 
     BigIntBackend<uint8_t> mantissa({0b01000000, 0b11010010}, false);
     int32_t exponent = 1;
 
-    return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, 2, exponent));
+    return testBigFloat(first, BigFloatBackend<uint8_t>(mantissa, exponent));
 }
 
 int main() {

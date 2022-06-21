@@ -13,11 +13,9 @@ int main() {
     bool failure = false;
     while (!input.eof() && !failure) {
         int in;
-        std::string resultSource;
+        BigInt result;
 
-        input >> in >> resultSource;
-
-        BigInt result = parseBigInt(resultSource);
+        input >> in >> result;
 
         if (IsomorphicMath::factorial<BigInt>(in) != result) {
             std::cout << "Failed to compute " << in << "!" << std::endl;

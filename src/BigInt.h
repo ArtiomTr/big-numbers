@@ -1,24 +1,20 @@
 #ifndef BIG_NUMBERS_BIGINT_H
 #define BIG_NUMBERS_BIGINT_H
 
-#include <iostream>
+#include <istream>
+#include <ostream>
 
 #include "BigIntBackend.h"
 
-#define BIG_NUMBERS_PIECE_TYPE uint8_t
+#define BIG_INT_PIECE_TYPE uint8_t
 
 namespace BigNumbers {
     class BigInt {
     private:
-        friend BigInt parseBigInt(std::string source);
-
-        BigIntBackend<BIG_NUMBERS_PIECE_TYPE> backend;
-
-        explicit BigInt(const BigIntBackend<BIG_NUMBERS_PIECE_TYPE> &);
-
+        BigIntBackend<BIG_INT_PIECE_TYPE> backend;
     public:
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
-        explicit BigInt(Value value): backend(BigIntBackend<BIG_NUMBERS_PIECE_TYPE>(value)) {
+        explicit BigInt(Value value): backend(BigIntBackend<BIG_INT_PIECE_TYPE>(value)) {
         }
 
         BigInt() = default;
@@ -70,7 +66,9 @@ namespace BigNumbers {
 
         bool operator>=(const BigInt &other) const;
 
-        friend std::ostream &operator<<(std::ostream &, const BigInt &value);
+        friend std::ostream &operator<<(std::ostream &output, const BigInt &value);
+
+        friend std::istream &operator>>(std::istream &input, BigInt &value);
     };
 }
 
