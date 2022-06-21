@@ -1,5 +1,7 @@
 #include "BigFloat.h"
 
+#include "ParsingUtils.h"
+
 namespace BigNumbers {
     BigFloat &BigFloat::operator+=(const BigFloat &addend) {
         backend.add(addend.backend);
@@ -106,5 +108,15 @@ namespace BigNumbers {
         out << value.backend.toString(out.precision());
 
         return out;
+    }
+
+    std::istream &operator>>(std::istream &input, BigFloat &value) {
+        std::string source;
+        input >> source;
+
+        BigFloatBackend<BIG_FLOAT_PIECE_TYPE> backend = parseBigFloat<BIG_FLOAT_PIECE_TYPE>(source, input.precision());
+        value.backend = backend;
+
+        return input;
     }
 }
