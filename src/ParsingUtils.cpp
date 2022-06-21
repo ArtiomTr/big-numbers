@@ -72,6 +72,10 @@ namespace BigNumbers {
         std::bitset<BIT_COUNT> buffer;
         int32_t exponent = 0;
 
+        if (output.empty()) {
+            --exponent;
+        }
+
         std::size_t currentFractionDigit = 0;
         while (!transformedSource.empty() && currentFractionDigit <= precision) {
             bool carry = false;
@@ -124,6 +128,7 @@ namespace BigNumbers {
 
                 if (carry) {
                     output.push_back(0b1);
+                    ++exponent;
                 }
 
                 trimBack(output, (V) 0);

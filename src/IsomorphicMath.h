@@ -65,6 +65,20 @@ namespace IsomorphicMath {
 
         return value;
     }
+
+    template<class T>
+    T pow(T value, int power) {
+        if (power == 0) {
+            return 1;
+        }
+
+        T multiplier = value;
+        for (int i = 1; i < power; ++i) {
+            value *= multiplier;
+        }
+
+        return value;
+    }
 }
 
 #endif //BIG_NUMBERS_ISOMORPHICMATH_H
