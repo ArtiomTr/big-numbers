@@ -20,7 +20,7 @@ namespace BigNumbers {
 
         explicit BigIntBackend();
 
-        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
         explicit BigIntBackend(Value value);
 
         BigIntBackend(std::vector<T> pieces, bool sign);
@@ -49,7 +49,7 @@ namespace BigNumbers {
         // Compare current object to specified argument.
         int8_t compare(BigIntBackend<T> secondOperand) const;
 
-        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = true>
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
         explicit operator Value() const;
 
         std::string toBinaryString() const;
