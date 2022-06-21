@@ -262,6 +262,15 @@ namespace BigNumbers {
         }
 
         if (exponent != other.exponent) {
+            bool isFirstZero = mantissa.accessPieces().empty();
+            bool isSecondZero = other.mantissa.accessPieces().empty();
+
+            if (isFirstZero) {
+                return -1;
+            } else if (isSecondZero) {
+                return 1;
+            }
+
             if (exponent > other.exponent) {
                 return 1;
             }
