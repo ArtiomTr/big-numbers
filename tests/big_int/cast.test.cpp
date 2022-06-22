@@ -7,14 +7,14 @@
 using namespace BigNumbers;
 
 bool testOnePiece() {
-    BigIntBackend<uint8_t> in({0b00001111}, false);
+    BigIntBackend<uint8_t> in(false, {0b00001111});
     auto casted = (uint8_t) in;
 
     return casted == 15;
 }
 
 bool testMultiplePieces() {
-    BigIntBackend<uint8_t> in({0b01010000, 0b00001111}, false);
+    BigIntBackend<uint8_t> in(false, {0b01010000, 0b00001111});
 
     auto casted = (uint16_t) in;
 
@@ -30,7 +30,7 @@ bool testZero() {
 }
 
 bool testValidation() {
-    BigIntBackend<uint8_t> in({0b01010000, 0b00001111, 0b00000000, 0b00000000}, false);
+    BigIntBackend<uint8_t> in(false, {0b01010000, 0b00001111, 0b00000000, 0b00000000});
 
     try {
         auto casted = (uint8_t) in;

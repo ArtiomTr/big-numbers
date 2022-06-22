@@ -5,8 +5,8 @@
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigIntBackend<uint8_t> one({0b00000110}, false);
-    BigIntBackend<uint8_t> two({0b00000011}, false);
+    BigIntBackend<uint8_t> one(false, {0b00000110});
+    BigIntBackend<uint8_t> two(false, {0b00000011});
 
     BigIntBackend<uint8_t> result = one.divide(two);
 
@@ -14,12 +14,12 @@ bool testSimple() {
 }
 
 bool testMultiplePieces() {
-    BigIntBackend<uint8_t> one({0b11101000, 0b00000011}, false);
-    BigIntBackend<uint8_t> two({0b11010011, 0b00000010}, false);
+    BigIntBackend<uint8_t> one(false, {0b11101000, 0b00000011});
+    BigIntBackend<uint8_t> two(false, {0b11010011, 0b00000010});
 
     BigIntBackend<uint8_t> result = one.divide(two);
 
-    return testBigInt(result, BigIntBackend<uint8_t>({0b00010101, 0b00000001}, false));
+    return testBigInt(result, BigIntBackend<uint8_t>(false, {0b00010101, 0b00000001}));
 }
 
 int main() {

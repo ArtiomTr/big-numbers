@@ -1,34 +1,42 @@
 #ifndef BIG_NUMBERS_BIGFLOAT_H
 #define BIG_NUMBERS_BIGFLOAT_H
 
-#include "BigFloatBackend.h"
+#include "BigInt.h"
 
 #include <sstream>
 #include <iomanip>
 #include <limits>
 
-#define BIG_FLOAT_PIECE_TYPE uint8_t
-
 namespace BigNumbers {
     class BigFloat {
     private:
-        BigFloatBackend<BIG_FLOAT_PIECE_TYPE> backend;
+        class Implementation;
 
-        std::size_t precision;
+        Implementation *implementation;
     public:
-        explicit BigFloat();
+        BigFloat();
+
+        BigFloat(const BigFloat &other);
+
+        explicit BigFloat(const BigInt &value);
 
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
-        BigFloat(Value value): backend(BigIntBackend<BIG_FLOAT_PIECE_TYPE>(value)), precision(8) {
+        BigFloat(Value value): BigFloat(reinterpret_cast<unsigned char *>(&value), sizeof(value)) {
         }
 
         template<class Value, typename std::enable_if<std::is_floating_point<Value>::value, bool>::type = false>
-        BigFloat(Value value) {
+        BigFloat(Value value): implementation(nullptr) {
             std::stringstream builder;
             builder << std::fixed << std::setprecision(std::numeric_limits<Value>::max_digits10) << value;
 
             builder >> *this;
         }
+
+        BigFloat(unsigned char *bytes, std::size_t size);
+
+        ~BigFloat();
+
+        BigFloat &operator=(const BigFloat &other);
 
         BigFloat &operator+=(const BigFloat &addend);
 
@@ -77,4 +85,5 @@ namespace BigNumbers {
         static BigFloat epsilon(std::size_t precision);
     };
 }
+
 #endif //BIG_NUMBERS_BIGFLOAT_H

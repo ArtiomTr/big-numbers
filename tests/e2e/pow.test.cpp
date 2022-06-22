@@ -33,13 +33,13 @@ bool testBigInt2() {
 bool testBigFloat() {
     BigFloat value = 0.3;
 
-    return areFloatsEqual(IsomorphicMath::pow(value, 6), BigFloat(0.000729), 6);
+    return areFloatsEqual(IsomorphicMath::pow(value, 6), BigFloat(0.000729), 3);
 }
 
 bool testBigFloat2() {
     BigFloat value = 0.3;
 
-    return areFloatsEqual(IsomorphicMath::pow(value, 1), BigFloat(0.3), 4);
+    return areFloatsEqual(IsomorphicMath::pow(value, 1), BigFloat(0.3), 3);
 }
 
 int main() {

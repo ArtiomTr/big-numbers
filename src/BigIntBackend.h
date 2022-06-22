@@ -23,7 +23,9 @@ namespace BigNumbers {
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
         explicit BigIntBackend(Value value);
 
-        BigIntBackend(std::vector<T> pieces, bool sign);
+        BigIntBackend(unsigned char *bytes, std::size_t count);
+
+        BigIntBackend(bool sign, std::vector<T> pieces);
 
         // Perform addition operation on this object and argument. Result is written to this object.
         void add(const BigIntBackend<T> &addend);
@@ -66,6 +68,7 @@ namespace BigNumbers {
 
         int32_t getSign() const;
 
+        std::pair<unsigned char *, std::size_t> getBytes() const;
     private:
         static std::pair<const BigIntBackend<T> &, const BigIntBackend<T> &>
         sortBySize(const BigIntBackend<T> &first, const BigIntBackend<T> &second);
@@ -73,43 +76,15 @@ namespace BigNumbers {
 
     template<class T>
     template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
-    BigIntBackend<T>::BigIntBackend(Value value): isNegative(value < (Value) 0) {
-        constexpr std::size_t BIT_COUNT = sizeof(Value) * 8;
-        std::bitset<BIT_COUNT> input(value);
-        std::bitset<PIECE_SIZE> buffer;
-        std::size_t bufferIndex = 0;
-
-        std::size_t pieceCount = sizeof(Value) / sizeof(T);
-        pieceCount += (sizeof(Value) > pieceCount * sizeof(T));
-        pieces.resize(pieceCount);
-
-        std::size_t pieceIndex = 0;
-        for (std::size_t i = 0; i < BIT_COUNT; ++i) {
-            buffer[bufferIndex] = input[i];
-            ++bufferIndex;
-
-            if (bufferIndex == PIECE_SIZE) {
-                pieces[pieceIndex] = buffer.to_ulong();
-                ++pieceIndex;
-                buffer.reset();
-                bufferIndex = 0;
-            }
-        }
-
-        if (buffer.any()) {
-            pieces.back() = buffer.to_ulong();
-        } else if (pieceIndex != pieceCount) {
-            pieces.back() = getFillValue();
-        }
-
-        normalize();
+    BigIntBackend<T>::BigIntBackend(Value value):
+            BigIntBackend(reinterpret_cast<unsigned char *>(&value), sizeof(value)) {
     }
 
     template<class T>
     template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
     BigIntBackend<T>::operator Value() const {
         const std::size_t outputSize = sizeof(Value);
-        const std::size_t requiredPieceCount = outputSize / sizeof(T);
+        const std::size_t requiredPieceCount = std::max((std::size_t) 1, outputSize / sizeof(T));
 
         const BigIntBackend<T> &current = *this;
 

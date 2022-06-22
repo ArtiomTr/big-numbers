@@ -5,6 +5,7 @@
 
 #include "IsomorphicMath.h"
 #include "VectorUtils.h"
+#include "config.h"
 
 namespace BigNumbers {
     template<class T>
@@ -110,7 +111,7 @@ namespace BigNumbers {
 
     template<class T>
     BigFloatBackend<T> BigFloatBackend<T>::epsilon(std::size_t mantissaWidth) {
-        BigFloatBackend<T> epsilonValue(BigIntBackend<T>({0b000000001}, false), -mantissaWidth);
+        BigFloatBackend<T> epsilonValue(BigIntBackend<T>(false, {0b000000001}), -mantissaWidth);
 
         return epsilonValue;
     }
@@ -305,6 +306,11 @@ namespace BigNumbers {
         return exponent;
     }
 
+    // Required for debugging
     template
     class BigFloatBackend<uint8_t>;
+
+    // Required for final result
+    template
+    class BigFloatBackend<PieceType>;
 }

@@ -4,25 +4,32 @@
 #include <istream>
 #include <ostream>
 
-#include "BigIntBackend.h"
-
-#define BIG_INT_PIECE_TYPE uint8_t
-
 namespace BigNumbers {
+    class BigFloat;
+
     class BigInt {
     private:
-        BigIntBackend<BIG_INT_PIECE_TYPE> backend;
+        friend class BigFloat;
+
+        class Implementation;
+
+        Implementation *implementation;
     public:
-        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
-        BigInt(Value value): backend(BigIntBackend<BIG_INT_PIECE_TYPE>(value)) {
-        }
+        BigInt();
 
-        BigInt() = default;
+        BigInt(const BigInt &other);
 
         template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
-        explicit operator Value() const {
-            return (Value) backend;
-        }
+        BigInt(Value value);
+
+        BigInt(unsigned char *bytes, std::size_t count);
+
+        ~BigInt();
+
+        template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type = false>
+        explicit operator Value() const;
+
+        BigInt &operator=(const BigInt &other);
 
         BigInt &operator+=(const BigInt &addend);
 
@@ -69,7 +76,23 @@ namespace BigNumbers {
         friend std::ostream &operator<<(std::ostream &output, const BigInt &value);
 
         friend std::istream &operator>>(std::istream &input, BigInt &value);
+
+        std::pair<unsigned char *, std::size_t> getBytes() const;
     };
+
+    template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
+    BigInt::BigInt(Value value): BigInt(reinterpret_cast<unsigned char *>(&value), sizeof(Value)) {
+    }
+
+    template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
+    BigInt::operator Value() const {
+        Value v;
+
+        auto byteArray = getBytes();
+        std::copy(&v, byteArray.first, byteArray.first + byteArray.second);
+
+        return v;
+    }
 }
 
 #endif //BIG_NUMBERS_BIGINT_H

@@ -12,12 +12,16 @@ bool testBigIntFactorial() {
     bool failure = false;
     while (!input.eof() && !failure) {
         int in;
-        BigInt result;
+        BigInt expectedResult;
 
-        input >> in >> result;
+        input >> in >> expectedResult;
 
-        if (IsomorphicMath::factorial<BigInt>(in) != result) {
-            std::cout << "Failed to compute " << in << "!" << std::endl;
+        BigInt receivedResult = IsomorphicMath::factorial<BigInt>(in);
+
+        if (expectedResult != receivedResult) {
+            std::cout << "Failed to compute " << in << "!\n"
+                      << "Expected: " << expectedResult << '\n'
+                      << "Received: " << receivedResult << std::endl;
             failure = true;
         }
     }
