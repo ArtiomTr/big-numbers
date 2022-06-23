@@ -1,26 +1,73 @@
 #include "BigFloat.h"
 
+#include "BigFloatBackend.h"
 #include "ParsingUtils.h"
+#include "config.h"
 
 namespace BigNumbers {
+    class BigFloat::Implementation {
+    public:
+        std::size_t precision;
+        BigFloatBackend<PieceType> backend;
+
+        Implementation() : backend(), precision(8) {
+
+        }
+
+        explicit Implementation(const BigFloatBackend<PieceType> &other) : backend(other), precision(8) {
+
+        }
+
+        explicit Implementation(const BigIntBackend<PieceType> &other) : backend(other), precision(8) {
+
+        }
+    };
+
     BigFloat &BigFloat::operator+=(const BigFloat &addend) {
-        backend.add(addend.backend);
+        implementation->backend.add(addend.implementation->backend);
 
         return *this;
     }
 
-    BigFloat::BigFloat() : precision(8) {
+    BigFloat::BigFloat() : implementation(new Implementation()) {
+
+    }
+
+    BigFloat::~BigFloat() {
+        delete implementation;
+    }
+
+    BigFloat &BigFloat::operator=(const BigFloat &other) {
+        if (&other != this) {
+            delete implementation;
+            implementation = new Implementation(*other.implementation);
+        }
+
+        return *this;
+    }
+
+    BigFloat::BigFloat(const BigFloat &other) : implementation(new Implementation(*other.implementation)) {
+    }
+
+    BigFloat::BigFloat(const BigInt &value) : implementation(nullptr) {
+        auto bytes = value.getBytes();
+        *this = BigFloat(bytes.first, bytes.second);
+    }
+
+    BigFloat::BigFloat(unsigned char *bytes, std::size_t size) :
+            implementation(new Implementation(BigIntBackend<PieceType>(bytes, size))) {
 
     }
 
     BigFloat BigFloat::epsilon(std::size_t precision) {
         BigFloat epsilon;
-        epsilon.backend = BigFloatBackend<BIG_FLOAT_PIECE_TYPE>::epsilon(precision);
+        epsilon.implementation = new Implementation(BigFloatBackend<PieceType>::epsilon(precision));
+        epsilon.setPrecision(precision);
         return epsilon;
     }
 
     void BigFloat::setPrecision(std::size_t precision) {
-        this->precision = precision;
+        implementation->precision = precision;
     }
 
     BigFloat BigFloat::operator+(const BigFloat &addend) const {
@@ -43,7 +90,7 @@ namespace BigNumbers {
     }
 
     BigFloat &BigFloat::operator-=(const BigFloat &subtrahend) {
-        backend.subtract(subtrahend.backend);
+        implementation->backend.subtract(subtrahend.implementation->backend);
         return *this;
     }
 
@@ -66,7 +113,7 @@ namespace BigNumbers {
     }
 
     BigFloat &BigFloat::operator*=(const BigFloat &multiplicand) {
-        backend.multiply(multiplicand.backend);
+        implementation->backend.multiply(multiplicand.implementation->backend);
         return *this;
     }
 
@@ -77,7 +124,7 @@ namespace BigNumbers {
     }
 
     BigFloat &BigFloat::operator/=(const BigFloat &divisor) {
-        backend.divide(divisor.backend, precision);
+        implementation->backend.divide(divisor.implementation->backend, implementation->precision);
         return *this;
     }
 
@@ -89,36 +136,36 @@ namespace BigNumbers {
 
     BigFloat BigFloat::operator-() const {
         BigFloat copy = *this;
-        copy.backend.negate();
+        copy.implementation->backend.negate();
         return copy;
     }
 
     bool BigFloat::operator==(const BigFloat &other) const {
-        return backend.compare(other.backend) == 0;
+        return implementation->backend.compare(other.implementation->backend) == 0;
     }
 
     bool BigFloat::operator!=(const BigFloat &other) const {
-        return backend.compare(other.backend) != 0;
+        return implementation->backend.compare(other.implementation->backend) != 0;
     }
 
     bool BigFloat::operator<(const BigFloat &other) const {
-        return backend.compare(other.backend) < 0;
+        return implementation->backend.compare(other.implementation->backend) < 0;
     }
 
     bool BigFloat::operator>(const BigFloat &other) const {
-        return backend.compare(other.backend) > 0;
+        return implementation->backend.compare(other.implementation->backend) > 0;
     }
 
     bool BigFloat::operator<=(const BigFloat &other) const {
-        return backend.compare(other.backend) <= 0;
+        return implementation->backend.compare(other.implementation->backend) <= 0;
     }
 
     bool BigFloat::operator>=(const BigFloat &other) const {
-        return backend.compare(other.backend) >= 0;
+        return implementation->backend.compare(other.implementation->backend) >= 0;
     }
 
     std::ostream &operator<<(std::ostream &out, const BigFloat &value) {
-        out << value.backend.toString(out.precision(), (out.flags() & std::ostream::fixed));
+        out << value.implementation->backend.toString(out.precision(), (out.flags() & std::ostream::fixed));
 
         return out;
     }
@@ -127,9 +174,13 @@ namespace BigNumbers {
         std::string source;
         input >> source;
 
-        BigFloatBackend<BIG_FLOAT_PIECE_TYPE> backend = parseBigFloat<BIG_FLOAT_PIECE_TYPE>(source, input.precision());
-        value.backend = backend;
+        BigFloatBackend<PieceType> backend = parseBigFloat<PieceType>(source, input.precision());
+        delete value.implementation;
+        value.implementation = new BigFloat::Implementation(backend);
+        value.setPrecision(input.precision());
 
         return input;
     }
 }
+
+#undef BIG_FLOAT_PIECE_TYPE

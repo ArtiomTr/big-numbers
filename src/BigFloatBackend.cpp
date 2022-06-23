@@ -5,6 +5,7 @@
 
 #include "IsomorphicMath.h"
 #include "VectorUtils.h"
+#include "config.h"
 
 namespace BigNumbers {
     template<class T>
@@ -110,7 +111,7 @@ namespace BigNumbers {
 
     template<class T>
     BigFloatBackend<T> BigFloatBackend<T>::epsilon(std::size_t mantissaWidth) {
-        BigFloatBackend<T> epsilonValue(BigIntBackend<T>({0b000000001}, false), -mantissaWidth);
+        BigFloatBackend<T> epsilonValue(BigIntBackend<T>(false, {0b000000001}), -mantissaWidth);
 
         return epsilonValue;
     }
@@ -138,11 +139,9 @@ namespace BigNumbers {
         auto factor = two;
         factor.subtract(divisor);
 
-        for (std::size_t iter = 0;
-             !isSufficientlyCloseToOne(factor, precision) && iter < MAX_ITER_COUNT;
-             ++iter) {
-
+        for (std::size_t iter = 0; !isSufficientlyCloseToOne(factor, precision) && iter < MAX_ITER_COUNT; ++iter) {
             multiply(factor);
+            // TODO: move to trim function
             if (mantissa.accessPieces().size() > precision) {
                 mantissa.accessPieces().erase(mantissa.accessPieces().begin(),
                                               mantissa.accessPieces().end() - precision);
@@ -238,6 +237,7 @@ namespace BigNumbers {
             trimBack(fractionString, '0');
         }
 
+        // FIXME: if value is equal to zero, and no fractional part, the minus sign doesn't make sense
         if (mantissa.getSign()) {
             output += '-';
         }
@@ -305,6 +305,11 @@ namespace BigNumbers {
         return exponent;
     }
 
+    // Required for debugging
     template
     class BigFloatBackend<uint8_t>;
+
+    // Required for final result
+    template
+    class BigFloatBackend<PieceType>;
 }

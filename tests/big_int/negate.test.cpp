@@ -5,19 +5,19 @@
 using namespace BigNumbers;
 
 bool testSingleCell() {
-    BigIntBackend<uint8_t> one({0b00000010}, false);
+    BigIntBackend<uint8_t> one(false, {0b00000010});
 
     one.negate();
 
-    return testBigInt(one, BigIntBackend<uint8_t>({0b11111110}, true));
+    return testBigInt(one, BigIntBackend<uint8_t>(true, {0b11111110}));
 }
 
 bool testZero() {
-    BigIntBackend<uint8_t> zero({0b00000000}, false);
+    BigIntBackend<uint8_t> zero(false, {0b00000000});
 
     zero.negate();
 
-    return testBigInt(zero, BigIntBackend<uint8_t>({0b00000000}, false));
+    return testBigInt(zero, BigIntBackend<uint8_t>(false, {0b00000000}));
 }
 
 int main() {

@@ -7,36 +7,36 @@
 using namespace BigNumbers;
 
 bool testSimple() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b00000001}, false), 0); // 1
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b00000010}, false), 0); // 2
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>(false, {0b00000001}), 0); // 1
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(false, {0b00000010}), 0); // 2
 
     return first.compare(second) < 0;
 }
 
 bool testDifferentExponents() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b00000001}, false), 10);
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b00000010}, false), 5);
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>(false, {0b00000001}), 10);
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(false, {0b00000010}), 5);
 
     return first.compare(second) > 0;
 }
 
 bool testDifferentSizes() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b00000001, 0b10101010}, false), 0);
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b00000010}, false), 0);
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>(false, {0b00000001, 0b10101010}), 0);
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(false, {0b00000010}), 0);
 
     return first.compare(second) > 0;
 }
 
 bool testDifferentSizes2() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b00000001, 0b10101010}, false), 0);
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b10101010}, false), 0);
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>(false, {0b00000001, 0b10101010}), 0);
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(false, {0b10101010}), 0);
 
     return first.compare(second) > 0;
 }
 
 bool testDifferentSizes3() {
-    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>({0b00000000, 0b10101010}, false), 0);
-    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>({0b10101010}, false), 0);
+    BigFloatBackend<uint8_t> first(BigIntBackend<uint8_t>(false, {0b00000000, 0b10101010}), 0);
+    BigFloatBackend<uint8_t> second(BigIntBackend<uint8_t>(false, {0b10101010}), 0);
 
     return first.compare(second) == 0;
 }

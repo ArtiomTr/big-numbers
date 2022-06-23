@@ -7,22 +7,22 @@
 using namespace BigNumbers;
 
 bool testSingleCell() {
-    BigIntBackend<uint8_t> value({0b00000110}, false);
+    BigIntBackend<uint8_t> value(false, {0b00000110});
 
     return value.toString() == "6";
 }
 
 bool testMultipleCells() {
-    BigIntBackend<uint8_t> value({0b00000000, 0b00001100}, false);
+    BigIntBackend<uint8_t> value(false, {0b00000000, 0b00001100});
 
     return value.toString() == "3072";
 }
 
 bool testLargeValue() {
-    BigIntBackend<uint8_t> value(
-            {0b00100100, 0b00001100, 0b11011000, 0b00110011,
-             0b11001100, 0b00010001, 0b11100011, 0b00100100,
-             0b10101010, 0b00000001}, false);
+    BigIntBackend<uint8_t> value(false,
+                                 {0b00100100, 0b00001100, 0b11011000, 0b00110011,
+                                  0b11001100, 0b00010001, 0b11100011, 0b00100100,
+                                  0b10101010, 0b00000001});
 
     return value.toString() == "7860970963174088510500";
 }
@@ -34,7 +34,7 @@ bool testZero() {
 }
 
 bool testNegative() {
-    BigIntBackend<uint8_t> value({0b11111010}, true);
+    BigIntBackend<uint8_t> value(true, {0b11111010});
 
     return value.toString() == "-6";
 }

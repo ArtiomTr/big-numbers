@@ -5,6 +5,7 @@
 #include <bitset>
 
 #include "VectorUtils.h"
+#include "config.h"
 
 namespace BigNumbers {
     template<class T>
@@ -13,8 +14,49 @@ namespace BigNumbers {
     }
 
     template<class T>
-    BigIntBackend<T>::BigIntBackend(std::vector<T> pieces, bool sign): pieces(pieces), isNegative(sign) {
+    BigIntBackend<T>::BigIntBackend(bool sign, std::vector<T> pieces): pieces(pieces), isNegative(sign) {
 
+    }
+
+    template<class T>
+    BigIntBackend<T>::BigIntBackend(unsigned char *bytes, std::size_t count): isNegative(false) {
+        std::bitset<PIECE_SIZE> buffer;
+        std::size_t bufferIndex = 0;
+
+        std::size_t pieceCount = count / sizeof(T);
+        pieceCount += (count > pieceCount * sizeof(T));
+        pieces.resize(pieceCount);
+
+        constexpr const std::size_t BITS = std::numeric_limits<unsigned char>::digits;
+
+        std::size_t pieceIndex = 0;
+        for (std::size_t byteIndex = 0; byteIndex < count; ++byteIndex) {
+            std::bitset<8> input(bytes[byteIndex]);
+
+            if (byteIndex == count - 1) {
+                isNegative = input[BITS - 1];
+            }
+
+            for (std::size_t i = 0; i < BITS; ++i) {
+                buffer[bufferIndex] = input[i];
+                ++bufferIndex;
+
+                if (bufferIndex == PIECE_SIZE) {
+                    pieces[pieceIndex] = buffer.to_ulong();
+                    ++pieceIndex;
+                    buffer.reset();
+                    bufferIndex = 0;
+                }
+            }
+        }
+
+        if (buffer.any()) {
+            pieces.back() = buffer.to_ulong();
+        } else if (pieceIndex != pieceCount) {
+            pieces.back() = getFillValue();
+        }
+
+        normalize();
     }
 
     template<class T>
@@ -35,15 +77,16 @@ namespace BigNumbers {
     template<class T>
     std::string BigIntBackend<T>::toBinaryString() const {
         std::stringstream output;
-        output << (isNegative ? '-' : '+');
+
+        if (isNegative) {
+            output << '-';
+        }
 
         for (auto it = pieces.rbegin(); it != pieces.rend(); ++it) {
             std::bitset<BigIntBackend<T>::PIECE_SIZE> buff(*it);
             output << buff.to_string();
 
         }
-        output << " (length " << pieces.size() << ")";
-
         return output.str();
     }
 
@@ -318,6 +361,34 @@ namespace BigNumbers {
         return isNegative;
     }
 
+    template<class T>
+    std::pair<unsigned char *, std::size_t> BigIntBackend<T>::getBytes() const {
+        std::vector<unsigned char> bytes;
+
+        for (auto piece: pieces) {
+            auto *pieceBytes = reinterpret_cast<unsigned char *>(&piece);
+
+            for (std::size_t i = sizeof(piece); i > 0; --i) {
+                bytes.push_back(pieceBytes[i - 1]);
+            }
+        }
+
+        auto *convertedBytes = new unsigned char[bytes.size()];
+        std::copy(bytes.begin(), bytes.end(), convertedBytes);
+
+        return {convertedBytes, bytes.size()};
+    }
+
+    // Required for debugging
     template
     class BigIntBackend<uint8_t>;
+
+    // Final result
+    template
+    class BigIntBackend<PieceType>;
+
+    // TODO: remove this
+    // Additional tests
+    template
+    class BigIntBackend<uint64_t>;
 }

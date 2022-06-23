@@ -4,6 +4,7 @@
 #include <regex>
 
 #include "VectorUtils.h"
+#include "config.h"
 
 namespace BigNumbers {
     std::vector<uint8_t> decimalStringToNumbers(const std::string &source) {
@@ -199,7 +200,15 @@ namespace BigNumbers {
         return BigFloatBackend<T>(mantissa, exponent);
     }
 
+    // Required for testing
     template BigIntBackend<uint8_t> parseBigInt(std::string source);
 
+    // Required for final result
+    template BigIntBackend<PieceType> parseBigInt(std::string source);
+
+    // Required for testing
     template BigFloatBackend<uint8_t> parseBigFloat(std::string source, std::size_t mantissaWidth);
+
+    //Required for final result
+    template BigFloatBackend<PieceType> parseBigFloat(std::string source, std::size_t mantissaWidth);
 }

@@ -59,7 +59,7 @@ namespace IsomorphicMath {
     template<class T>
     T factorial(std::size_t n) {
         T value = (T) 1;
-        for (std::size_t i = 1; i <= n; ++i) {
+        for (std::size_t i = 2; i <= n; ++i) {
             value *= (T) i;
         }
 

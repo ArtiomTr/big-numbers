@@ -39,7 +39,7 @@ bool testBigFloat() {
 bool testBigFloat2() {
     BigFloat value = 60;
 
-    return areFloatsEqual(IsomorphicMath::sqrt(value, BigFloat::epsilon(2)), BigFloat(7.74597), 2);
+    return areFloatsEqual(IsomorphicMath::sqrt(value, BigFloat::epsilon(2)), BigFloat(7.745967), 1);
 }
 
 int main() {
