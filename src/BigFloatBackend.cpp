@@ -141,20 +141,23 @@ namespace BigNumbers {
 
         for (std::size_t iter = 0; !isSufficientlyCloseToOne(factor, precision) && iter < MAX_ITER_COUNT; ++iter) {
             multiply(factor);
-            // TODO: move to trim function
-            if (mantissa.accessPieces().size() > precision) {
-                mantissa.accessPieces().erase(mantissa.accessPieces().begin(),
-                                              mantissa.accessPieces().end() - precision);
-            }
+            trim(precision);
 
             divisor.multiply(factor);
-            if (divisor.mantissa.accessPieces().size() > precision) {
-                divisor.mantissa.accessPieces().erase(divisor.mantissa.accessPieces().begin(),
-                                                      divisor.mantissa.accessPieces().end() - precision);
-            }
+            divisor.trim(precision);
 
             factor = two;
             factor.subtract(divisor);
+        }
+    }
+
+    template<class T>
+    void BigFloatBackend<T>::trim(std::size_t fractionWidth) {
+        std::size_t availableMantissaWidth = std::max(0, exponent + 1) + fractionWidth;
+
+        if (mantissa.accessPieces().size() > availableMantissaWidth) {
+            mantissa.accessPieces().erase(mantissa.accessPieces().begin(),
+                                          mantissa.accessPieces().end() - availableMantissaWidth);
         }
     }
 

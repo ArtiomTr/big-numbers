@@ -30,6 +30,8 @@ namespace BigNumbers {
 
         int compare(const BigFloatBackend<T> &other) const;
 
+        void trim(std::size_t fractionWidth);
+
         static BigFloatBackend<T> epsilon(std::size_t mantissaWidth);
 
         std::string toBinaryString() const;
