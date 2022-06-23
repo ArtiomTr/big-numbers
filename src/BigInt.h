@@ -3,6 +3,8 @@
 
 #include <istream>
 #include <ostream>
+#include <cstring>
+#include <stdexcept>
 
 namespace BigNumbers {
     class BigFloat;
@@ -86,12 +88,17 @@ namespace BigNumbers {
 
     template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
     BigInt::operator Value() const {
-        Value v;
+        Value value = 0;
 
         auto byteArray = getBytes();
-        std::copy(&v, byteArray.first, byteArray.first + byteArray.second);
 
-        return v;
+        if (byteArray.second > sizeof(Value)) {
+            throw std::logic_error("Cannot cast BigIntBackend to given type - value is too big.");
+        }
+
+        std::memcpy(reinterpret_cast<unsigned char *>(&value), byteArray.first, byteArray.second);
+
+        return value;
     }
 }
 

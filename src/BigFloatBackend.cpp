@@ -139,11 +139,9 @@ namespace BigNumbers {
         auto factor = two;
         factor.subtract(divisor);
 
-        for (std::size_t iter = 0;
-             !isSufficientlyCloseToOne(factor, precision) && iter < MAX_ITER_COUNT;
-             ++iter) {
-
+        for (std::size_t iter = 0; !isSufficientlyCloseToOne(factor, precision) && iter < MAX_ITER_COUNT; ++iter) {
             multiply(factor);
+            // TODO: move to trim function
             if (mantissa.accessPieces().size() > precision) {
                 mantissa.accessPieces().erase(mantissa.accessPieces().begin(),
                                               mantissa.accessPieces().end() - precision);
@@ -239,6 +237,7 @@ namespace BigNumbers {
             trimBack(fractionString, '0');
         }
 
+        // FIXME: if value is equal to zero, and no fractional part, the minus sign doesn't make sense
         if (mantissa.getSign()) {
             output += '-';
         }

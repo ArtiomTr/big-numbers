@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include <bitset>
 #include <iostream>
+#include <cstring>
 
 namespace BigNumbers {
     template<class T>
@@ -69,6 +69,7 @@ namespace BigNumbers {
         int32_t getSign() const;
 
         std::pair<unsigned char *, std::size_t> getBytes() const;
+
     private:
         static std::pair<const BigIntBackend<T> &, const BigIntBackend<T> &>
         sortBySize(const BigIntBackend<T> &first, const BigIntBackend<T> &second);
@@ -83,26 +84,17 @@ namespace BigNumbers {
     template<class T>
     template<class Value, typename std::enable_if<std::is_integral<Value>::value, bool>::type>
     BigIntBackend<T>::operator Value() const {
-        const std::size_t outputSize = sizeof(Value);
-        const std::size_t requiredPieceCount = std::max((std::size_t) 1, outputSize / sizeof(T));
+        Value value = 0;
 
-        const BigIntBackend<T> &current = *this;
+        auto byteArray = getBytes();
 
-        if (current.pieces.size() > requiredPieceCount) {
+        if (byteArray.second > sizeof(Value)) {
             throw std::logic_error("Cannot cast BigIntBackend to given type - value is too big.");
         }
 
-        Value castedValue = 0b0;
+        std::memcpy(reinterpret_cast<unsigned char *>(&value), byteArray.first, byteArray.second);
 
-        std::size_t shiftSize = 0;
-
-        for (auto piece: pieces) {
-            castedValue |= (((Value)
-            piece) << shiftSize);
-            shiftSize += sizeof(T) * 8;
-        }
-
-        return castedValue;
+        return value;
     }
 }
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <cstring>
+#include <bitset>
 
 #include "BigIntBackend.h"
 #include "../utils.h"

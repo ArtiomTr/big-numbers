@@ -28,7 +28,6 @@ namespace BigNumbers {
         BigFloat(Value value): implementation(nullptr) {
             std::stringstream builder;
             builder << std::fixed << std::setprecision(std::numeric_limits<Value>::max_digits10) << value;
-
             builder >> *this;
         }
 

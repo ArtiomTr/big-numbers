@@ -62,6 +62,7 @@ namespace BigNumbers {
     BigFloat BigFloat::epsilon(std::size_t precision) {
         BigFloat epsilon;
         epsilon.implementation = new Implementation(BigFloatBackend<PieceType>::epsilon(precision));
+        epsilon.setPrecision(precision);
         return epsilon;
     }
 
@@ -176,6 +177,7 @@ namespace BigNumbers {
         BigFloatBackend<PieceType> backend = parseBigFloat<PieceType>(source, input.precision());
         delete value.implementation;
         value.implementation = new BigFloat::Implementation(backend);
+        value.setPrecision(input.precision());
 
         return input;
     }
