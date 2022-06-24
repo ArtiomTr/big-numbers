@@ -113,33 +113,25 @@ namespace IsomorphicMath {
     }
 
     template<class T>
-    T pi(T epsilon) {
-        T linearTerm = 13591409;
-        T exponentialTerm = 1;
-        T multinomialTerm = 1;
-        T additionalTerm = -6;
+    T pi(T epsilon, int digitsAfterDot) {
+        T sum = 0;
+        T firstConstant = 1103;
+        T secondConstant = 26390;
+        T thirdConstant = 396;
+        int iterationCount = digitsAfterDot / 8 + 1;
 
-        T twelveConstant = 12;
-        T sixteenConstant = 16;
-        T linearTermConstant = 545140134;
-        T exponentialTermConstant = -262537412640768000;
+        for (int i = 0; i < iterationCount; ++i) {
+            T value = factorial<T>(4 * i) * (firstConstant + secondConstant * i);
+            T v1 = factorial<T>(i);
+            T secondValue = v1 * v1 * v1 * v1 * pow(thirdConstant, 4 * i);
 
-        T totalSum = 0;
-
-        for (int i = 1; i < 150; ++i) {
-            totalSum += (multinomialTerm * linearTerm) / exponentialTerm;
-            linearTerm += linearTermConstant;
-            exponentialTerm *= exponentialTermConstant;
-            additionalTerm += twelveConstant;
-            multinomialTerm *=
-                    (additionalTerm * additionalTerm * additionalTerm - sixteenConstant * additionalTerm) /
-                    static_cast<T>(i * i * i);
+            sum += value / secondValue;
         }
 
-        T constant = static_cast<T>(426880) * sqrt(static_cast<T>(10005), epsilon);
-        T inverted = constant / totalSum;
+        T constant = (static_cast<T>(2) * sqrt<T>(static_cast<T>(2), epsilon)) / static_cast<T>(9801);
+        T invertedPi = sum * constant;
 
-        return inverted;
+        return static_cast<T>(1) / invertedPi;
     }
 }
 
