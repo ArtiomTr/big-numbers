@@ -60,8 +60,8 @@ namespace BigNumbers {
     }
 
     template<class T>
-    std::pair<const BigIntBackend<T> &, const BigIntBackend<T> &>
-    BigIntBackend<T>::sortBySize(const BigIntBackend<T> &first, const BigIntBackend<T> &second) {
+    std::pair<BigIntBackend<T> &, BigIntBackend<T> &>
+    BigIntBackend<T>::sortBySize(BigIntBackend<T> &first, BigIntBackend<T> &second) {
         if (first.pieces.size() > second.pieces.size()) {
             return {second, first};
         } else {
@@ -193,11 +193,21 @@ namespace BigNumbers {
     }
 
     template<class T>
-    void BigIntBackend<T>::multiply(const BigIntBackend<T> &multiplicand) {
+    void BigIntBackend<T>::multiply(BigIntBackend<T> multiplicand) {
+        bool isResultNegative = this->isNegative ^ multiplicand.isNegative;
+
+        if (this->isNegative) {
+            this->negate();
+        }
+
+        if (multiplicand.isNegative) {
+            multiplicand.negate();
+        }
+
         auto sortedValues = BigIntBackend<T>::sortBySize(*this, multiplicand);
 
-        const auto &shortestMultiplicand = sortedValues.first;
-        const auto &longestMultiplicand = sortedValues.second;
+        BigIntBackend<T> &shortestMultiplicand = sortedValues.first;
+        BigIntBackend<T> &longestMultiplicand = sortedValues.second;
 
         BigIntBackend<T> product;
         product.isNegative = isNegative ^ multiplicand.isNegative;
@@ -207,7 +217,7 @@ namespace BigNumbers {
         std::size_t i = 0;
         SizeType prevShift = 0;
 
-        BigIntBackend<T> shiftMultiplicand = longestMultiplicand;
+        BigIntBackend<T> &shiftMultiplicand = longestMultiplicand;
         for (T currentPiece: shortestMultiplicand.pieces) {
             for (SizeType j = 0; j < BigIntBackend<T>::PIECE_SIZE; ++j) {
                 T currentMask = mask << j;
@@ -220,6 +230,12 @@ namespace BigNumbers {
                 }
             }
             ++i;
+        }
+
+        if (product.compare(BigIntBackend<T>(0)) == 0) {
+            product.isNegative = false;
+        } else if (isResultNegative) {
+            product.negate();
         }
 
         *this = product;
@@ -387,7 +403,6 @@ namespace BigNumbers {
     template
     class BigIntBackend<PieceType>;
 
-    // TODO: remove this
     // Additional tests
     template
     class BigIntBackend<uint64_t>;
