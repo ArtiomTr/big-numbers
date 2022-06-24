@@ -7,7 +7,6 @@
 
 using namespace BigNumbers;
 
-// TODO: add negative value tests
 bool testSingleCell() {
     BigIntBackend<uint8_t> one(false, {0b00000010});
     BigIntBackend<uint8_t> two(false, {0b00000010});
