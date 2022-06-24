@@ -10,15 +10,15 @@ namespace BigNumbers {
         std::size_t precision;
         BigFloatBackend<PieceType> backend;
 
-        Implementation() : backend(), precision(8) {
+        Implementation() : precision(8), backend() {
 
         }
 
-        explicit Implementation(const BigFloatBackend<PieceType> &other) : backend(other), precision(8) {
+        explicit Implementation(const BigFloatBackend<PieceType> &other) : precision(8), backend(other) {
 
         }
 
-        explicit Implementation(const BigIntBackend<PieceType> &other) : backend(other), precision(8) {
+        explicit Implementation(const BigIntBackend<PieceType> &other) : precision(8), backend(other) {
 
         }
     };

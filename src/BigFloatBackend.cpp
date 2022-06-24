@@ -11,13 +11,13 @@
 namespace BigNumbers {
     template<class T>
     BigFloatBackend<T>::BigFloatBackend():
-            exponent(0), mantissa(BigIntBackend<T>{}) {
+            mantissa(BigIntBackend<T>{}), exponent(0) {
 
     }
 
     template<class T>
     BigFloatBackend<T>::BigFloatBackend(BigIntBackend<T> mantissa, int32_t exponent):
-            exponent(exponent), mantissa(mantissa) {
+            mantissa(mantissa), exponent(exponent) {
         if (mantissa.accessPieces().empty()) {
             this->exponent = 0;
         }
