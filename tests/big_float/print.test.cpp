@@ -2,6 +2,7 @@
 
 #include "BigFloatBackend.h"
 #include "../utils.h"
+#include "ParsingUtils.h"
 
 using namespace BigNumbers;
 
@@ -18,9 +19,9 @@ bool testLargeValue() {
 }
 
 bool testSmallFraction() {
-    BigFloatBackend<uint8_t> value(BigIntBackend<uint8_t>(false, {0b01010101}), -10);
+    BigFloatBackend<uint8_t> value(BigIntBackend<uint8_t>(false, {0b01010100}), -10);
 
-    return value.toString(30, false) == "0.000000000000000000000070310352";
+    return value.toString(30, false) == "0.000000000000000000000069483171";
 }
 
 bool testNegativeValue() {
