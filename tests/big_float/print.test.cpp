@@ -43,16 +43,25 @@ bool testRounding2() {
     return value.toString(1, false) == "1";
 }
 
+bool testSmallRounding() {
+    BigIntBackend<uint8_t> mantissa(false, {0b01010101});
+    mantissa.negate();
+    BigFloatBackend<uint8_t> value(mantissa, -10);
+
+    return value.toString(5, true) == "0.00000";
+}
+
 int main() {
     using test = bool (*)();
 
     std::vector<std::pair<std::string, test>> tests{
-            {"Simple test",         testSimple},
-            {"Large value test",    testLargeValue},
-            {"Small fraction test", testSmallFraction},
-            {"Negative value test", testNegativeValue},
-            {"Rounding test",       testRounding},
-            {"Rounding test 2",     testRounding2}
+            {"Simple test",                     testSimple},
+            {"Large value test",                testLargeValue},
+            {"Small fraction test",             testSmallFraction},
+            {"Negative value test",             testNegativeValue},
+            {"Rounding test",                   testRounding},
+            {"Rounding test 2",                 testRounding2},
+            {"Rounding negative value to zero", testSmallRounding}
     };
 
     return runTests(tests);

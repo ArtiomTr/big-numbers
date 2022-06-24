@@ -2,6 +2,7 @@
 
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include "IsomorphicMath.h"
 #include "VectorUtils.h"
@@ -240,8 +241,13 @@ namespace BigNumbers {
             trimBack(fractionString, '0');
         }
 
-        // FIXME: if value is equal to zero, and no fractional part, the minus sign doesn't make sense
-        if (mantissa.getSign()) {
+        bool fractionEmpty = fractionString.empty() ||
+                             std::all_of(fractionString.begin(), fractionString.end(), [](char character) {
+                                 return character == '0';
+                             });
+
+        if (mantissa.getSign() &&
+            (integralPart.compare(BigIntBackend<T>(0)) != 0 || !fractionEmpty)) {
             output += '-';
         }
 
