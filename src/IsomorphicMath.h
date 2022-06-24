@@ -133,6 +133,28 @@ namespace IsomorphicMath {
 
         return static_cast<T>(1) / invertedPi;
     }
+
+    template<class T>
+    T sin(T value) {
+        constexpr int ITERATION_COUNT = 33;
+        T computedSine = value;
+        T currentValue = value;
+        T currentFactorial = 1;
+
+        for (int i = 1; i < ITERATION_COUNT; ++i) {
+            currentValue *= value;
+            currentValue *= value;
+            currentFactorial *= static_cast<T>(2 * i * (2 * i + 1));
+
+            if (i % 2 == 0) {
+                computedSine += (currentValue / currentFactorial);
+            } else {
+                computedSine -= (currentValue / currentFactorial);
+            }
+        }
+
+        return computedSine;
+    }
 }
 
 #endif //BIG_NUMBERS_ISOMORPHICMATH_H

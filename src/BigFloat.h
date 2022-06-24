@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <limits>
 
+#include <iostream>
+
 namespace BigNumbers {
     class BigFloat {
     private:
@@ -27,7 +29,7 @@ namespace BigNumbers {
         template<class Value, typename std::enable_if<std::is_floating_point<Value>::value, bool>::type = false>
         BigFloat(Value value): implementation(nullptr) {
             std::stringstream builder;
-            builder << std::fixed << std::setprecision(std::numeric_limits<Value>::max_digits10) << value;
+            builder << std::fixed << std::setprecision(getDecimalPrecision()) << value;
             builder >> *this;
         }
 
@@ -90,6 +92,8 @@ namespace BigNumbers {
         static BigFloat epsilon(std::size_t precision);
 
         friend int32_t scale05_1(BigFloat &value);
+
+        int getDecimalPrecision();
     };
 }
 

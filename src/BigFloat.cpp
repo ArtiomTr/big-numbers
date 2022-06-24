@@ -4,6 +4,8 @@
 #include "ParsingUtils.h"
 #include "config.h"
 
+#include <cmath>
+
 namespace BigNumbers {
     class BigFloat::Implementation {
     public:
@@ -216,6 +218,13 @@ namespace BigNumbers {
 
     std::size_t BigFloat::getDefaultPrecision() {
         return Implementation::defaultPrecision;
+    }
+
+    int BigFloat::getDecimalPrecision() {
+        std::size_t implPrecision = implementation == nullptr ?
+                                    Implementation::defaultPrecision :
+                                    implementation->precision;
+        return static_cast<int>(static_cast<double>(implPrecision * 8 * sizeof(PieceType)) * std::log10(2.0));
     }
 }
 
