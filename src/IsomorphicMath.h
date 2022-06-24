@@ -111,6 +111,28 @@ namespace IsomorphicMath {
         answer *= two;
         return answer;
     }
+
+    template<class T>
+    T pi(T epsilon, int digitsAfterDot) {
+        T sum = 0;
+        T firstConstant = 1103;
+        T secondConstant = 26390;
+        T thirdConstant = 396;
+        int iterationCount = digitsAfterDot / 8 + 1;
+
+        for (int i = 0; i < iterationCount; ++i) {
+            T value = factorial<T>(4 * i) * (firstConstant + secondConstant * i);
+            T v1 = factorial<T>(i);
+            T secondValue = v1 * v1 * v1 * v1 * pow(thirdConstant, 4 * i);
+
+            sum += value / secondValue;
+        }
+
+        T constant = (static_cast<T>(2) * sqrt<T>(static_cast<T>(2), epsilon)) / static_cast<T>(9801);
+        T invertedPi = sum * constant;
+
+        return static_cast<T>(1) / invertedPi;
+    }
 }
 
 #endif //BIG_NUMBERS_ISOMORPHICMATH_H

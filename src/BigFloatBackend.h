@@ -40,7 +40,7 @@ namespace BigNumbers {
 
         std::string toString(std::size_t precision, bool fixed) const;
 
-        BigIntBackend <T> getMantissa() const;
+        BigIntBackend<T> getMantissa() const;
 
         int32_t getExponent() const;
 

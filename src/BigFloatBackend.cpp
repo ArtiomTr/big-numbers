@@ -2,6 +2,7 @@
 
 #include <string>
 #include <sstream>
+#include <cmath>
 #include <algorithm>
 
 #include "IsomorphicMath.h"
@@ -220,8 +221,11 @@ namespace BigNumbers {
         fractionalPart.subtract(integralAsFloat);
 
         BigFloatBackend<T> ten(BigIntBackend<T>(10));
+        auto multiplicationPrecision = static_cast<std::size_t>(static_cast<double>(precision) / std::log10(2.0));
+        multiplicationPrecision = multiplicationPrecision / (sizeof(T) * 8) + 1;
+
         for (std::size_t i = 0; i <= precision; ++i) {
-            fractionalPart.multiply(ten, mantissa.accessPieces().size());
+            fractionalPart.multiply(ten, multiplicationPrecision);
         }
 
         auto fractionalPartValue = (BigIntBackend<T>) fractionalPart;
