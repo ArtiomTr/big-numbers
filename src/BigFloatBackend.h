@@ -24,11 +24,13 @@ namespace BigNumbers {
 
         void negate();
 
-        void multiply(BigFloatBackend<T> multiplicand);
+        void multiply(BigFloatBackend<T> multiplicand, std::size_t precision);
 
         void divide(BigFloatBackend<T> divisor, std::size_t precision);
 
         int compare(const BigFloatBackend<T> &other) const;
+
+        void shiftLeft(std::size_t count);
 
         void trim(std::size_t fractionWidth);
 
@@ -38,9 +40,11 @@ namespace BigNumbers {
 
         std::string toString(std::size_t precision, bool fixed) const;
 
-        BigIntBackend<T> getMantissa() const;
+        BigIntBackend <T> getMantissa() const;
 
         int32_t getExponent() const;
+
+        void setExponent(int32_t);
     };
 }
 
