@@ -376,6 +376,7 @@ namespace BigNumbers {
             }
         }
 
+        trimFront(bytes, 0);
         auto *convertedBytes = new unsigned char[bytes.size()];
         std::copy(bytes.begin(), bytes.end(), convertedBytes);
 

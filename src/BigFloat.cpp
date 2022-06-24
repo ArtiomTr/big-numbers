@@ -10,18 +10,22 @@ namespace BigNumbers {
         std::size_t precision;
         BigFloatBackend<PieceType> backend;
 
-        Implementation() : precision(8), backend() {
+        static std::size_t defaultPrecision;
+
+        Implementation() : precision(defaultPrecision), backend() {
 
         }
 
-        explicit Implementation(const BigFloatBackend<PieceType> &other) : precision(8), backend(other) {
+        explicit Implementation(const BigFloatBackend<PieceType> &other) : precision(defaultPrecision), backend(other) {
 
         }
 
-        explicit Implementation(const BigIntBackend<PieceType> &other) : precision(8), backend(other) {
+        explicit Implementation(const BigIntBackend<PieceType> &other) : precision(defaultPrecision), backend(other) {
 
         }
     };
+
+    std::size_t BigFloat::Implementation::defaultPrecision = 8;
 
     BigFloat &BigFloat::operator+=(const BigFloat &addend) {
         implementation->backend.add(addend.implementation->backend);
@@ -113,7 +117,7 @@ namespace BigNumbers {
     }
 
     BigFloat &BigFloat::operator*=(const BigFloat &multiplicand) {
-        implementation->backend.multiply(multiplicand.implementation->backend);
+        implementation->backend.multiply(multiplicand.implementation->backend, implementation->precision);
         return *this;
     }
 
@@ -180,6 +184,38 @@ namespace BigNumbers {
         value.setPrecision(input.precision());
 
         return input;
+    }
+
+    BigFloat &BigFloat::operator<<(std::size_t count) {
+        implementation->backend.shiftLeft(count);
+
+        return *this;
+    }
+
+    int32_t scale05_1(BigFloat &value) {
+        int32_t correction = value.implementation->backend.getExponent() + 1;
+
+        value.implementation->backend.setExponent(-1);
+
+        int32_t additional = 0;
+
+        BigFloat half(0.5);
+        BigFloat one(1);
+
+        while (value < half) {
+            value << 1;
+            ++additional;
+        }
+
+        return correction * 8 * static_cast<int32_t>(sizeof(PieceType)) - additional;
+    }
+
+    void BigFloat::setDefaultPrecision(std::size_t precision) {
+        Implementation::defaultPrecision = precision;
+    }
+
+    std::size_t BigFloat::getDefaultPrecision() {
+        return Implementation::defaultPrecision;
     }
 }
 

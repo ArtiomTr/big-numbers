@@ -5,9 +5,9 @@
 
 namespace BigNumbers {
 
-    template<class V>
-    void trimFront(std::vector<V> &in, V value) {
-        typename std::vector<V>::iterator newBeginning;
+    template<class Container>
+    void trimFront(Container &in, typename Container::value_type value) {
+        typename Container::iterator newBeginning;
         for (newBeginning = in.begin(); newBeginning != in.end(); ++newBeginning) {
             if (*newBeginning != value) {
                 break;
