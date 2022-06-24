@@ -63,6 +63,8 @@ namespace BigNumbers {
 
         BigFloat operator-() const;
 
+        BigFloat &operator<<(std::size_t count);
+
         bool operator==(const BigFloat &other) const;
 
         bool operator!=(const BigFloat &other) const;
@@ -81,7 +83,13 @@ namespace BigNumbers {
 
         void setPrecision(std::size_t precision);
 
+        static void setDefaultPrecision(std::size_t precision);
+
+        static std::size_t getDefaultPrecision();
+
         static BigFloat epsilon(std::size_t precision);
+
+        friend int32_t scale05_1(BigFloat &value);
     };
 }
 

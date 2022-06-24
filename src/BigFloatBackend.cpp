@@ -95,7 +95,7 @@ namespace BigNumbers {
     }
 
     template<class T>
-    void BigFloatBackend<T>::multiply(BigFloatBackend<T> multiplicand) {
+    void BigFloatBackend<T>::multiply(BigFloatBackend<T> multiplicand, std::size_t precision) {
         std::size_t inputFractionWidth = getFractionWidth(mantissa.accessPieces().size())
                                          + getFractionWidth(multiplicand.mantissa.accessPieces().size());
 
@@ -108,6 +108,8 @@ namespace BigNumbers {
         if (mantissa.accessPieces().empty()) {
             exponent = 0;
         }
+
+        trim(precision);
     }
 
     template<class T>
@@ -141,11 +143,9 @@ namespace BigNumbers {
         factor.subtract(divisor);
 
         for (std::size_t iter = 0; !isSufficientlyCloseToOne(factor, precision) && iter < MAX_ITER_COUNT; ++iter) {
-            multiply(factor);
-            trim(precision);
+            multiply(factor, precision);
 
-            divisor.multiply(factor);
-            divisor.trim(precision);
+            divisor.multiply(factor, precision);
 
             factor = two;
             factor.subtract(divisor);
@@ -199,26 +199,29 @@ namespace BigNumbers {
     }
 
     template<class T>
+    void BigFloatBackend<T>::shiftLeft(std::size_t count) {
+        mantissa.shiftLeft(count);
+    }
+
+    template<class T>
     std::string BigFloatBackend<T>::toString(std::size_t precision, bool fixed) const {
         std::string output;
 
-        auto integralPart = static_cast<BigIntBackend<T>>(*this);
+        BigFloatBackend<T> targetValue = *this;
 
-        if (integralPart.getSign()) {
-            integralPart.negate();
+        if (targetValue.mantissa.getSign()) {
+            targetValue.negate();
         }
 
-        BigFloatBackend<T> fractionalPart = *this;
-        if (fractionalPart.mantissa.getSign()) {
-            fractionalPart.mantissa.negate();
-        }
+        auto integralPart = static_cast<BigIntBackend<T>>(targetValue);
 
+        BigFloatBackend<T> fractionalPart = targetValue;
         BigFloatBackend<T> integralAsFloat(integralPart);
         fractionalPart.subtract(integralAsFloat);
 
         BigFloatBackend<T> ten(BigIntBackend<T>(10));
         for (std::size_t i = 0; i <= precision; ++i) {
-            fractionalPart.multiply(ten);
+            fractionalPart.multiply(ten, mantissa.accessPieces().size());
         }
 
         auto fractionalPartValue = (BigIntBackend<T>) fractionalPart;
@@ -246,8 +249,7 @@ namespace BigNumbers {
                                  return character == '0';
                              });
 
-        if (mantissa.getSign() &&
-            (integralPart.compare(BigIntBackend<T>(0)) != 0 || !fractionEmpty)) {
+        if (mantissa.getSign() && (integralPart.compare(BigIntBackend<T>(0)) != 0 || !fractionEmpty)) {
             output += '-';
         }
 
@@ -312,6 +314,11 @@ namespace BigNumbers {
     template<class T>
     int32_t BigFloatBackend<T>::getExponent() const {
         return exponent;
+    }
+
+    template<class T>
+    void BigFloatBackend<T>::setExponent(int32_t exponent) {
+        this->exponent = exponent;
     }
 
     // Required for debugging

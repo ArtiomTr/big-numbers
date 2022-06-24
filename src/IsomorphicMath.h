@@ -68,6 +68,10 @@ namespace IsomorphicMath {
 
     template<class T>
     T pow(T value, int power) {
+        if (power < 0) {
+            throw std::logic_error("Cannot raise value to a negative power.");
+        }
+
         if (power == 0) {
             return 1;
         }
@@ -78,6 +82,34 @@ namespace IsomorphicMath {
         }
 
         return value;
+    }
+
+    template<class T>
+    T ln(T value, bool approximate = false) {
+        if (value <= 0) {
+            throw std::logic_error("Cannot compute natural logarithm of non-negative number.");
+        }
+
+        if (!approximate && (value < 0.5 || value > 1)) {
+            throw std::logic_error(
+                    "Natural logarithm computation function gives reasonable precision in interval [0.5, 1].");
+        }
+
+        T one = 1;
+        T two = 2;
+
+        T alpha = (value - one) / (value + one);
+        T answer = alpha;
+        T save = answer * alpha * alpha;
+
+        for (int i = 2; i <= 103; ++i) {
+            answer += one / (two * static_cast<T>(i) - one) * save;
+            save *= alpha;
+            save *= alpha;
+        }
+
+        answer *= two;
+        return answer;
     }
 
     template<class T>
