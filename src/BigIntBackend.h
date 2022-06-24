@@ -34,7 +34,7 @@ namespace BigNumbers {
         void subtract(BigIntBackend<T> subtrahend);
 
         // Perform multiplication operation on this object and argument. Result is written to this object.
-        void multiply(const BigIntBackend<T> &multiplicand);
+        void multiply(BigIntBackend<T> multiplicand);
 
         // Perform division operation on this object and argument. Result is written to this object. Returns remainder.
         BigIntBackend<T> divide(BigIntBackend<T> divisor);
@@ -71,8 +71,8 @@ namespace BigNumbers {
         std::pair<unsigned char *, std::size_t> getBytes() const;
 
     private:
-        static std::pair<const BigIntBackend<T> &, const BigIntBackend<T> &>
-        sortBySize(const BigIntBackend<T> &first, const BigIntBackend<T> &second);
+        static std::pair<BigIntBackend<T> &, BigIntBackend<T> &>
+        sortBySize(BigIntBackend<T> &first, BigIntBackend<T> &second);
     };
 
     template<class T>
