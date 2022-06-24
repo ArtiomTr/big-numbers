@@ -7,8 +7,8 @@ namespace BigNumbers {
     template<class T>
     class BigFloatBackend {
     private:
-        int32_t exponent;
         BigIntBackend<T> mantissa;
+        int32_t exponent;
     public:
         explicit BigFloatBackend();
 

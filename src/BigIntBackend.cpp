@@ -9,12 +9,12 @@
 
 namespace BigNumbers {
     template<class T>
-    BigIntBackend<T>::BigIntBackend() : pieces(std::vector<T>()), isNegative(false) {
+    BigIntBackend<T>::BigIntBackend() : isNegative(false), pieces(std::vector<T>()) {
 
     }
 
     template<class T>
-    BigIntBackend<T>::BigIntBackend(bool sign, std::vector<T> pieces): pieces(pieces), isNegative(sign) {
+    BigIntBackend<T>::BigIntBackend(bool sign, std::vector<T> pieces): isNegative(sign), pieces(pieces) {
 
     }
 
@@ -151,19 +151,6 @@ namespace BigNumbers {
     void BigIntBackend<T>::shiftLeft(const SizeType &shiftBy) {
         SizeType pieceShift = shiftBy % BigIntBackend<T>::PIECE_SIZE;
         SizeType pieceShiftComplement = BigIntBackend<T>::PIECE_SIZE - pieceShift;
-
-        T maskBuilder = 0b0;
-
-        for (SizeType i = 0; i < pieceShiftComplement; ++i) {
-            maskBuilder <<= 1;
-            maskBuilder += 1;
-        }
-
-        if (maskBuilder == 0) {
-            maskBuilder = std::numeric_limits<T>::max();
-        }
-
-        T mask = ~maskBuilder;
 
         T previous = pieces.front();
         if (!pieces.empty()) {
