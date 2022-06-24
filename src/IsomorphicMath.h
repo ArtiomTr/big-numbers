@@ -79,6 +79,36 @@ namespace IsomorphicMath {
 
         return value;
     }
+
+    template<class T>
+    T pi(T epsilon) {
+        T linearTerm = 13591409;
+        T exponentialTerm = 1;
+        T multinomialTerm = 1;
+        T additionalTerm = -6;
+
+        T twelveConstant = 12;
+        T sixteenConstant = 16;
+        T linearTermConstant = 545140134;
+        T exponentialTermConstant = -262537412640768000;
+
+        T totalSum = 0;
+
+        for (int i = 1; i < 150; ++i) {
+            totalSum += (multinomialTerm * linearTerm) / exponentialTerm;
+            linearTerm += linearTermConstant;
+            exponentialTerm *= exponentialTermConstant;
+            additionalTerm += twelveConstant;
+            multinomialTerm *=
+                    (additionalTerm * additionalTerm * additionalTerm - sixteenConstant * additionalTerm) /
+                    static_cast<T>(i * i * i);
+        }
+
+        T constant = static_cast<T>(426880) * sqrt(static_cast<T>(10005), epsilon);
+        T inverted = constant / totalSum;
+
+        return inverted;
+    }
 }
 
 #endif //BIG_NUMBERS_ISOMORPHICMATH_H
