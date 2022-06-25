@@ -18,42 +18,69 @@ namespace BigNumbers {
 
     }
 
+//    template<class T>
+//    BigIntBackend<T>::BigIntBackend(unsigned char *bytes, std::size_t count): isNegative(false) {
+//        std::bitset<PIECE_SIZE> buffer;
+//        std::size_t bufferIndex = 0;
+//
+//        std::size_t pieceCount = count / sizeof(T);
+//        pieceCount += (count > pieceCount * sizeof(T));
+//        pieces.resize(pieceCount);
+//
+//        constexpr const std::size_t BITS = std::numeric_limits<unsigned char>::digits;
+//
+//        std::size_t pieceIndex = 0;
+//        for (std::size_t byteIndex = 0; byteIndex < count; ++byteIndex) {
+//            std::bitset<8> input(bytes[byteIndex]);
+//
+//            if (byteIndex == count - 1) {
+//                isNegative = input[BITS - 1];
+//            }
+//
+//            for (std::size_t i = 0; i < BITS; ++i) {
+//                buffer[bufferIndex] = input[i];
+//                ++bufferIndex;
+//
+//                if (bufferIndex == PIECE_SIZE) {
+//                    pieces[pieceIndex] = buffer.to_ulong();
+//                    ++pieceIndex;
+//                    buffer.reset();
+//                    bufferIndex = 0;
+//                }
+//            }
+//        }
+//
+//        if (buffer.any()) {
+//            pieces.back() = buffer.to_ulong();
+//        } else if (pieceIndex != pieceCount) {
+//            pieces.back() = getFillValue();
+//        }
+//
+//        normalize();
+//    }
+
     template<class T>
     BigIntBackend<T>::BigIntBackend(unsigned char *bytes, std::size_t count): isNegative(false) {
-        std::bitset<PIECE_SIZE> buffer;
-        std::size_t bufferIndex = 0;
-
         std::size_t pieceCount = count / sizeof(T);
-        pieceCount += (count > pieceCount * sizeof(T));
         pieces.resize(pieceCount);
 
-        constexpr const std::size_t BITS = std::numeric_limits<unsigned char>::digits;
-
-        std::size_t pieceIndex = 0;
-        for (std::size_t byteIndex = 0; byteIndex < count; ++byteIndex) {
-            std::bitset<8> input(bytes[byteIndex]);
-
-            if (byteIndex == count - 1) {
-                isNegative = input[BITS - 1];
-            }
-
-            for (std::size_t i = 0; i < BITS; ++i) {
-                buffer[bufferIndex] = input[i];
-                ++bufferIndex;
-
-                if (bufferIndex == PIECE_SIZE) {
-                    pieces[pieceIndex] = buffer.to_ulong();
-                    ++pieceIndex;
-                    buffer.reset();
-                    bufferIndex = 0;
-                }
-            }
+        for (std::size_t i = pieceCount; i > 0; --i) {
+            std::size_t pieceIndex = i - 1;
+            T piece = 0;
+            std::memcpy(&piece, bytes + pieceIndex * sizeof(T), sizeof(T));
+            pieces[pieceIndex] = piece;
         }
 
-        if (buffer.any()) {
-            pieces.back() = buffer.to_ulong();
-        } else if (pieceIndex != pieceCount) {
-            pieces.back() = getFillValue();
+        // Set sign
+        {
+            std::bitset<8> buff = bytes[count - 1];
+            isNegative = buff[7];
+        }
+
+        if (pieceCount * sizeof(T) < count) {
+            T additionalPiece = isNegative ? std::numeric_limits<T>::max() : 0b0;
+            std::memcpy(&additionalPiece, bytes + pieceCount * sizeof(T), count - pieceCount * sizeof(T));
+            pieces.push_back(additionalPiece);
         }
 
         normalize();
@@ -368,15 +395,17 @@ namespace BigNumbers {
     std::pair<unsigned char *, std::size_t> BigIntBackend<T>::getBytes() const {
         std::vector<unsigned char> bytes;
 
-        for (auto piece: pieces) {
+        for (auto it = pieces.begin(); it != pieces.end(); ++it) {
+            auto piece = *it;
             auto *pieceBytes = reinterpret_cast<unsigned char *>(&piece);
 
-            for (std::size_t i = sizeof(piece); i > 0; --i) {
-                bytes.push_back(pieceBytes[i - 1]);
+            for (std::size_t i = 0; i < sizeof(piece); ++i) {
+                bytes.push_back(pieceBytes[i]);
             }
         }
 
-        trimFront(bytes, 0);
+        trimBack(bytes, getSign() ? std::numeric_limits<unsigned char>::max() : 0b0);
+        bytes.push_back(getSign() ? std::numeric_limits<unsigned char>::max() : 0b0);
         auto *convertedBytes = new unsigned char[bytes.size()];
         std::copy(bytes.begin(), bytes.end(), convertedBytes);
 

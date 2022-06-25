@@ -3,8 +3,8 @@
 
 #include "BigInt.h"
 #include "BigFloat.h"
+#include "BigFloatMath.h"
 #include "../utils.h"
-#include "IsomorphicMath.h"
 
 using namespace BigNumbers;
 
@@ -19,27 +19,27 @@ bool areFloatsEqual(BigFloat first, const BigFloat &second, std::size_t precisio
 }
 
 bool testBigInt() {
-    BigInt value = 5;
+    BigFloat value = 5;
 
-    return IsomorphicMath::pow(value, 5) == BigInt(3125);
+    return pow(value, 5) == BigFloat(3125);
 }
 
 bool testBigInt2() {
-    BigInt value = 60;
+    BigFloat value = 60;
 
-    return IsomorphicMath::pow(value, 0) == BigInt(1);
+    return pow(value, 0) == BigFloat(1);
 }
 
 bool testBigFloat() {
     BigFloat value = 0.3;
 
-    return areFloatsEqual(IsomorphicMath::pow(value, 6), BigFloat(0.000729), 3);
+    return areFloatsEqual(pow(value, 6), BigFloat(0.000729), 3);
 }
 
 bool testBigFloat2() {
     BigFloat value = 0.3;
 
-    return areFloatsEqual(IsomorphicMath::pow(value, 1), BigFloat(0.3), 3);
+    return areFloatsEqual(pow(value, 1), BigFloat(0.3), 3);
 }
 
 int main() {

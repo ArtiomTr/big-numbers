@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include "BigFloat.h"
-#include "IsomorphicMath.h"
+#include "BigFloatMath.h"
 #include "../utils.h"
 
 using namespace BigNumbers;
@@ -16,7 +16,7 @@ int main() {
     BigFloat::setDefaultPrecision(22);
     std::stringstream builder;
 
-    builder << std::setprecision(99) << IsomorphicMath::pi(BigFloat::epsilon(24), 100);
+    builder << std::setprecision(99) << pi(100);
     std::string receivedResult = builder.str();
 
     if (receivedResult != expectedResult) {

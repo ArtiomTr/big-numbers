@@ -89,7 +89,7 @@ namespace BigNumbers {
 
         static void setDefaultPrecision(std::size_t precision);
 
-        std::size_t getPrecision();
+        std::size_t getPrecision() const;
 
         static std::size_t getDefaultPrecision();
 

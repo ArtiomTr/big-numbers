@@ -2,21 +2,21 @@
 #include <vector>
 
 #include "BigInt.h"
+#include "BigFloatMath.h"
 #include "../utils.h"
-#include "IsomorphicMath.h"
 
 using namespace BigNumbers;
 
 bool testZero() {
-    return IsomorphicMath::findNextPrime(BigInt(0)) == BigInt(2);
+    return findNextPrime(BigFloat(0)) == BigFloat(2);
 }
 
 bool testSimple() {
-    return IsomorphicMath::findNextPrime(BigInt(15)) == BigInt(17);
+    return findNextPrime(BigFloat(15)) == BigFloat(17);
 }
 
 bool testLargeValue() {
-    return IsomorphicMath::findNextPrime(BigInt(1237521456)) == BigInt(1237521469);
+    return findNextPrime(BigFloat(1237521456)) == BigFloat(1237521469);
 }
 
 int main() {
