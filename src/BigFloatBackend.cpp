@@ -296,9 +296,12 @@ namespace BigNumbers {
         BigIntBackend<T> firstMantissa = mantissa;
         BigIntBackend<T> secondMantissa = other.mantissa;
 
+        bool wasNegated = false;
+
         if (firstMantissa.getSign()) {
             firstMantissa.negate();
             secondMantissa.negate();
+            wasNegated = true;
         }
 
         std::size_t maxWidth = std::max(firstMantissa.accessPieces().size(), secondMantissa.accessPieces().size());
@@ -307,7 +310,11 @@ namespace BigNumbers {
         extendFront(secondMantissa.accessPieces(), 0,
                     IsomorphicMath::delta(maxWidth, secondMantissa.accessPieces().size()));
 
-        return firstMantissa.compare(secondMantissa);
+        int mantissaComparisonResult = firstMantissa.compare(secondMantissa);
+        if (wasNegated) {
+            mantissaComparisonResult *= -1;
+        }
+        return mantissaComparisonResult;
     }
 
     template<class T>
