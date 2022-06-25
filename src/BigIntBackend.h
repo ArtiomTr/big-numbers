@@ -88,11 +88,11 @@ namespace BigNumbers {
 
         auto byteArray = getBytes();
 
-        if (byteArray.second > sizeof(Value)) {
+        if (byteArray.second - 1 > sizeof(Value)) {
             throw std::logic_error("Cannot cast BigIntBackend to given type - value is too big.");
         }
 
-        std::memcpy(reinterpret_cast<unsigned char *>(&value), byteArray.first, byteArray.second);
+        std::memcpy(reinterpret_cast<unsigned char *>(&value), byteArray.first, byteArray.second - 1);
 
         return value;
     }

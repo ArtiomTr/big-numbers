@@ -236,7 +236,7 @@ namespace BigNumbers {
         return static_cast<int>(static_cast<double>(getPrecision() * 8 * sizeof(PieceType)) * std::log10(2.0));
     }
 
-    std::size_t BigFloat::getPrecision() {
+    std::size_t BigFloat::getPrecision() const {
         return implementation == nullptr ? Implementation::defaultPrecision : implementation->precision;
     }
 }

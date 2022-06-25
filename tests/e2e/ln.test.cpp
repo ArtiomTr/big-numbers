@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include "BigFloat.h"
-#include "IsomorphicMath.h"
+#include "BigFloatMath.h"
 #include "../utils.h"
 
 using namespace BigNumbers;
@@ -12,20 +12,13 @@ int main() {
 
     bool failure = false;
     BigFloat::setDefaultPrecision(22);
-    BigFloat ln2 = IsomorphicMath::ln(BigFloat(2), true);
 
     while (!input.eof() && !failure) {
         BigFloat value, expectedResult;
 
         input >> std::setprecision(BigFloat::getDefaultPrecision()) >> value >> expectedResult;
 
-        BigFloat scaledValue = value;
-        int32_t correction = scale05_1(scaledValue);
-
-        BigFloat receivedResult = IsomorphicMath::ln(scaledValue);
-
-        BigFloat correctionFloat(correction);
-        receivedResult += correctionFloat * ln2;
+        BigFloat receivedResult = ln(value);
 
         std::string expectedResultStr, receivedResultStr;
 

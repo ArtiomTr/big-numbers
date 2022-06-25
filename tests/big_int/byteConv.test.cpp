@@ -48,7 +48,7 @@ bool testOnePieceToBytes() {
     BigIntBackend<uint8_t> b(false, {0b00001111});
 
     auto bytesArray = b.getBytes();
-    unsigned char expected[] = {0b00001111};
+    unsigned char expected[] = {0b00001111, 0b00000000};
     std::size_t expectedSize = sizeof(expected) / sizeof(unsigned char);
 
     return compare(expected, expectedSize, bytesArray.first, bytesArray.second);
@@ -59,7 +59,7 @@ bool testMultiplePiecesToBytes() {
 
     auto bytesArray = b.getBytes();
 
-    unsigned char expected[] = {0b01000011, 0b11001100, 0b00001111};
+    unsigned char expected[] = {0b01000011, 0b11001100, 0b00001111, 0b00000000};
 
     std::size_t expectedSize = sizeof(expected) / sizeof(unsigned char);
 
@@ -71,8 +71,8 @@ bool testWidePiecesToBytes() {
 
     auto bytesArray = b.getBytes();
 
-    unsigned char expected[] = {0b01000011, 0b11001100, 0b00001111, 0b00001111,
-                                0b01000011, 0b11001100, 0b00001111, 0b00001111};
+    unsigned char expected[] = {0b00001111, 0b00001111, 0b11001100, 0b01000011, 0b00001111,
+                                0b00001111, 0b11001100, 0b01000011, 0b00000000};
 
     std::size_t expectedSize = sizeof(expected) / sizeof(unsigned char);
 
