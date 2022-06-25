@@ -76,6 +76,18 @@ namespace BigNumbers {
         implementation->precision = precision;
     }
 
+    BigFloat::operator BigInt() const {
+        std::stringstream builder;
+        builder << *this;
+        std::string s = builder.str();
+        std::string o = s.substr(0, s.find('.'));
+        BigInt b;
+        builder.str("");
+        builder << o;
+        builder >> b;
+        return b;
+    }
+
     BigFloat BigFloat::operator+(const BigFloat &addend) const {
         BigFloat copy = *this;
         copy += addend;
@@ -221,10 +233,11 @@ namespace BigNumbers {
     }
 
     int BigFloat::getDecimalPrecision() {
-        std::size_t implPrecision = implementation == nullptr ?
-                                    Implementation::defaultPrecision :
-                                    implementation->precision;
-        return static_cast<int>(static_cast<double>(implPrecision * 8 * sizeof(PieceType)) * std::log10(2.0));
+        return static_cast<int>(static_cast<double>(getPrecision() * 8 * sizeof(PieceType)) * std::log10(2.0));
+    }
+
+    std::size_t BigFloat::getPrecision() {
+        return implementation == nullptr ? Implementation::defaultPrecision : implementation->precision;
     }
 }
 
